@@ -30,7 +30,7 @@ define("PARTIALS_PATH", ROOT_PATH . "partials/");
 define("PUBLIC_PATH", ROOT_PATH . "public/");
 
 // Rutas públicas (URL)
-define("BASE_URL", "/PROYECTO/public/"); // ajusta si el proyecto no está en la raíz // CAMBIAR AL MIGRAR
+define("BASE_URL", "/GITHUB_PROYECTO/Tower-of-Wonder-TFG/public/"); // ajusta si el proyecto no está en la raíz // CAMBIAR AL MIGRAR
 define("ASSETS_URL", BASE_URL . "assets/");
 
 /* =========================

@@ -14,6 +14,7 @@ class Usuario
     // Propiedades del usuario
     public $id_usuario;
     public $email;
+    public $username;
     public $password_hash;
     public $two_fa_enabled;
     public $activo;
@@ -38,7 +39,7 @@ class Usuario
             $conexion = Database::getInstance()->getConexion();
             
             $stmt = $conexion->prepare("
-                SELECT id_usuario, email, password_hash, two_fa_enabled, 
+                SELECT id_usuario, email, username, password_hash, two_fa_enabled, 
                        activo, fecha_creacion, ultimo_login
                 FROM usuarios 
                 WHERE email = ? AND activo = 1
@@ -71,7 +72,7 @@ class Usuario
             $conexion = Database::getInstance()->getConexion();
             
             $stmt = $conexion->prepare("
-                SELECT id_usuario, email, password_hash, two_fa_enabled, 
+                SELECT id_usuario, email, username, password_hash, two_fa_enabled, 
                        activo, fecha_creacion, ultimo_login
                 FROM usuarios 
                 WHERE id_usuario = ? AND activo = 1
@@ -104,12 +105,22 @@ class Usuario
         try {
             $conexion = Database::getInstance()->getConexion();
             
+            // Generar username desde el email (parte antes de la @)
+            $usernameBase = explode('@', $email)[0];
+            
+            // Validar y sanitizar el username
+            require_once __DIR__ . '/../core/Validator.php';
+            $validacion = validar_usuario($usernameBase);
+            
+            // Si no es válido, usar un username genérico
+            $username = $validacion['valid'] ? $validacion['username'] : 'user_' . time();
+            
             $stmt = $conexion->prepare("
-                INSERT INTO usuarios (email, password_hash, activo, fecha_creacion)
-                VALUES (?, ?, 1, NOW())
+                INSERT INTO usuarios (email, username, password_hash, activo, fecha_creacion)
+                VALUES (?, ?, ?, 1, NOW())
             ");
             
-            $stmt->execute([$email, $passwordHash]);
+            $stmt->execute([$email, $username, $passwordHash]);
             
             return (int) $conexion->lastInsertId();
             
@@ -141,6 +152,74 @@ class Usuario
         } catch (PDOException $e) {
             error_log("Error en Usuario::updateLastLogin - " . $e->getMessage());
             return false;
+        }
+    }
+
+    /**
+     * Actualiza el nombre de usuario
+     * Valida y sanitiza automáticamente el username
+     * 
+     * @param int $userId ID del usuario
+     * @param string $newUsername Nuevo nombre de usuario
+     * @return array ['success' => bool, 'username' => string, 'errors' => array]
+     */
+    public static function updateUsername($userId, $newUsername)
+    {
+        try {
+            require_once __DIR__ . '/../core/Validator.php';
+            
+            // Validar y sanitizar el username
+            $validacion = validar_usuario($newUsername);
+            
+            if (!$validacion['valid']) {
+                return [
+                    'success' => false,
+                    'username' => $validacion['username'],
+                    'errors' => $validacion['errors']
+                ];
+            }
+            
+            $conexion = Database::getInstance()->getConexion();
+            
+            // Verificar si el username ya existe
+            $stmt = $conexion->prepare("
+                SELECT COUNT(*) as count
+                FROM usuarios
+                WHERE username = ? AND id_usuario != ?
+            ");
+            $stmt->execute([$validacion['username'], $userId]);
+            $result = $stmt->fetch();
+            
+            if ($result['count'] > 0) {
+                return [
+                    'success' => false,
+                    'username' => $validacion['username'],
+                    'errors' => ['El nombre de usuario ya está en uso']
+                ];
+            }
+            
+            // Actualizar el username
+            $stmt = $conexion->prepare("
+                UPDATE usuarios 
+                SET username = ? 
+                WHERE id_usuario = ?
+            ");
+            
+            $success = $stmt->execute([$validacion['username'], $userId]);
+            
+            return [
+                'success' => $success,
+                'username' => $validacion['username'],
+                'errors' => []
+            ];
+            
+        } catch (PDOException $e) {
+            error_log("Error en Usuario::updateUsername - " . $e->getMessage());
+            return [
+                'success' => false,
+                'username' => '',
+                'errors' => ['Error al actualizar el nombre de usuario']
+            ];
         }
     }
 
@@ -183,6 +262,7 @@ class Usuario
         $usuario = new self();
         $usuario->id_usuario = $data['id_usuario'];
         $usuario->email = $data['email'];
+        $usuario->username = $data['username'] ?? null;
         $usuario->password_hash = $data['password_hash'];
         $usuario->two_fa_enabled = (bool) $data['two_fa_enabled'];
         $usuario->activo = (bool) $data['activo'];

@@ -1,31 +1,73 @@
 <?php
-function validar_usuario($username, $min=2, $max=20){
-    $error="";
-    if($username === ""){
-        $error="NECESARIO INTRODUCIR USUARIO";
-    }
-    elseif(strlen($username) < $min || strlen($username) > $max){
-        $error="EL USUARIO DEBE TENER ENTRE $min Y $max CARACTERES";
-    }
-    elseif(!preg_match("/^[a-zA-Z0-9_]+$/", $username)){
-        $error="EL USUARIO SOLO PUEDE CONTENER LETRAS, NÚMEROS Y GUIONES BAJOS";
-    }
-    return $error === "" ? true : $error; 
+/**
+ * Validator
+ * Funciones de validación centralizadas
+ * 
+ * @package TowerOfWonder\Core
+ * @author Darío Márquez Bautista
+ */
 
-}
-
-function validar_password($password, $min=8, $max=20){
-    $error="";
-    if($password === ""){
-        $error="NECESARIO INTRODUCIR CONTRASEÑA";
+/**
+ * Valida y sanitiza un nombre de usuario
+ * - Elimina caracteres no válidos (solo permite letras, números y guiones bajos)
+ * - Recorta si excede la longitud máxima
+ * - Valida longitud mínima
+ * 
+ * @param string $username Nombre de usuario a validar
+ * @param int $min Longitud mínima (por defecto 2)
+ * @param int $max Longitud máxima (por defecto 20)
+ * @return array ['valid' => bool, 'username' => string, 'errors' => array]
+ */
+function validar_usuario($username, $min = 2, $max = 20) {
+    $errors = [];
+    $original = $username;
+    
+    // Eliminar espacios al inicio y final
+    $username = trim($username);
+    
+    // Verificar si está vacío
+    if ($username === '') {
+        $errors[] = 'El nombre de usuario es obligatorio';
+        return [
+            'valid' => false,
+            'username' => '',
+            'errors' => $errors
+        ];
     }
-    elseif(strlen($password) < $min || strlen($password) > $max){
-        $error="LA CONTRASEÑA DEBE TENER ENTRE $min Y $max CARACTERES";
+    
+    // Eliminar caracteres no válidos (solo letras, números y guiones bajos)
+    $username = preg_replace('/[^a-zA-Z0-9_]/', '', $username);
+    
+    // Si después de sanitizar queda vacío
+    if ($username === '') {
+        $errors[] = 'El nombre de usuario solo puede contener letras, números y guiones bajos';
+        return [
+            'valid' => false,
+            'username' => '',
+            'errors' => $errors
+        ];
     }
-    elseif(!preg_match('/^\S+$/', $password)){
-        $error="LA CONTRASEÑA NO PUEDE CONTENER ESPACIOS";
+    
+    // Recortar si excede la longitud máxima
+    if (strlen($username) > $max) {
+        $username = substr($username, 0, $max);
     }
-    return $error === "" ? true : $error; 
+    
+    // Validar longitud mínima
+    if (strlen($username) < $min) {
+        $errors[] = "El nombre de usuario debe tener al menos $min caracteres";
+        return [
+            'valid' => false,
+            'username' => $username,
+            'errors' => $errors
+        ];
+    }
+    
+    return [
+        'valid' => true,
+        'username' => $username,
+        'errors' => []
+    ];
 }
 
 /**
@@ -68,4 +110,46 @@ function sanitizar_referer($referer, $default = '/') {
     
     // Asegurarse de que empiece con /
     return $path[0] === '/' ? $path : '/' . $path;
+}
+
+/**
+ * Valida contraseña segura con requisitos específicos
+ * Verifica: longitud, mayúsculas, minúsculas, números y espacios
+ * 
+ * @param string $password Contraseña a validar
+ * @param int $minLength Longitud mínima (por defecto 8)
+ * @return array ['valid' => bool, 'errors' => array]
+ */
+function validar_password_segura($password, $minLength = 8) {
+    $errors = [];
+
+    // Longitud mínima
+    if (strlen($password) < $minLength) {
+        $errors[] = "La contraseña debe tener al menos $minLength caracteres";
+    }
+
+    // Al menos una mayúscula
+    if (!preg_match('/[A-Z]/', $password)) {
+        $errors[] = 'Debe contener al menos una letra mayúscula';
+    }
+
+    // Al menos una minúscula
+    if (!preg_match('/[a-z]/', $password)) {
+        $errors[] = 'Debe contener al menos una letra minúscula';
+    }
+
+    // Al menos un número
+    if (!preg_match('/[0-9]/', $password)) {
+        $errors[] = 'Debe contener al menos un número';
+    }
+
+    // Sin espacios
+    if (preg_match('/\s/', $password)) {
+        $errors[] = 'No puede contener espacios';
+    }
+
+    return [
+        'valid' => empty($errors),
+        'errors' => $errors
+    ];
 }

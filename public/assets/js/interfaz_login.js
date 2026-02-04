@@ -24,7 +24,7 @@ function crearModalLogin() {
                     
                     <div id="modal-error" class="modal-error" style="display: none;"></div>
                     
-                    <form id="form-login" action="/PROYECTO/public/auth/login.php" method="POST">
+                    <form id="form-login" action="${BASE_URL}auth/login.php" method="POST">
                         <input type="hidden" name="referer" value="${window.location.pathname + window.location.search}">
                         
                         <div class="form-row">
@@ -474,13 +474,13 @@ function alternarModo() {
     
     if (esLogin) {
         // Cambiar a modo REGISTRO
-        form.action = '/PROYECTO/public/auth/register.php';
+        form.action = BASE_URL + 'auth/register.php';
         title.textContent = 'Crear Cuenta';
         btnSubmit.textContent = 'Registrarse';
         toggleText.innerHTML = '¿Ya tienes cuenta? <a href="#" id="toggle-register">Inicia sesión aquí</a>';
     } else {
         // Cambiar a modo LOGIN
-        form.action = '/PROYECTO/public/auth/login.php';
+        form.action = BASE_URL + 'auth/login.php';
         title.textContent = 'Iniciar Sesión';
         btnSubmit.textContent = 'Continuar';
         toggleText.innerHTML = '¿No tienes cuenta? <a href="#" id="toggle-register">Regístrate aquí</a>';

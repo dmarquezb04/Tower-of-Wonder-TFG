@@ -48,6 +48,11 @@ switch ($resultado['status']) {
         // Redirigir a página de verificación 2FA
         header('Location: /PROYECTO/public/auth/verificar_2fa.php');
         exit;
+    
+    case AuthService::LOGIN_BLOCKED:
+        // Usuario bloqueado por demasiados intentos
+        header('Location: ' . $referer . '?error=cuenta_bloqueada&modal=login&message=' . urlencode($resultado['message']));
+        exit;
         
     case AuthService::LOGIN_INVALID_EMAIL:
         // Email con formato inválido

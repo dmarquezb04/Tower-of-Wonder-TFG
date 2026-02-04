@@ -7,6 +7,10 @@
  * @author Darío Márquez Bautista
  */
 
+require_once __DIR__ . '/../models/AccessLog.php';
+require_once __DIR__ . '/../models/Session.php';
+require_once __DIR__ . '/../models/Role.php';
+
 class SessionHelper
 {
     /**
@@ -45,9 +49,19 @@ class SessionHelper
         // Guardar datos del usuario en sesión
         $_SESSION['user_id'] = $usuario->id_usuario;
         $_SESSION['user_email'] = $usuario->email;
+        $_SESSION['username'] = $usuario->username;
         $_SESSION['logged_in'] = true;
         $_SESSION['login_time'] = time();
         $_SESSION['two_fa_verified'] = !$usuario->two_fa_enabled; // Si no tiene 2FA, ya está verificado
+        
+        // Crear sesión en base de datos y guardar token
+        $token = Session::crear($usuario->id_usuario);
+        if ($token) {
+            $_SESSION['session_token'] = $token;
+        }
+        
+        // Registrar login en logs de acceso
+        AccessLog::registrar($usuario->id_usuario, AccessLog::ACTION_LOGIN);
         
         // Actualizar último login en la BD
         require_once __DIR__ . '/../models/Usuario.php';
@@ -63,6 +77,17 @@ class SessionHelper
     public static function logout()
     {
         self::start();
+        
+        // Registrar logout antes de destruir la sesión
+        $userId = self::getUserId();
+        if ($userId) {
+            AccessLog::registrar($userId, AccessLog::ACTION_LOGOUT);
+        }
+        
+        // Eliminar sesión de la base de datos
+        if (isset($_SESSION['session_token'])) {
+            Session::eliminar($_SESSION['session_token']);
+        }
         
         // Destruir todas las variables de sesión
         $_SESSION = [];
@@ -146,6 +171,17 @@ class SessionHelper
     }
 
     /**
+     * Obtiene el nombre de usuario actual
+     * 
+     * @return string|null Nombre de usuario o null si no está autenticado
+     */
+    public static function getUsername()
+    {
+        self::start();
+        return $_SESSION['username'] ?? null;
+    }
+
+    /**
      * Obtiene el tiempo de inicio de sesión
      * 
      * @return int|null Timestamp de inicio de sesión o null
@@ -201,5 +237,188 @@ class SessionHelper
             header('Location: ' . $redirectTo);
             exit;
         }
+    }
+
+    /**
+     * Obtiene todas las sesiones activas del usuario actual
+     * 
+     * @return array Lista de sesiones con información del dispositivo
+     */
+    public static function getSesionesActivas()
+    {
+        $userId = self::getUserId();
+        if (!$userId) {
+            return [];
+        }
+        
+        $sesiones = Session::obtenerSesionesActivas($userId);
+        
+        // Añadir información legible del dispositivo
+        foreach ($sesiones as &$sesion) {
+            $sesion['dispositivo'] = Session::obtenerNombreDispositivo($sesion['user_agent']);
+            $sesion['es_actual'] = isset($_SESSION['session_token']) && 
+                                   $_SESSION['session_token'] === $sesion['token_sesion'];
+        }
+        
+        return $sesiones;
+    }
+
+    /**
+     * Cierra una sesión específica por su token
+     * 
+     * @param string $token Token de la sesión a cerrar
+     * @return bool true si se cerró correctamente
+     */
+    public static function cerrarSesion($token)
+    {
+        $userId = self::getUserId();
+        if (!$userId) {
+            return false;
+        }
+        
+        // Verificar que la sesión pertenece al usuario actual
+        $sesiones = Session::obtenerSesionesActivas($userId);
+        $encontrada = false;
+        
+        foreach ($sesiones as $sesion) {
+            if ($sesion['token_sesion'] === $token) {
+                $encontrada = true;
+                break;
+            }
+        }
+        
+        if (!$encontrada) {
+            return false;
+        }
+        
+        return Session::eliminar($token);
+    }
+
+    /**
+     * Cierra todas las sesiones excepto la actual
+     * Útil para "cerrar sesión en otros dispositivos"
+     * 
+     * @return int Número de sesiones cerradas
+     */
+    public static function cerrarOtrasSesiones()
+    {
+        $userId = self::getUserId();
+        if (!$userId) {
+            return 0;
+        }
+        
+        $tokenActual = $_SESSION['session_token'] ?? null;
+        $sesiones = Session::obtenerSesionesActivas($userId);
+        $cerradas = 0;
+        
+        foreach ($sesiones as $sesion) {
+            if ($sesion['token_sesion'] !== $tokenActual) {
+                if (Session::eliminar($sesion['token_sesion'])) {
+                    $cerradas++;
+                }
+            }
+        }
+        
+        return $cerradas;
+    }
+
+    /**
+     * Cuenta el número de sesiones activas del usuario actual
+     * 
+     * @return int Número de sesiones
+     */
+    public static function contarSesionesActivas()
+    {
+        $userId = self::getUserId();
+        if (!$userId) {
+            return 0;
+        }
+        
+        return Session::contarSesionesActivas($userId);
+    }
+
+    /**
+     * Verifica si el usuario actual tiene un rol específico
+     * 
+     * @param string $nombreRol Nombre del rol (usar constantes de Role)
+     * @return bool true si tiene el rol
+     */
+    public static function hasRole($nombreRol)
+    {
+        $userId = self::getUserId();
+        if (!$userId) {
+            return false;
+        }
+        
+        return Role::tieneRol($userId, $nombreRol);
+    }
+
+    /**
+     * Verifica si el usuario actual es administrador
+     * 
+     * @return bool true si es admin
+     */
+    public static function isAdmin()
+    {
+        return self::hasRole(Role::ROLE_ADMIN);
+    }
+
+    /**
+     * Verifica si el usuario actual es moderador
+     * 
+     * @return bool true si es moderador
+     */
+    public static function isModerator()
+    {
+        return self::hasRole(Role::ROLE_MODERATOR);
+    }
+
+    /**
+     * Obtiene todos los roles del usuario actual
+     * 
+     * @return array Lista de roles
+     */
+    public static function getRoles()
+    {
+        $userId = self::getUserId();
+        if (!$userId) {
+            return [];
+        }
+        
+        return Role::obtenerRolesDeUsuario($userId);
+    }
+
+    /**
+     * Requiere que el usuario tenga un rol específico
+     * Redirige si no tiene el rol
+     * 
+     * @param string $nombreRol Nombre del rol requerido
+     * @param string $redirectTo URL de redirección si no tiene permisos
+     * @return void
+     */
+    public static function requireRole($nombreRol, $redirectTo = null)
+    {
+        self::requireAuth();
+        
+        if (!self::hasRole($nombreRol)) {
+            if ($redirectTo === null) {
+                require_once __DIR__ . '/../../config/config.php';
+                $redirectTo = BASE_URL . 'index.php?error=sin_permisos';
+            }
+            header('Location: ' . $redirectTo);
+            exit;
+        }
+    }
+
+    /**
+     * Requiere que el usuario sea administrador
+     * Redirige si no es admin
+     * 
+     * @param string $redirectTo URL de redirección si no es admin
+     * @return void
+     */
+    public static function requireAdmin($redirectTo = null)
+    {
+        self::requireRole(Role::ROLE_ADMIN, $redirectTo);
     }
 }

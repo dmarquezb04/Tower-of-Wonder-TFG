@@ -1,5 +1,7 @@
 <?php
 require_once __DIR__ . '/../models/Usuario.php';
+require_once __DIR__ . '/../models/AccessLog.php';
+require_once __DIR__ . '/../models/Role.php';
 
 /**
  * Servicio de Registro de Usuarios
@@ -35,16 +37,33 @@ class RegisterService
             // 2. Hash de la contraseña
             $passwordHash = password_hash($password, PASSWORD_BCRYPT);
             
-            // 3. Crear usuario usando el modelo
-            $usuario = Usuario::create($email, $passwordHash);
+            // 3. Crear usuario usando el modelo (retorna ID)
+            $userId = Usuario::create($email, $passwordHash);
             
-            if (!$usuario) {
+            if (!$userId) {
                 return [
                     'status' => self::REGISTER_ERROR,
                     'user' => null,
                     'message' => 'Error al crear el usuario'
                 ];
             }
+            
+            // 4. Cargar el usuario completo
+            $usuario = Usuario::findById($userId);
+            
+            if (!$usuario) {
+                return [
+                    'status' => self::REGISTER_ERROR,
+                    'user' => null,
+                    'message' => 'Error al cargar los datos del usuario'
+                ];
+            }
+            
+            // 5. Asignar rol de usuario por defecto
+            Role::asignarRol($userId, Role::ROLE_USER);
+            
+            // 6. Registrar la acción en logs de acceso
+            AccessLog::registrar($userId, AccessLog::ACTION_REGISTER);
             
             return [
                 'status' => self::REGISTER_OK,
@@ -70,27 +89,11 @@ class RegisterService
      */
     public static function validarPassword($password)
     {
-        $errores = [];
-        
-        if (strlen($password) < 8) {
-            $errores[] = 'La contraseña debe tener al menos 8 caracteres';
-        }
-        
-        if (!preg_match('/[A-Z]/', $password)) {
-            $errores[] = 'Debe contener al menos una mayúscula';
-        }
-        
-        if (!preg_match('/[a-z]/', $password)) {
-            $errores[] = 'Debe contener al menos una minúscula';
-        }
-        
-        if (!preg_match('/[0-9]/', $password)) {
-            $errores[] = 'Debe contener al menos un número';
-        }
+        $resultado = validar_password_segura($password);
         
         return [
-            'valida' => empty($errores),
-            'errores' => $errores
+            'valida' => $resultado['valid'],
+            'errores' => $resultado['errors']
         ];
     }
 }

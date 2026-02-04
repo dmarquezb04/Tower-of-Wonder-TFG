@@ -27,9 +27,9 @@ if (!validar_email($email)) {
     exit;
 }
 
-// 6. Validar contraseña (8-20 caracteres, sin espacios)
-$validacion_password = validar_password($password, 8, 20);
-if ($validacion_password !== true) {
+// 6. Validar contraseña segura
+$validacion_password = validar_password_segura($password);
+if (!$validacion_password['valid']) {
     header('Location: ' . $referer . '?error=password_invalida&modal=register');
     exit;
 }

@@ -1,4 +1,7 @@
-<?php require_once __DIR__ . "/../config/config.php"; ?>
+<?php 
+require_once __DIR__ . "/../config/config.php";
+require_once __DIR__ . "/../app/helpers/session.php";
+?>
 
 <!DOCTYPE html>
 <html lang="es">
@@ -12,6 +15,10 @@
     <?php if (basename($_SERVER["PHP_SELF"]) === "contacto.php"): ?>
         <link rel="stylesheet" href="<?= ASSETS_URL ?>css/contacto.css">
     <?php endif; ?>
+    <script>
+        // Pasar BASE_URL de PHP a JavaScript
+        const BASE_URL = '<?= BASE_URL ?>';
+    </script>
     <script src="<?= ASSETS_URL ?>js/interfaz_login.js"></script>
 </head>
 
@@ -43,10 +50,12 @@
                 </ul>
             </nav>
         </div>
-        <div id="login">
-            <span onclick="abrirModalLogin()" style="cursor: pointer;">LOGIN</span>
-            <div id="link_descarga">
-                &darr; <!--Icono descarga-->
+        
+        <?php if (SessionHelper::isAuthenticated()): ?>
+            <div id="user-welcome" style="cursor: pointer;">
+                Bienvenido, <?= htmlspecialchars(SessionHelper::getUsername()) ?> | <a href="<?= BASE_URL ?>auth/logout.php" style="text-decoration: underline;">Salir</a>
             </div>
-        </div>
+        <?php else: ?>
+            <div id="login" onclick="abrirModalLogin()" style="cursor: pointer;">LOGIN</div>
+        <?php endif; ?>
     </header>
