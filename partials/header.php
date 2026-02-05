@@ -11,6 +11,7 @@ require_once __DIR__ . "/../app/helpers/session.php";
     <title><?= SITE_NAME ?></title>
     <meta name="author" content="Darío Márquez Bautista">
     <link rel="stylesheet" href="<?= ASSETS_URL ?>css/estilos.css">
+    <link rel="shortcut icon" href="<?= ASSETS_URL ?>favicon.ico" type="image/png">
     <!--Si la pagina es contacto.php, tiene también el css contacto.css -->
     <?php if (basename($_SERVER["PHP_SELF"]) === "contacto.php"): ?>
         <link rel="stylesheet" href="<?= ASSETS_URL ?>css/contacto.css">
