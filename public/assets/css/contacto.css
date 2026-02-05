@@ -101,3 +101,63 @@ textarea:focus {
     border-color: #a97c44;
     box-shadow: 0 8px 20px rgba(169,124,68,0.08);
 }
+
+/* RESPONSIVE MÓVIL - Formulario de contacto */
+@media screen and (max-width: 768px) {
+    #contenido {
+        padding: 20px 0;
+    }
+
+    #form_contacto {
+        width: 95%;
+        padding: 20px 15px;
+    }
+
+    #form_contacto .form-row {
+        flex-direction: column;
+        gap: 8px;
+        align-items: stretch;
+        margin: 15px 0;
+    }
+
+    #form_contacto label {
+        width: 100%;
+        text-align: left;
+        padding-right: 0;
+        font-size: 14px;
+        margin-bottom: 5px;
+    }
+
+    #form_contacto .form-field {
+        width: 100%;
+    }
+
+    #form_contacto div:first-child {
+        padding-top: 10px;
+        padding-bottom: 15px;
+    }
+
+    #form_contacto div:first-child h1 {
+        font-size: 24px;
+    }
+
+    input[type="submit"] {
+        margin-left: 0;
+        width: 100%;
+        padding: 14px 18px;
+        font-size: 16px;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    textarea {
+        font-size: 16px;
+        padding: 12px;
+    }
+
+    textarea {
+        height: 70px;
+        min-height: 60px;
+        resize: none;
+    }
+}

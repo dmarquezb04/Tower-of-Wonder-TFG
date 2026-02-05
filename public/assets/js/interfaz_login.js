@@ -501,3 +501,67 @@ function alternarModo() {
  * Uso: abrirModalLogin()
  */
 window.abrirModalLogin = abrirModal;
+
+/**
+ * MENÚ HAMBURGUESA RESPONSIVE
+ * Funciones para controlar el menú móvil
+ */
+
+/**
+ * Toggle del menú principal en móvil
+ */
+function toggleMenu() {
+    const menu = document.getElementById('menudiv');
+    menu.classList.toggle('active');
+    
+    // Cerrar el menú al hacer clic fuera de él
+    if (menu.classList.contains('active')) {
+        document.addEventListener('click', cerrarMenuFuera);
+    } else {
+        document.removeEventListener('click', cerrarMenuFuera);
+    }
+}
+
+/**
+ * Cierra el menú si se hace clic fuera de él
+ */
+function cerrarMenuFuera(event) {
+    const menu = document.getElementById('menudiv');
+    const toggle = document.getElementById('menu-toggle');
+    
+    if (!menu.contains(event.target) && !toggle.contains(event.target)) {
+        menu.classList.remove('active');
+        document.removeEventListener('click', cerrarMenuFuera);
+    }
+}
+
+/**
+ * Toggle de submenús en móvil
+ */
+function toggleSubmenu(event) {
+    if (window.innerWidth <= 768) {
+        event.preventDefault();
+        const li = event.target.closest('li');
+        li.classList.toggle('active');
+    }
+}
+
+/**
+ * Cierra el menú al hacer clic en un enlace (excepto submenús)
+ */
+document.addEventListener('DOMContentLoaded', () => {
+    const menuLinks = document.querySelectorAll('#menu a:not([onclick*="toggleSubmenu"])');
+    menuLinks.forEach(link => {
+        link.addEventListener('click', () => {
+            if (window.innerWidth <= 768) {
+                document.getElementById('menudiv').classList.remove('active');
+                document.removeEventListener('click', cerrarMenuFuera);
+            }
+        });
+    });
+});
+
+// Funciones globales
+window.toggleMenu = toggleMenu;
+window.toggleSubmenu = toggleSubmenu;
+
