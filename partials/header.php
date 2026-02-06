@@ -62,5 +62,15 @@ require_once __DIR__ . "/../app/helpers/session.php";
                     <li><a href="<?= BASE_URL ?>contacto.php">CONTACTO</a></li>
                 </ul>
             </nav>
+            <div class="license mobile-only">
+                <p class="license-text">
+                    © <?= CURRENT_YEAR ?> <?= SITE_AUTHOR ?> —
+                    Contenido bajo licencia
+                    <a href="<?= CC_LICENSE_URL ?>"
+                        target="_blank" rel="noopener noreferrer">
+                        <?= CC_LICENSE_NAME ?>
+                    </a>
+                </p>
+            </div>
         </div>
     </header>

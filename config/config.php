@@ -39,7 +39,7 @@ define("ASSETS_URL", BASE_URL . "assets/");
 define("SITE_NAME", "Tower of Wonder");
 define("SITE_AUTHOR", "Darío Márquez Bautista");
 define("SITE_LANG", "es");
-//define("CURRENT_YEAR", date("Y"));
+define("CURRENT_YEAR", date("Y"));
 
 /* =========================
    ZONA HORARIA
@@ -62,3 +62,19 @@ if (php_sapi_name() !== "cli" && basename($_SERVER["PHP_SELF"]) === basename(__F
     http_response_code(403);
     exit("Acceso denegado");
 }
+
+/* =========================
+   LICENCIA DEL CONTENIDO
+   ========================= */
+
+// Creative Commons
+define("CC_LICENSE_NAME", "Creative Commons BY-NC-ND 4.0");
+define("CC_LICENSE_URL", "https://creativecommons.org/licenses/by-nc-nd/4.0/");
+define("CC_LICENSE_IMG", "https://licensebuttons.net/l/by-nc-nd/4.0/88x31.png");
+
+define(
+    "CC_LICENSE_TEXT",
+    "El contenido original de esta web (textos, estructura y análisis) está protegido bajo la licencia Creative Commons Atribución–NoComercial–SinDerivadas 4.0 Internacional. 
+    Los derechos del videojuego, imágenes y marcas pertenecen a sus respectivos propietarios. 
+    Este sitio es un proyecto académico sin afiliación oficial."
+);

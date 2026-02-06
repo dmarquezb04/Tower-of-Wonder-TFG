@@ -16,7 +16,7 @@
         </div>
 
         <div class="form-row">
-            <label for="email">Correo electrónico:</label>
+            <label for="email">Email:</label>
             <div class="form-field"><input type="email" id="email" name="email" required></div>
         </div>
 

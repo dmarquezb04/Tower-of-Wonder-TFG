@@ -2,6 +2,11 @@
 <?php require PARTIALS_PATH . "header.php"; ?>
 
 <div id="contenido">
+    <div id="contenido_principal">
+        <h1>¡Bienvenido a Tower of Wonder!</h1>
+        <p>Sumérgete en un mundo de fantasía y aventura con nuestro nuevo videojuego. Explora paisajes impresionantes, enfrenta desafíos épicos y descubre secretos ocultos en cada rincón. ¡Únete a la comunidad de jugadores y vive la experiencia de Tower of Wonder hoy mismo!</p>
+    </div>
+    <img src="<?= ASSETS_URL ?>img/video_icono.png" alt="Reproducir vídeo" id="video_icono" onclick="abrirModalSimple('<video controls src=\'<?= ASSETS_URL ?>trailer.mp4\' type=\'video/mp4\'></video><br><br><audio src=\'<?= ASSETS_URL ?>background_music.mp3\' type=\'audio/mpeg\' controls></audio>')">
     <div id="plataformas_descarga">
         <h2>⇓Descarga en todas las plataformas⇓</h2>
         <div id="plataformas">

@@ -164,6 +164,40 @@ header div{
     overflow: hidden;
 }
 
+/* Contenido principal */
+#contenido_principal {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    text-align: center;
+    padding: 40px 20px 20px 20px;
+    max-width: 100%;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+#contenido_principal h1 {
+    font-family: 'Cinzel', serif;
+    font-size: 48px;
+    color: black;
+    text-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    margin: 0 0 25px 0;
+    letter-spacing: 1px;
+}
+
+#contenido_principal p {
+    font-family: 'Inter', sans-serif;
+    font-size: 18px;
+    line-height: 1.8;
+    color: black;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.4);
+    margin: 0;
+    font-weight: 400;
+    max-width: 800px;
+}
+
 /* Plataformas de descarga */
 #plataformas_descarga {
     display: flex;
@@ -268,11 +302,18 @@ footer{
     align-items: center;
     padding: 16px 28px;
 }
+footer .license-text {
+  max-width: 700px;
+  margin: 0.5rem auto 0;
+  font-size: 0.8rem;
+  color: #666;
+}
 #redes_sociales{
     display: flex;
     justify-content: center;
     align-items: center;
     gap: 16px;
+    float: left;
 }
 #redes_sociales img{
     width: 34px;
@@ -285,7 +326,6 @@ footer{
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-right: 40px;
 }
 #susc_newsletter form{
     width: 100%;
@@ -364,10 +404,30 @@ input[type="text"], input[type="email"]{
     #login, #user-welcome {
         order: 3;
     }
+    
+    /* Ocultar elementos mobile-only en desktop */
+    .mobile-only {
+        display: none !important;
+    }
+    
+    /* Mostrar elementos desktop-only en desktop */
+    .desktop-only {
+        display: block !important;
+    }
 }
 
 /* RESPONSIVE MÓVIL - Media Queries */
 @media screen and (max-width: 768px) {
+    /* Mostrar elementos mobile-only en móvil */
+    .mobile-only {
+        display: block !important;
+    }
+    
+    /* Ocultar elementos desktop-only en móvil */
+    .desktop-only {
+        display: none !important;
+    }
+    
     /* Header responsive */
     header {
         padding: 10px 16px;
@@ -396,12 +456,18 @@ input[type="text"], input[type="email"]{
         z-index: 200;
         transition: right 300ms ease;
         overflow-y: auto;
-        padding: 20px 0;
+        padding: 20px 0 0 0;
         box-shadow: -5px 0 20px rgba(0,0,0,0.5);
+        display: flex;
+        flex-direction: column;
     }
 
     #menudiv.active {
         right: 0;
+    }
+
+    #menudiv nav {
+        flex: 1;
     }
 
     #menu {
@@ -447,11 +513,53 @@ input[type="text"], input[type="email"]{
         font-size: 14px;
     }
 
+    /* Licencia en el menú móvil */
+    #menudiv .license {
+        padding: 20px;
+        margin-top: auto;
+        border-top: 1px solid rgba(255,255,255,0.2);
+        text-align: center;
+        width: 100%;
+        flex-shrink: 0;
+    }
+
+    #menudiv .license-text {
+        font-size: 11px;
+        color: #dfd6c2;
+        margin: 0;
+        line-height: 1.6;
+    }
+
+    #menudiv .license-text a {
+        color: #c6a156;
+        text-decoration: none;
+    }
+
+    #menudiv .license-text a:hover {
+        text-decoration: underline;
+    }
+
     /* Contenido */
     #contenido {
         padding-bottom: 0;
         justify-content: flex-end;
         overflow: hidden;
+    }
+
+    /* Contenido principal en móvil */
+    #contenido_principal {
+        padding: 20px 15px 15px 15px;
+        flex: 0 0 auto;
+    }
+
+    #contenido_principal h1 {
+        font-size: 28px;
+        margin: 0 0 15px 0;
+    }
+
+    #contenido_principal p {
+        font-size: 15px;
+        line-height: 1.6;
     }
 
     /* Plataformas en móvil - 1 columna con scroll usando flexbox */

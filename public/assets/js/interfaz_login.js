@@ -102,7 +102,7 @@ function inyectarEstilosModal() {
             .modal-container {
                 background: linear-gradient(180deg, rgba(255,250,243,0.98) 0%, rgba(255,244,232,0.95) 100%);
                 width: 90%;
-                max-width: 500px;
+                max-width: 650px;
                 border-radius: 12px;
                 box-shadow: 0 20px 60px rgba(27,18,18,0.3);
                 border: 1px solid rgba(156,122,61,0.15);
@@ -145,15 +145,15 @@ function inyectarEstilosModal() {
             
             /* Contenido del modal */
             .modal-content {
-                padding: 30px 40px;
+                padding: 40px 50px;
                 font-family: 'Cinzel', Georgia, serif;
             }
             
             .modal-content h2 {
                 text-align: center;
                 color: #5b4632;
-                font-size: 28px;
-                margin: 0 0 25px 0;
+                font-size: 32px;
+                margin: 0 0 30px 0;
                 font-weight: 600;
             }
             
@@ -187,7 +187,7 @@ function inyectarEstilosModal() {
                 padding-right: 12px;
                 color: #5b4632;
                 font-weight: 500;
-                font-size: 14px;
+                font-size: 15px;
             }
             
             #form-login .form-field {
@@ -202,8 +202,8 @@ function inyectarEstilosModal() {
                 border-radius: 8px;
                 box-shadow: inset 0 2px 6px rgba(255,255,255,0.6);
                 transition: border-color 140ms ease, box-shadow 140ms ease;
-                padding: 10px 12px;
-                font-size: 14px;
+                padding: 12px 14px;
+                font-size: 15px;
                 font-family: 'Inter', sans-serif;
             }
             
@@ -232,8 +232,8 @@ function inyectarEstilosModal() {
                 cursor: pointer;
                 box-shadow: 0 6px 18px rgba(138,95,26,0.18);
                 transition: transform 140ms ease, box-shadow 140ms ease, filter 120ms ease;
-                padding: 12px 32px;
-                font-size: 16px;
+                padding: 14px 36px;
+                font-size: 17px;
                 font-weight: 600;
                 font-family: 'Cinzel', Georgia, serif;
                 margin-top: 10px;
@@ -274,6 +274,15 @@ function inyectarEstilosModal() {
             .modal-footer a:hover {
                 color: #8a5f1a;
                 text-decoration: underline;
+            }
+            
+            /* Modal simple - más ancho */
+            .modal-container-simple {
+                max-width: 780px;
+            }
+            
+            .modal-container-simple .modal-content {
+                text-align: center;
             }
             
             /* Responsive */
@@ -565,3 +574,41 @@ document.addEventListener('DOMContentLoaded', () => {
 window.toggleMenu = toggleMenu;
 window.toggleSubmenu = toggleSubmenu;
 
+/*  
+Abre un modal simple con título y contenido
+ */
+function abrirModalSimple(contenido) {
+    // Eliminar modal anterior si existe
+    const existente = document.getElementById('modal-simple');
+    if (existente) existente.remove();
+
+    // Crear modal
+    const modal = `
+        <div id="modal-simple" class="modal-overlay">
+            <div class="modal-container modal-container-simple">
+                <button class="modal-close" onclick="cerrarModalSimple()">&times;</button>
+                <div class="modal-content">
+                    ${contenido}
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.insertAdjacentHTML('beforeend', modal);
+    
+    const overlay = document.getElementById('modal-simple');
+    setTimeout(() => overlay.classList.add('active'), 10);
+
+    // Cerrar al hacer clic fuera
+    overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) cerrarModalSimple();
+    });
+}
+
+function cerrarModalSimple() {
+    const modal = document.getElementById('modal-simple');
+    if (modal) {
+        modal.classList.remove('active');
+        setTimeout(() => modal.remove(), 300);
+    }
+}
