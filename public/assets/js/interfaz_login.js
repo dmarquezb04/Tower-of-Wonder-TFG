@@ -276,15 +276,6 @@ function inyectarEstilosModal() {
                 text-decoration: underline;
             }
             
-            /* Modal simple - más ancho */
-            .modal-container-simple {
-                max-width: 780px;
-            }
-            
-            .modal-container-simple .modal-content {
-                text-align: center;
-            }
-            
             /* Responsive */
             @media (max-width: 600px) {
                 .modal-content {
@@ -573,42 +564,3 @@ document.addEventListener('DOMContentLoaded', () => {
 // Funciones globales
 window.toggleMenu = toggleMenu;
 window.toggleSubmenu = toggleSubmenu;
-
-/*  
-Abre un modal simple con título y contenido
- */
-function abrirModalSimple(contenido) {
-    // Eliminar modal anterior si existe
-    const existente = document.getElementById('modal-simple');
-    if (existente) existente.remove();
-
-    // Crear modal
-    const modal = `
-        <div id="modal-simple" class="modal-overlay">
-            <div class="modal-container modal-container-simple">
-                <button class="modal-close" onclick="cerrarModalSimple()">&times;</button>
-                <div class="modal-content">
-                    ${contenido}
-                </div>
-            </div>
-        </div>
-    `;
-
-    document.body.insertAdjacentHTML('beforeend', modal);
-    
-    const overlay = document.getElementById('modal-simple');
-    setTimeout(() => overlay.classList.add('active'), 10);
-
-    // Cerrar al hacer clic fuera
-    overlay.addEventListener('click', (e) => {
-        if (e.target === overlay) cerrarModalSimple();
-    });
-}
-
-function cerrarModalSimple() {
-    const modal = document.getElementById('modal-simple');
-    if (modal) {
-        modal.classList.remove('active');
-        setTimeout(() => modal.remove(), 300);
-    }
-}
