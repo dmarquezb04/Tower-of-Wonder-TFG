@@ -1,8 +1,10 @@
 <?php
+require_once __DIR__ . "/../app/helpers/session.php";
 /**********************************************************
  * CONFIGURACIÓN GLOBAL DEL PROYECTO
  * TFG – Config.php
  **********************************************************/
+
 
 /* =========================
    ENTORNO
@@ -10,11 +12,23 @@
 define("ENV", "development"); // development | production
 
 if (ENV === "development") {
-    error_reporting(E_ALL);
-    ini_set("display_errors", 1);
+   error_reporting(E_ALL);
+   ini_set("display_errors", 1);
 } else {
-    error_reporting(0);
-    ini_set("display_errors", 0);
+   error_reporting(0);
+   ini_set("display_errors", 0);
+}
+
+/* =========================
+   SESIONES (IMPORTANTE)
+   ========================= */
+ini_set('session.cookie_httponly', 1);
+ini_set('session.cookie_secure', 0); // poner 1 en HTTPS en producción
+ini_set('session.use_only_cookies', 1);
+ini_set('session.cookie_samesite', 'Lax');
+
+if (session_status() === PHP_SESSION_NONE) {
+   session_start();
 }
 
 /* =========================
@@ -30,7 +44,7 @@ define("PARTIALS_PATH", ROOT_PATH . "partials/");
 define("PUBLIC_PATH", ROOT_PATH . "public/");
 
 // Rutas públicas (URL)
-define("BASE_URL", "/GITHUB_PROYECTO/Tower-of-Wonder-TFG/public/"); // ajusta si el proyecto no está en la raíz // CAMBIAR AL MIGRAR
+define("BASE_URL", "/"); // ajusta si el proyecto no está en la raíz // CAMBIAR AL MIGRAR
 define("ASSETS_URL", BASE_URL . "assets/");
 
 /* =========================
@@ -49,18 +63,18 @@ date_default_timezone_set("Europe/Madrid");
 /* =========================
    BASE DE DATOS
    ========================= */
-define("DB_HOST", "127.0.0.1");
-define("DB_NAME", "tower_of_wonder");
-define("DB_USER", "admin_tow_bbdd");
-define("DB_PASS", "7kr3L1UBDWgcvgY");
+define("DB_HOST", getenv("DB_HOST") ?: "db");
+define("DB_NAME", getenv("DB_NAME") ?: "tower_of_wonder");
+define("DB_USER", getenv("DB_USER") ?: "admin_tow_bbdd");
+define("DB_PASS", getenv("DB_PASS") ?: "7kr3L1UBDWgcvgY");
 
 /* =========================
    SEGURIDAD BÁSICA
    ========================= */
 // Evita acceso directo al archivo desde el navegador
 if (php_sapi_name() !== "cli" && basename($_SERVER["PHP_SELF"]) === basename(__FILE__)) {
-    http_response_code(403);
-    exit("Acceso denegado");
+   http_response_code(403);
+   exit("Acceso denegado");
 }
 
 /* =========================
@@ -73,8 +87,8 @@ define("CC_LICENSE_URL", "https://creativecommons.org/licenses/by-nc-nd/4.0/");
 define("CC_LICENSE_IMG", "https://licensebuttons.net/l/by-nc-nd/4.0/88x31.png");
 
 define(
-    "CC_LICENSE_TEXT",
-    "El contenido original de esta web (textos, estructura y análisis) está protegido bajo la licencia Creative Commons Atribución–NoComercial–SinDerivadas 4.0 Internacional. 
+   "CC_LICENSE_TEXT",
+   "El contenido original de esta web (textos, estructura y análisis) está protegido bajo la licencia Creative Commons Atribución–NoComercial–SinDerivadas 4.0 Internacional. 
     Los derechos del videojuego, imágenes y marcas pertenecen a sus respectivos propietarios. 
     Este sitio es un proyecto académico sin afiliación oficial."
 );

@@ -1,0 +1,14 @@
+# Variables sensibles
+.env
+
+# Docker volúmenes
+db_data/
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+
+# IDE
+.vscode/

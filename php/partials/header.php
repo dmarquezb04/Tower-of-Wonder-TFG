@@ -1,6 +1,5 @@
-<?php 
+<?php
 require_once __DIR__ . "/../config/config.php";
-require_once __DIR__ . "/../app/helpers/session.php";
 ?>
 
 <!DOCTYPE html>
@@ -27,7 +26,7 @@ require_once __DIR__ . "/../app/helpers/session.php";
 <body>
     <header>
         <a href="<?= BASE_URL ?>index.php"><img src="<?= ASSETS_URL ?>img/logo.png" alt="Logo Tower of Wonder" id="logo"></a> <!--Logo-->
-        
+
         <?php if (SessionHelper::isAuthenticated()): ?>
             <div id="user-welcome" style="cursor: pointer;">
                 Bienvenido, <?= htmlspecialchars(SessionHelper::getUsername()) ?> | <a href="<?= BASE_URL ?>auth/logout.php" style="text-decoration: underline;">Salir</a>
@@ -35,9 +34,9 @@ require_once __DIR__ . "/../app/helpers/session.php";
         <?php else: ?>
             <div id="login" onclick="abrirModalLogin()" style="cursor: pointer;">LOGIN</div>
         <?php endif; ?>
-        
+
         <button id="menu-toggle" onclick="toggleMenu()" aria-label="Menú">☰</button>
-        
+
         <div id="menudiv"> <!--Menú desplegable de la cabecera-->
             <nav>
                 <ul id="menu">

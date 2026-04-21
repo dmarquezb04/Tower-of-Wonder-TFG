@@ -1,4 +1,5 @@
 <?php
+
 /**
  * SessionHelper
  * Gestiona todas las operaciones relacionadas con sesiones de usuario
@@ -22,12 +23,6 @@ class SessionHelper
     public static function start()
     {
         if (session_status() === PHP_SESSION_NONE) {
-            // Configuración de seguridad de la sesión
-            ini_set('session.cookie_httponly', 1);  // Prevenir acceso desde JavaScript
-            ini_set('session.cookie_secure', 0);    // Cambiar a 1 en producción con HTTPS
-            ini_set('session.use_only_cookies', 1); // Solo usar cookies
-            ini_set('session.cookie_samesite', 'Lax'); // Protección CSRF
-            
             session_start();
         }
     }
@@ -42,10 +37,10 @@ class SessionHelper
     public static function login($usuario)
     {
         self::start();
-        
+
         // Regenerar ID de sesión por seguridad (prevenir session fixation)
         session_regenerate_id(true);
-        
+
         // Guardar datos del usuario en sesión
         $_SESSION['user_id'] = $usuario->id_usuario;
         $_SESSION['user_email'] = $usuario->email;
@@ -53,16 +48,16 @@ class SessionHelper
         $_SESSION['logged_in'] = true;
         $_SESSION['login_time'] = time();
         $_SESSION['two_fa_verified'] = !$usuario->two_fa_enabled; // Si no tiene 2FA, ya está verificado
-        
+
         // Crear sesión en base de datos y guardar token
         $token = Session::crear($usuario->id_usuario);
         if ($token) {
             $_SESSION['session_token'] = $token;
         }
-        
+
         // Registrar login en logs de acceso
         AccessLog::registrar($usuario->id_usuario, AccessLog::ACTION_LOGIN);
-        
+
         // Actualizar último login en la BD
         require_once __DIR__ . '/../models/Usuario.php';
         Usuario::updateLastLogin($usuario->id_usuario);
@@ -77,21 +72,21 @@ class SessionHelper
     public static function logout()
     {
         self::start();
-        
+
         // Registrar logout antes de destruir la sesión
         $userId = self::getUserId();
         if ($userId) {
             AccessLog::registrar($userId, AccessLog::ACTION_LOGOUT);
         }
-        
+
         // Eliminar sesión de la base de datos
         if (isset($_SESSION['session_token'])) {
             Session::eliminar($_SESSION['session_token']);
         }
-        
+
         // Destruir todas las variables de sesión
         $_SESSION = [];
-        
+
         // Destruir la cookie de sesión
         if (isset($_COOKIE[session_name()])) {
             $params = session_get_cookie_params();
@@ -105,7 +100,7 @@ class SessionHelper
                 $params['httponly']
             );
         }
-        
+
         // Destruir la sesión
         session_destroy();
     }
@@ -118,10 +113,10 @@ class SessionHelper
     public static function isAuthenticated()
     {
         self::start();
-        
-        return isset($_SESSION['logged_in']) && 
-               $_SESSION['logged_in'] === true &&
-               isset($_SESSION['user_id']);
+
+        return isset($_SESSION['logged_in']) &&
+            $_SESSION['logged_in'] === true &&
+            isset($_SESSION['user_id']);
     }
 
     /**
@@ -132,9 +127,9 @@ class SessionHelper
     public static function is2FAVerified()
     {
         self::start();
-        
-        return isset($_SESSION['two_fa_verified']) && 
-               $_SESSION['two_fa_verified'] === true;
+
+        return isset($_SESSION['two_fa_verified']) &&
+            $_SESSION['two_fa_verified'] === true;
     }
 
     /**
@@ -201,11 +196,11 @@ class SessionHelper
     public static function isExpired($timeout = 3600)
     {
         $loginTime = self::getLoginTime();
-        
+
         if ($loginTime === null) {
             return true;
         }
-        
+
         return (time() - $loginTime) > $timeout;
     }
 
@@ -232,7 +227,7 @@ class SessionHelper
     public static function require2FA($redirectTo = '/PROYECTO/public/auth/verificar_2fa.php')
     {
         self::requireAuth();
-        
+
         if (!self::is2FAVerified()) {
             header('Location: ' . $redirectTo);
             exit;
@@ -250,16 +245,16 @@ class SessionHelper
         if (!$userId) {
             return [];
         }
-        
+
         $sesiones = Session::obtenerSesionesActivas($userId);
-        
+
         // Añadir información legible del dispositivo
         foreach ($sesiones as &$sesion) {
             $sesion['dispositivo'] = Session::obtenerNombreDispositivo($sesion['user_agent']);
-            $sesion['es_actual'] = isset($_SESSION['session_token']) && 
-                                   $_SESSION['session_token'] === $sesion['token_sesion'];
+            $sesion['es_actual'] = isset($_SESSION['session_token']) &&
+                $_SESSION['session_token'] === $sesion['token_sesion'];
         }
-        
+
         return $sesiones;
     }
 
@@ -275,22 +270,22 @@ class SessionHelper
         if (!$userId) {
             return false;
         }
-        
+
         // Verificar que la sesión pertenece al usuario actual
         $sesiones = Session::obtenerSesionesActivas($userId);
         $encontrada = false;
-        
+
         foreach ($sesiones as $sesion) {
             if ($sesion['token_sesion'] === $token) {
                 $encontrada = true;
                 break;
             }
         }
-        
+
         if (!$encontrada) {
             return false;
         }
-        
+
         return Session::eliminar($token);
     }
 
@@ -306,11 +301,11 @@ class SessionHelper
         if (!$userId) {
             return 0;
         }
-        
+
         $tokenActual = $_SESSION['session_token'] ?? null;
         $sesiones = Session::obtenerSesionesActivas($userId);
         $cerradas = 0;
-        
+
         foreach ($sesiones as $sesion) {
             if ($sesion['token_sesion'] !== $tokenActual) {
                 if (Session::eliminar($sesion['token_sesion'])) {
@@ -318,7 +313,7 @@ class SessionHelper
                 }
             }
         }
-        
+
         return $cerradas;
     }
 
@@ -333,7 +328,7 @@ class SessionHelper
         if (!$userId) {
             return 0;
         }
-        
+
         return Session::contarSesionesActivas($userId);
     }
 
@@ -349,7 +344,7 @@ class SessionHelper
         if (!$userId) {
             return false;
         }
-        
+
         return Role::tieneRol($userId, $nombreRol);
     }
 
@@ -384,7 +379,7 @@ class SessionHelper
         if (!$userId) {
             return [];
         }
-        
+
         return Role::obtenerRolesDeUsuario($userId);
     }
 
@@ -399,7 +394,7 @@ class SessionHelper
     public static function requireRole($nombreRol, $redirectTo = null)
     {
         self::requireAuth();
-        
+
         if (!self::hasRole($nombreRol)) {
             if ($redirectTo === null) {
                 require_once __DIR__ . '/../../config/config.php';
