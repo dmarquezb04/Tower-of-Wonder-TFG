@@ -17,6 +17,7 @@ class Usuario
     public $username;
     public $password_hash;
     public $two_fa_enabled;
+    public $twofa_secret;
     public $activo;
     public $fecha_creacion;
     public $ultimo_login;
@@ -40,7 +41,7 @@ class Usuario
             
             $stmt = $conexion->prepare("
                 SELECT id_usuario, email, username, password_hash, two_fa_enabled, 
-                       activo, fecha_creacion, ultimo_login
+                       twofa_secret, activo, fecha_creacion, ultimo_login
                 FROM usuarios 
                 WHERE email = ? AND activo = 1
             ");
@@ -73,7 +74,7 @@ class Usuario
             
             $stmt = $conexion->prepare("
                 SELECT id_usuario, email, username, password_hash, two_fa_enabled, 
-                       activo, fecha_creacion, ultimo_login
+                       twofa_secret, activo, fecha_creacion, ultimo_login
                 FROM usuarios 
                 WHERE id_usuario = ? AND activo = 1
             ");
@@ -265,6 +266,7 @@ class Usuario
         $usuario->username = $data['username'] ?? null;
         $usuario->password_hash = $data['password_hash'];
         $usuario->two_fa_enabled = (bool) $data['two_fa_enabled'];
+        $usuario->twofa_secret = $data['twofa_secret'] ?? null;
         $usuario->activo = (bool) $data['activo'];
         $usuario->fecha_creacion = $data['fecha_creacion'];
         $usuario->ultimo_login = $data['ultimo_login'] ?? null;
@@ -287,5 +289,28 @@ class Usuario
             'fecha_creacion' => $this->fecha_creacion,
             'ultimo_login' => $this->ultimo_login
         ];
+    }
+
+    /**
+     * Habilita el 2FA y guarda el secreto
+     * 
+     * @param int $userId ID del usuario
+     * @param string $secret Secreto 2FA
+     * @return bool true si se actualizó correctamente
+     */
+    public static function enable2FA($userId, $secret)
+    {
+        try {
+            $conexion = Database::getInstance()->getConexion();
+            $stmt = $conexion->prepare("
+                UPDATE usuarios 
+                SET twofa_secret = ?, two_fa_enabled = 1 
+                WHERE id_usuario = ?
+            ");
+            return $stmt->execute([$secret, $userId]);
+        } catch (PDOException $e) {
+            error_log("Error en Usuario::enable2FA - " . $e->getMessage());
+            return false;
+        }
     }
 }

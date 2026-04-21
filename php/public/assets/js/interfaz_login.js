@@ -417,7 +417,7 @@ function verificarParametrosURL() {
             }
         }
         
-        // Mostrar mensaje de error si existe
+        // Mostrar mensaje de error si existe // TODO: Qué coño es esto y por qué está así...
         const error = urlParams.get('error');
         const success = urlParams.get('success');
         
@@ -439,6 +439,11 @@ function verificarParametrosURL() {
             mostrarError('Error del servidor. Por favor intenta más tarde');
         } else if (error === 'registro_fallido') {
             mostrarError('Error al registrar. Inténtalo de nuevo');
+        } else if (error === '2fa_not_configured') {
+            mostrarError('Error de seguridad. 2FA habilitado pero no configurado.');
+        } else if (error === 'cuenta_bloqueada') {
+            const msj = urlParams.get('message');
+            mostrarError(msj ? msj : 'Cuenta bloqueada temporalmente.');
         } else if (error === 'error_sistema') {
             mostrarError('Error del sistema. Por favor intenta más tarde');
         }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * AuthService
  * Servicio de autenticación - SOLO lógica de negocio
@@ -50,7 +51,7 @@ class AuthService
         try {
             // Obtener IP del cliente
             $ip = self::obtenerIP();
-            
+
             // 0. PRIMERO: Verificar si está bloqueado por intentos fallidos
             $bloqueo = LoginAttempt::estaBloqueado($email, $ip);
             if ($bloqueo['bloqueado']) {
@@ -61,12 +62,12 @@ class AuthService
                     'message' => "Demasiados intentos fallidos. Intenta de nuevo en $minutosRestantes minutos."
                 ];
             }
-            
+
             // 1. Validar que los campos no estén vacíos
             if (!validar_campo_requerido($email) || !validar_campo_requerido($password)) {
                 // Registrar intento fallido
                 LoginAttempt::registrar($email, $ip, false);
-                
+
                 return [
                     'status' => self::LOGIN_INVALID_CREDENTIALS,
                     'user' => null,
@@ -78,7 +79,7 @@ class AuthService
             if (!validar_email($email)) {
                 // Registrar intento fallido
                 LoginAttempt::registrar($email, $ip, false);
-                
+
                 return [
                     'status' => self::LOGIN_INVALID_EMAIL,
                     'user' => null,
@@ -94,7 +95,7 @@ class AuthService
             if (!$usuario) {
                 // Registrar intento fallido
                 LoginAttempt::registrar($email, $ip, false);
-                
+
                 return [
                     'status' => self::LOGIN_INVALID_CREDENTIALS,
                     'user' => null,
@@ -106,7 +107,7 @@ class AuthService
             if (!password_verify($password, $usuario->password_hash)) {
                 // Registrar intento fallido
                 LoginAttempt::registrar($email, $ip, false);
-                
+
                 return [
                     'status' => self::LOGIN_INVALID_CREDENTIALS,
                     'user' => null,
@@ -116,11 +117,11 @@ class AuthService
 
             // ✅ CREDENCIALES VÁLIDAS - Registrar intento exitoso
             LoginAttempt::registrar($email, $ip, true);
-            
+
             // Limpiar intentos fallidos anteriores
             LoginAttempt::limpiarIntentos($email, $ip);
 
-            // 6. Credenciales válidas - Verificar si requiere 2FA
+            // 6. Credenciales válidas - Determinar si el usuario debe pasar por 2FA
             if ($usuario->two_fa_enabled) {
                 // Usuario tiene 2FA activado, requiere verificación adicional
                 return [
@@ -136,11 +137,10 @@ class AuthService
                 'user' => $usuario,
                 'message' => 'Login exitoso'
             ];
-
         } catch (Exception $e) {
             // Log del error (no exponer detalles al usuario)
             error_log("Error en AuthService::login - " . $e->getMessage());
-            
+
             return [
                 'status' => self::LOGIN_ERROR,
                 'user' => null,
@@ -164,7 +164,7 @@ class AuthService
         // - Verificar que no haya expirado
         // - Verificar que coincida con el hash
         // - Marcar como usado
-        
+
         return [
             'status' => false,
             'message' => 'Verificación 2FA no implementada aún'
@@ -201,7 +201,7 @@ class AuthService
         } else {
             $ip = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
         }
-        
+
         return $ip;
     }
 }

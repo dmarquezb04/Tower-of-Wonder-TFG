@@ -155,6 +155,7 @@ CREATE TABLE `usuarios` (
   `username` varchar(50) NOT NULL,
   `password_hash` varchar(255) NOT NULL,
   `two_fa_enabled` tinyint(1) DEFAULT 0,
+  `twofa_secret` varchar(255) DEFAULT NULL,
   `activo` tinyint(1) DEFAULT 1,
   `fecha_creacion` datetime DEFAULT current_timestamp(),
   `ultimo_login` datetime DEFAULT NULL
@@ -164,8 +165,8 @@ CREATE TABLE `usuarios` (
 -- Volcado de datos para la tabla `usuarios`
 --
 
-INSERT INTO `usuarios` (`id_usuario`, `email`, `username`, `password_hash`, `two_fa_enabled`, `activo`, `fecha_creacion`, `ultimo_login`) VALUES
-(1, 'dmarquezb04@educarex.es', 'dmarquezb04', '$2y$10$6I5DJZspgozgGXcgu73t4OZ3BjIJ4Ocw5w2LioKhlw6N9HX00c9z6', 0, 1, '2026-02-03 21:28:01', '2026-02-05 21:16:45');
+INSERT INTO `usuarios` (`id_usuario`, `email`, `username`, `password_hash`, `two_fa_enabled`, `twofa_secret`, `activo`, `fecha_creacion`, `ultimo_login`) VALUES
+(1, 'dmarquezb04@educarex.es', 'dmarquezb04', '$2y$10$6I5DJZspgozgGXcgu73t4OZ3BjIJ4Ocw5w2LioKhlw6N9HX00c9z6', 0, NULL, 1, '2026-02-03 21:28:01', '2026-02-05 21:16:45');
 
 -- --------------------------------------------------------
 

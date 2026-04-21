@@ -47,7 +47,7 @@ class SessionHelper
         $_SESSION['username'] = $usuario->username;
         $_SESSION['logged_in'] = true;
         $_SESSION['login_time'] = time();
-        $_SESSION['two_fa_verified'] = !$usuario->two_fa_enabled; // Si no tiene 2FA, ya está verificado
+        $_SESSION['two_fa_verified'] = !$usuario->two_fa_enabled;
 
         // Crear sesión en base de datos y guardar token
         $token = Session::crear($usuario->id_usuario);
