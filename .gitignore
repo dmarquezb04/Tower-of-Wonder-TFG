@@ -12,3 +12,12 @@ db_data/
 
 # IDE
 .vscode/
+
+# Build de React (generado por Vite/Docker)
+php/public/assets/dist/
+
+# Composer
+php/vendor/
+
+# Node
+frontend/node_modules/

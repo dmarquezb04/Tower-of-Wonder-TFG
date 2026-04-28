@@ -48,6 +48,19 @@ services:
     networks:
       - app_network
 
+  # Servicio Node.js para compilar React con Vite
+  # En desarrollo: compila y observa cambios automáticamente
+  # Build único: docker-compose run --rm node sh -c "npm install && npm run build"
+  node:
+    image: node:20-alpine
+    working_dir: /app
+    volumes:
+      - ./frontend:/app
+      - ./php/public/assets/dist:/app/dist
+    command: sh -c "npm install && npm run build -- --watch"
+    networks:
+      - app_network
+
 volumes:
   db_data:
 

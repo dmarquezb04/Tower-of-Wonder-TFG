@@ -1,75 +1,32 @@
-<?php
-require_once __DIR__ . "/../config/config.php";
-?>
-
+<?php require_once __DIR__ . "/../config/config.php"; ?>
 <!DOCTYPE html>
 <html lang="es">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= SITE_NAME ?></title>
-    <meta name="author" content="Darío Márquez Bautista">
-    <link rel="stylesheet" href="<?= ASSETS_URL ?>css/estilos.css">
-    <link rel="shortcut icon" href="<?= ASSETS_URL ?>favicon.ico" type="image/png">
-    <!--Si la pagina es contacto.php, tiene también el css contacto.css -->
-    <?php if (basename($_SERVER["PHP_SELF"]) === "contacto.php"): ?>
-        <link rel="stylesheet" href="<?= ASSETS_URL ?>css/contacto.css">
-    <?php endif; ?>
-    <script>
-        // Pasar BASE_URL de PHP a JavaScript
-        const BASE_URL = '<?= BASE_URL ?>';
-    </script>
-    <script src="<?= ASSETS_URL ?>js/interfaz_login.js"></script>
+    <title><?= htmlspecialchars(SITE_NAME) ?></title>
+    <meta name="description" content="Tower of Wonder – videojuego de fantasía y aventura. Descárgalo en Steam, PlayStation, Xbox y Nintendo Switch.">
+    <meta name="author" content="<?= htmlspecialchars(SITE_AUTHOR) ?>">
+    <link rel="shortcut icon" href="<?= ASSETS_URL ?>favicon.ico" type="image/x-icon">
+
+    <!-- Bundle React generado por Vite -->
+    <link rel="stylesheet" href="<?= ASSETS_URL ?>dist/main.css">
 </head>
 
 <body>
-    <header>
-        <a href="<?= BASE_URL ?>index.php"><img src="<?= ASSETS_URL ?>img/logo.png" alt="Logo Tower of Wonder" id="logo"></a> <!--Logo-->
+    <!-- Datos de sesión PHP → React -->
+    <script>
+        window.APP_DATA = {
+            baseUrl: '<?= BASE_URL ?>',
+            assetsUrl: '<?= ASSETS_URL ?>',
+            isAuthenticated: <?= SessionHelper::isAuthenticated() ? 'true' : 'false' ?>,
+            username: '<?= htmlspecialchars(SessionHelper::getUsername() ?? '') ?>',
+            currentPage: '<?= htmlspecialchars(basename($_SERVER['PHP_SELF'])) ?>',
+        };
+    </script>
 
-        <?php if (SessionHelper::isAuthenticated()): ?>
-            <div id="user-welcome" style="cursor: pointer;">
-                Bienvenido, <?= htmlspecialchars(SessionHelper::getUsername()) ?> | <a href="<?= BASE_URL ?>auth/logout.php" style="text-decoration: underline;">Salir</a>
-            </div>
-        <?php else: ?>
-            <div id="login" onclick="abrirModalLogin()" style="cursor: pointer;">LOGIN</div>
-        <?php endif; ?>
+    <!-- React monta todo el UI aquí -->
+    <div id="root"></div>
 
-        <button id="menu-toggle" onclick="toggleMenu()" aria-label="Menú">☰</button>
-
-        <div id="menudiv"> <!--Menú desplegable de la cabecera-->
-            <nav>
-                <ul id="menu">
-                    <li><a href="<?= BASE_URL ?>index.php">INICIO</a></li>
-                    <li>
-                        <a href="#" onclick="toggleSubmenu(event)">PERSONAJES</a>
-                        <ul>
-                            <li><a href="#">Personaje 1</a></li>
-                            <li><a href="#">Personaje 2</a></li>
-                            <li><a href="#">Personaje 3</a></li>
-                            <li><a href="#">Personaje 4</a></li>
-                        </ul>
-                    </li>
-                    <li>
-                        <a href="#" onclick="toggleSubmenu(event)">NOTICIAS</a>
-                        <ul>
-                            <li><a href="#">Updates</a></li>
-                            <li><a href="#">Blog de desarrollo</a></li>
-                        </ul>
-                    </li>
-                    <li><a href="#">FAQ</a></li>
-                    <li><a href="<?= BASE_URL ?>contacto.php">CONTACTO</a></li>
-                </ul>
-            </nav>
-            <div class="license mobile-only">
-                <p class="license-text">
-                    © <?= CURRENT_YEAR ?> <?= SITE_AUTHOR ?> —
-                    Contenido bajo licencia
-                    <a href="<?= CC_LICENSE_URL ?>"
-                        target="_blank" rel="noopener noreferrer">
-                        <?= CC_LICENSE_NAME ?>
-                    </a>
-                </p>
-            </div>
-        </div>
-    </header>
+    <script type="module" src="<?= ASSETS_URL ?>dist/main.js"></script>
