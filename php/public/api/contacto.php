@@ -1,13 +1,12 @@
 <?php
 /**
  * Endpoint de contacto — recibe JSON de React, envía email con PHPMailer via Gmail SMTP
- * POST /auth/contacto.php
+ * POST /api/contacto.php
  */
 require_once __DIR__ . "/../../config/config.php";
 require_once __DIR__ . "/../../vendor/autoload.php";
 
 use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
 
 header('Content-Type: application/json; charset=utf-8');

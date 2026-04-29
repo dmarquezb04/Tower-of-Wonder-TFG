@@ -20,7 +20,7 @@ export default function ContactPage() {
     setErrorMsg('')
 
     try {
-      const res = await fetch(`${baseUrl}auth/contacto.php`, {
+      const res = await fetch(`${baseUrl}api/contacto.php`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
