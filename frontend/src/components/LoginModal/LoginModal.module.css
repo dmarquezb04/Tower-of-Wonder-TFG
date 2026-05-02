@@ -218,3 +218,34 @@
     padding: 14px;
   }
 }
+
+/* ---- Estado deshabilitado (durante carga) ---- */
+.submitBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  filter: none;
+}
+
+.formField input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ---- 2FA ---- */
+.twoFaInfo {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-text-warm);
+  text-align: center;
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+/* Input de código numérico — centrado y con fuente monoespaciada */
+.codeInput {
+  text-align: center !important;
+  font-size: 28px !important;
+  letter-spacing: 10px;
+  font-family: 'Courier New', monospace !important;
+}

@@ -1,13 +1,21 @@
 import { useState } from 'react'
 import styles from './ContactPage.module.css'
 
-const { baseUrl } = window.APP_DATA
+const CONTACT_API = '/api/contacto'  // Fase 4: endpoint Spring Boot (de momento PHP vía proxy)
+const CONTACT_PHP = '/api/contacto.php'  // endpoint PHP actual
 
 const INITIAL_FORM = { nombre: '', email: '', asunto: '', mensaje: '' }
 
+/**
+ * ContactPage — Formulario de contacto.
+ *
+ * FIX Bug 3: reemplazado <fieldset>/<legend> por <div> con <h1> independiente.
+ * El <legend> nativo del navegador tiene posicionamiento especial que hace que
+ * el título se salga del borde del contenedor. Con <div> tenemos control total.
+ */
 export default function ContactPage() {
-  const [form, setForm] = useState(INITIAL_FORM)
-  const [status, setStatus] = useState(null) // null | 'sending' | 'success' | 'error'
+  const [form, setForm]       = useState(INITIAL_FORM)
+  const [status, setStatus]   = useState(null) // null | 'sending' | 'success' | 'error'
   const [errorMsg, setErrorMsg] = useState('')
 
   const handleChange = (e) => {
@@ -20,7 +28,7 @@ export default function ContactPage() {
     setErrorMsg('')
 
     try {
-      const res = await fetch(`${baseUrl}api/contacto.php`, {
+      const res = await fetch(CONTACT_PHP, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
@@ -41,12 +49,11 @@ export default function ContactPage() {
 
   return (
     <div className={styles.contenido}>
-      <form className={styles.form} onSubmit={handleSubmit} noValidate>
-        <fieldset className={styles.fieldset}>
-          <legend className={styles.legend}>
-            <h1>Formulario de contacto</h1>
-          </legend>
+      {/* FIX Bug 3: <div> + <h1> independiente en vez de <fieldset>/<legend> */}
+      <div className={styles.formCard}>
+        <h1 className={styles.formTitle}>Formulario de contacto</h1>
 
+        <form className={styles.form} onSubmit={handleSubmit} noValidate>
           {status === 'success' && (
             <div className={styles.alertSuccess}>
               ✓ ¡Mensaje enviado correctamente! Te responderemos pronto.
@@ -119,8 +126,8 @@ export default function ContactPage() {
               {status === 'sending' ? 'Enviando…' : 'Enviar mensaje'}
             </button>
           </div>
-        </fieldset>
-      </form>
+        </form>
+      </div>
     </div>
   )
 }

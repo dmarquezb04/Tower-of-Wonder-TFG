@@ -1,17 +1,24 @@
 import { useState } from 'react'
 import NavMenu from '../NavMenu/NavMenu'
+import { useAuth } from '../../context/AuthContext'
 import styles from './Header.module.css'
 
-const { isAuthenticated, username, baseUrl, assetsUrl } = window.APP_DATA
+const ASSETS_URL = '/assets/'
 
 export default function Header({ onLoginClick }) {
+  const { isAuthenticated, user, logout } = useAuth()
   const [menuOpen, setMenuOpen] = useState(false)
+
+  const handleLogout = async () => {
+    await logout()
+    // La página se actualiza sola porque AuthContext cambia isAuthenticated
+  }
 
   return (
     <header className={styles.header}>
-      <a href={`${baseUrl}index.php`} className={styles.logoLink}>
+      <a href="/" className={styles.logoLink}>
         <img
-          src={`${assetsUrl}img/logo.png`}
+          src={`${ASSETS_URL}img/logo.png`}
           alt="Logo Tower of Wonder"
           className={styles.logo}
         />
@@ -19,10 +26,14 @@ export default function Header({ onLoginClick }) {
 
       {isAuthenticated ? (
         <div className={styles.userWelcome}>
-          Bienvenido, {username} |{' '}
-          <a href={`${baseUrl}auth/logout.php`} className={styles.logoutLink}>
+          Bienvenido, {user?.username} |{' '}
+          <button
+            className={styles.logoutLink}
+            onClick={handleLogout}
+            aria-label="Cerrar sesión"
+          >
             Salir
-          </a>
+          </button>
         </div>
       ) : (
         <button

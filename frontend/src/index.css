@@ -88,6 +88,37 @@ body {
   overflow: hidden;
 }
 
+/* FIX Bug 1 — Móvil: el overflow:hidden corta el contenido en pantallas pequeñas.
+   En móvil permitimos scroll natural con min-height: 100dvh (dvh = Dynamic Viewport Height,
+   tiene en cuenta la barra de navegación del navegador en iOS/Android). */
+@media (max-width: 768px) {
+  body {
+    height: auto;
+    min-height: 100dvh;
+    overflow-y: auto;
+  }
+
+  #root {
+    height: auto;
+    min-height: 100dvh;
+    overflow: visible;
+  }
+}
+
+/* Contenedor principal de la app — entre header y footer */
+.app-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* Desktop: el scroll queda contenido dentro de cada sección */
+}
+
+@media (max-width: 768px) {
+  .app-main {
+    overflow: visible; /* Móvil: scroll natural de la página completa */
+  }
+}
+
 /* =====================
    UTILIDADES GLOBALES
    ===================== */

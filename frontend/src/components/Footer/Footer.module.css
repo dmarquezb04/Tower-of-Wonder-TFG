@@ -92,11 +92,18 @@
 }
 
 @media (max-width: 768px) {
+  /* FIX Bug 2: el footer ocupaba demasiado en móvil.
+     Reducimos padding y compactamos el layout. */
   .footer {
     flex-direction: column;
-    gap: 18px;
-    padding: 20px 16px;
+    gap: 12px;
+    padding: 12px 16px;
     text-align: center;
+  }
+
+  .socialIcon {
+    width: 28px;
+    height: 28px;
   }
 
   .newsletter {
@@ -104,20 +111,26 @@
   }
 
   .newsletterForm {
-    flex-direction: column;
-    gap: 10px;
+    flex-direction: row;
+    gap: 8px;
   }
 
   .newsletterInput {
     width: 100%;
     margin-right: 0;
+    font-size: 13px;
+    padding: 7px 8px;
   }
 
   .newsletterBtn {
-    width: 100%;
+    padding: 7px 12px;
+    font-size: 12px;
+    white-space: nowrap;
+    flex-shrink: 0;
   }
 
   .license {
     order: 3;
+    display: none; /* Ocultar en móvil — ya aparece en el drawer */
   }
 }

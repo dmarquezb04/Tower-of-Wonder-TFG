@@ -1,10 +1,15 @@
 import { useState, useEffect, useRef } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import styles from './NavMenu.module.css'
 
-const { baseUrl } = window.APP_DATA
-
+/**
+ * Elementos de navegación.
+ * - href externo: string con URL completa o '#'
+ * - to: ruta interna de React Router (ej: '/', '/contacto')
+ * - children: submenú desplegable
+ */
 const NAV_ITEMS = [
-  { label: 'INICIO', href: `${baseUrl}index.php` },
+  { label: 'INICIO',       to: '/' },
   {
     label: 'PERSONAJES', href: '#',
     children: [
@@ -17,12 +22,12 @@ const NAV_ITEMS = [
   {
     label: 'NOTICIAS', href: '#',
     children: [
-      { label: 'Updates', href: '#' },
+      { label: 'Updates',           href: '#' },
       { label: 'Blog de desarrollo', href: '#' },
     ]
   },
-  { label: 'FAQ', href: '#' },
-  { label: 'CONTACTO', href: `${baseUrl}contacto.php` },
+  { label: 'FAQ',      href: '#' },
+  { label: 'CONTACTO', to: '/contacto' },
 ]
 
 export default function NavMenu({ isOpen, onClose }) {
@@ -48,6 +53,15 @@ export default function NavMenu({ isOpen, onClose }) {
       id="menudiv"
       className={`${styles.menuDiv} ${isOpen ? styles.active : ''}`}
     >
+      {/* Botón ✕ explícito — solo visible en el drawer móvil */}
+      <button
+        className={styles.closeDrawerBtn}
+        onClick={onClose}
+        aria-label="Cerrar menú"
+      >
+        ✕
+      </button>
+
       <nav>
         <ul className={styles.menu} id="menu">
           {NAV_ITEMS.map((item) => (
@@ -76,25 +90,50 @@ export default function NavMenu({ isOpen, onClose }) {
 
 function NavItem({ item, onClose }) {
   const [open, setOpen] = useState(false)
-  const isMobile = () => window.innerWidth <= 768
+  const navigate = useNavigate()
+
+  // FIX Bug 5: usar matchMedia en vez de window.innerWidth snapshot
+  // Esto es reactivo a cambios de orientación del dispositivo
+  const isMobile = () => window.matchMedia('(max-width: 768px)').matches
 
   const handleMainClick = (e) => {
     if (item.children) {
       if (isMobile()) {
+        // En móvil, el tap despliega/colapsa el submenú
         e.preventDefault()
         setOpen((prev) => !prev)
       }
+      // En desktop, el hover CSS controla el submenú (no se interfiere)
+    } else if (item.to) {
+      // Ruta React Router — navegar y cerrar drawer
+      if (isMobile()) onClose()
+      e.preventDefault()
+      navigate(item.to)
     } else {
       if (isMobile()) onClose()
     }
   }
 
   return (
+    // FIX Bug 4: la clase submenuOpen controla la visibilidad en móvil vía JS,
+    // mientras que el CSS deshabilita :hover en móvil (ver NavMenu.module.css)
     <li className={`${styles.navItem} ${open ? styles.submenuOpen : ''}`}>
-      <a href={item.href} className={styles.navLink} onClick={handleMainClick}>
-        {item.label}
-        {item.children && <span className={styles.arrow}>▾</span>}
-      </a>
+      {/* Usar <Link> para rutas internas, <a> para externas */}
+      {item.to ? (
+        <Link
+          to={item.to}
+          className={styles.navLink}
+          onClick={handleMainClick}
+        >
+          {item.label}
+        </Link>
+      ) : (
+        <a href={item.href || '#'} className={styles.navLink} onClick={handleMainClick}>
+          {item.label}
+          {item.children && <span className={styles.arrow}>▾</span>}
+        </a>
+      )}
+
       {item.children && (
         <ul className={styles.submenu}>
           {item.children.map((child) => (

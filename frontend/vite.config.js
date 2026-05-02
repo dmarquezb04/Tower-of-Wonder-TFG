@@ -6,8 +6,10 @@ export default defineConfig({
   // Base URL para assets dentro del bundle (imágenes importadas, etc.)
   base: '/assets/dist/',
   build: {
-    // Output va al bind mount /app/dist → php/public/assets/dist en el host
-    outDir: 'dist',
+    // Output va directamente donde PHP/nginx sirve los assets.
+    // El contenedor node monta el proyecto raíz en /workspace,
+    // y escribe aquí → php/public/assets/dist/ en el host.
+    outDir: '../php/public/assets/dist',
     emptyOutDir: true,
     rollupOptions: {
       output: {
@@ -22,3 +24,4 @@ export default defineConfig({
     }
   }
 })
+

@@ -1,24 +1,48 @@
 import { useState, useEffect, useRef } from 'react'
+import { useAuth } from '../../context/AuthContext'
 import styles from './LoginModal.module.css'
 
-const { baseUrl } = window.APP_DATA
+/**
+ * LoginModal — Modal de login, registro y verificación 2FA.
+ *
+ * Flujo completo:
+ *   1. Modo 'login' o 'register' (prop initialMode)
+ *   2. Si login y el servidor responde requiresTwoFactor: true → modo '2fa'
+ *   3. Al completar → onClose() y el AuthContext actualiza el header
+ *
+ * Ya no hace submit de formulario HTML a PHP. Llama directamente
+ * a AuthContext.login() / register() / verifyTwoFactor() que a su vez
+ * llaman a la API Spring Boot (/api/auth/*).
+ */
+export default function LoginModal({ isOpen, onClose, initialMode }) {
+  const { login, verifyTwoFactor, register } = useAuth()
 
-export default function LoginModal({ isOpen, onClose, initialMode, errorMessage, successMessage }) {
-  const [mode, setMode] = useState(initialMode || 'login')
+  const [mode, setMode]           = useState(initialMode || 'login')
+  const [error, setError]         = useState(null)
+  const [success, setSuccess]     = useState(null)
+  const [loading, setLoading]     = useState(false)
+  // Estado 2FA
+  const [tempToken, setTempToken] = useState(null)
+  const [twoFaCode, setTwoFaCode] = useState('')
+
   const overlayRef = useRef(null)
 
-  // Sincronizar modo cuando cambia desde fuera (URL param)
+  // Sincronizar modo cuando cambia desde fuera
   useEffect(() => {
     setMode(initialMode || 'login')
-  }, [initialMode])
+    setError(null)
+    setSuccess(null)
+    setTempToken(null)
+    setTwoFaCode('')
+  }, [initialMode, isOpen])
 
   // Cerrar con ESC
   useEffect(() => {
     if (!isOpen) return
-    const handleKey = (e) => { if (e.key === 'Escape') onClose() }
+    const handleKey = (e) => { if (e.key === 'Escape') handleClose() }
     document.addEventListener('keydown', handleKey)
     return () => document.removeEventListener('keydown', handleKey)
-  }, [isOpen, onClose])
+  }, [isOpen]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Bloquear scroll del body cuando modal abierto
   useEffect(() => {
@@ -26,28 +50,119 @@ export default function LoginModal({ isOpen, onClose, initialMode, errorMessage,
     return () => { document.body.style.overflow = '' }
   }, [isOpen])
 
-  const toggleMode = (e) => {
-    e.preventDefault()
-    setMode((m) => (m === 'login' ? 'register' : 'login'))
+  const handleClose = () => {
+    setError(null)
+    setSuccess(null)
+    setTempToken(null)
+    setTwoFaCode('')
+    onClose()
   }
 
   const handleOverlayClick = (e) => {
-    if (e.target === overlayRef.current) onClose()
+    if (e.target === overlayRef.current) handleClose()
   }
 
-  // Limpiar URL params al enviar (para no re-mostrar el error al volver)
-  const handleSubmit = () => {
-    const url = new URL(window.location)
-    url.searchParams.delete('error')
-    url.searchParams.delete('modal')
-    url.searchParams.delete('success')
-    url.searchParams.delete('message')
-    const refererInput = document.getElementById('modal-referer')
-    if (refererInput) refererInput.value = url.pathname + url.search
-    window.history.replaceState({}, '', url)
+  const toggleMode = (e) => {
+    e.preventDefault()
+    setError(null)
+    setSuccess(null)
+    setMode((m) => (m === 'login' ? 'register' : 'login'))
   }
 
-  const isLogin = mode === 'login'
+  // ============================================================
+  // Submit — Login
+  // ============================================================
+  const handleLoginSubmit = async (e) => {
+    e.preventDefault()
+    setError(null)
+    setLoading(true)
+
+    const email    = e.target.email.value.trim()
+    const password = e.target.password.value
+
+    try {
+      const res = await login(email, password)
+      if (res.requiresTwoFactor) {
+        // Guardar token temporal y mostrar paso de 2FA
+        setTempToken(res.tempToken)
+        setMode('2fa')
+      } else {
+        // Login completo — cerrar modal
+        handleClose()
+      }
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // ============================================================
+  // Submit — Verificación 2FA
+  // ============================================================
+  const handleTwoFaSubmit = async (e) => {
+    e.preventDefault()
+    if (twoFaCode.length !== 6) {
+      setError('El código debe tener 6 dígitos')
+      return
+    }
+    setError(null)
+    setLoading(true)
+
+    try {
+      await verifyTwoFactor(tempToken, twoFaCode)
+      handleClose()
+    } catch (err) {
+      setError(err.message)
+      setTwoFaCode('')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // ============================================================
+  // Submit — Registro
+  // ============================================================
+  const handleRegisterSubmit = async (e) => {
+    e.preventDefault()
+    setError(null)
+    setLoading(true)
+
+    const email    = e.target.email.value.trim()
+    const username = e.target.username.value.trim()
+    const password = e.target.password.value
+    const confirm  = e.target.confirmPassword.value
+
+    if (password !== confirm) {
+      setError('Las contraseñas no coinciden')
+      setLoading(false)
+      return
+    }
+    if (password.length < 8) {
+      setError('La contraseña debe tener al menos 8 caracteres')
+      setLoading(false)
+      return
+    }
+
+    try {
+      await register(email, username, password)
+      setSuccess('¡Cuenta creada! Ahora puedes iniciar sesión')
+      setMode('login')
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // ============================================================
+  // Render
+  // ============================================================
+  const titles = {
+    login:    'Iniciar Sesión',
+    register: 'Crear Cuenta',
+    '2fa':    'Verificación en dos pasos',
+  }
 
   return (
     <div
@@ -56,67 +171,187 @@ export default function LoginModal({ isOpen, onClose, initialMode, errorMessage,
       onClick={handleOverlayClick}
       aria-modal="true"
       role="dialog"
-      aria-label={isLogin ? 'Iniciar sesión' : 'Crear cuenta'}
+      aria-label={titles[mode]}
     >
       <div className={styles.container}>
-        <button className={styles.closeBtn} onClick={onClose} aria-label="Cerrar">
+        <button className={styles.closeBtn} onClick={handleClose} aria-label="Cerrar">
           &times;
         </button>
 
         <div className={styles.content}>
-          <h2 className={styles.title}>{isLogin ? 'Iniciar Sesión' : 'Crear Cuenta'}</h2>
+          <h2 className={styles.title}>{titles[mode]}</h2>
 
           {/* Mensajes de estado */}
-          {successMessage && (
-            <div className={`${styles.alert} ${styles.alertSuccess}`}>{successMessage}</div>
+          {success && (
+            <div className={`${styles.alert} ${styles.alertSuccess}`}>{success}</div>
           )}
-          {errorMessage && (
-            <div className={`${styles.alert} ${styles.alertError}`}>{errorMessage}</div>
+          {error && (
+            <div className={`${styles.alert} ${styles.alertError}`}>{error}</div>
           )}
 
-          <form
-            id="form-login"
-            action={isLogin ? `${baseUrl}auth/login.php` : `${baseUrl}auth/register.php`}
-            method="POST"
-            onSubmit={handleSubmit}
-          >
-            <input type="hidden" id="modal-referer" name="referer" value={window.location.pathname} />
-
-            <div className={styles.formRow}>
-              <label htmlFor="modal-email">Correo electrónico:</label>
-              <div className={styles.formField}>
-                <input type="email" id="modal-email" name="email" required autoComplete="email" />
+          {/* ---- FORMULARIO LOGIN ---- */}
+          {mode === 'login' && (
+            <form id="form-login" onSubmit={handleLoginSubmit}>
+              <div className={styles.formRow}>
+                <label htmlFor="modal-email">Correo electrónico:</label>
+                <div className={styles.formField}>
+                  <input
+                    type="email"
+                    id="modal-email"
+                    name="email"
+                    required
+                    autoComplete="email"
+                    disabled={loading}
+                  />
+                </div>
               </div>
-            </div>
 
-            <div className={styles.formRow}>
-              <label htmlFor="modal-password">Contraseña:</label>
-              <div className={styles.formField}>
-                <input
-                  type="password"
-                  id="modal-password"
-                  name="password"
-                  required
-                  autoComplete={isLogin ? 'current-password' : 'new-password'}
-                />
+              <div className={styles.formRow}>
+                <label htmlFor="modal-password">Contraseña:</label>
+                <div className={styles.formField}>
+                  <input
+                    type="password"
+                    id="modal-password"
+                    name="password"
+                    required
+                    autoComplete="current-password"
+                    disabled={loading}
+                  />
+                </div>
               </div>
-            </div>
 
-            <div className={styles.formRowCenter}>
-              <button type="submit" className={styles.submitBtn}>
-                {isLogin ? 'Continuar' : 'Registrarse'}
-              </button>
-            </div>
-          </form>
+              <div className={styles.formRowCenter}>
+                <button type="submit" className={styles.submitBtn} disabled={loading}>
+                  {loading ? 'Comprobando...' : 'Continuar'}
+                </button>
+              </div>
+            </form>
+          )}
 
-          <div className={styles.footer}>
-            <p>
-              {isLogin ? '¿No tienes cuenta?' : '¿Ya tienes cuenta?'}{' '}
-              <a href="#" onClick={toggleMode}>
-                {isLogin ? 'Regístrate aquí' : 'Inicia sesión aquí'}
-              </a>
-            </p>
-          </div>
+          {/* ---- FORMULARIO 2FA ---- */}
+          {mode === '2fa' && (
+            <form id="form-2fa" onSubmit={handleTwoFaSubmit}>
+              <p className={styles.twoFaInfo}>
+                Introduce el código de 6 dígitos de tu aplicación Google Authenticator.
+              </p>
+              <div className={styles.formRow}>
+                <label htmlFor="modal-2fa-code">Código:</label>
+                <div className={styles.formField}>
+                  <input
+                    type="text"
+                    id="modal-2fa-code"
+                    name="code"
+                    inputMode="numeric"
+                    pattern="\d{6}"
+                    maxLength={6}
+                    required
+                    autoComplete="one-time-code"
+                    placeholder="000000"
+                    value={twoFaCode}
+                    onChange={(e) => setTwoFaCode(e.target.value.replace(/\D/g, ''))}
+                    disabled={loading}
+                    className={styles.codeInput}
+                  />
+                </div>
+              </div>
+
+              <div className={styles.formRowCenter}>
+                <button type="submit" className={styles.submitBtn} disabled={loading || twoFaCode.length !== 6}>
+                  {loading ? 'Verificando...' : 'Verificar'}
+                </button>
+              </div>
+
+              <div className={styles.footer}>
+                <p>
+                  <a href="#" onClick={(e) => { e.preventDefault(); setMode('login'); setTempToken(null) }}>
+                    ← Volver al login
+                  </a>
+                </p>
+              </div>
+            </form>
+          )}
+
+          {/* ---- FORMULARIO REGISTRO ---- */}
+          {mode === 'register' && (
+            <form id="form-register" onSubmit={handleRegisterSubmit}>
+              <div className={styles.formRow}>
+                <label htmlFor="modal-reg-email">Correo electrónico:</label>
+                <div className={styles.formField}>
+                  <input
+                    type="email"
+                    id="modal-reg-email"
+                    name="email"
+                    required
+                    autoComplete="email"
+                    disabled={loading}
+                  />
+                </div>
+              </div>
+
+              <div className={styles.formRow}>
+                <label htmlFor="modal-reg-username">Nombre de usuario:</label>
+                <div className={styles.formField}>
+                  <input
+                    type="text"
+                    id="modal-reg-username"
+                    name="username"
+                    required
+                    minLength={3}
+                    maxLength={30}
+                    autoComplete="username"
+                    disabled={loading}
+                  />
+                </div>
+              </div>
+
+              <div className={styles.formRow}>
+                <label htmlFor="modal-reg-password">Contraseña:</label>
+                <div className={styles.formField}>
+                  <input
+                    type="password"
+                    id="modal-reg-password"
+                    name="password"
+                    required
+                    minLength={8}
+                    autoComplete="new-password"
+                    disabled={loading}
+                  />
+                </div>
+              </div>
+
+              <div className={styles.formRow}>
+                <label htmlFor="modal-reg-confirm">Confirmar contraseña:</label>
+                <div className={styles.formField}>
+                  <input
+                    type="password"
+                    id="modal-reg-confirm"
+                    name="confirmPassword"
+                    required
+                    autoComplete="new-password"
+                    disabled={loading}
+                  />
+                </div>
+              </div>
+
+              <div className={styles.formRowCenter}>
+                <button type="submit" className={styles.submitBtn} disabled={loading}>
+                  {loading ? 'Registrando...' : 'Registrarse'}
+                </button>
+              </div>
+            </form>
+          )}
+
+          {/* Toggle login ↔ registro (no en modo 2FA) */}
+          {mode !== '2fa' && (
+            <div className={styles.footer}>
+              <p>
+                {mode === 'login' ? '¿No tienes cuenta?' : '¿Ya tienes cuenta?'}{' '}
+                <a href="#" onClick={toggleMode}>
+                  {mode === 'login' ? 'Regístrate aquí' : 'Inicia sesión aquí'}
+                </a>
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </div>

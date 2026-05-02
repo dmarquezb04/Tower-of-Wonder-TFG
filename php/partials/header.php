@@ -11,7 +11,7 @@
     <link rel="shortcut icon" href="<?= ASSETS_URL ?>favicon.ico" type="image/x-icon">
 
     <!-- Bundle React generado por Vite -->
-    <link rel="stylesheet" href="<?= ASSETS_URL ?>dist/main.css">
+    <link rel="stylesheet" href="<?= ASSETS_URL ?>dist/main.css?v=<?= time() ?>">
 </head>
 
 <body>
@@ -29,4 +29,4 @@
     <!-- React monta todo el UI aquí -->
     <div id="root"></div>
 
-    <script type="module" src="<?= ASSETS_URL ?>dist/main.js"></script>
+    <script type="module" src="<?= ASSETS_URL ?>dist/main.js?v=<?= time() ?>"></script>

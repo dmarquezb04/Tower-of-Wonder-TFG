@@ -95,20 +95,27 @@ services:
       - app_network
 
   # ============================================================
-  # NODE — ELIMINADO como servicio permanente
+  # NODE — Herramienta de build del frontend React (one-shot)
   #
-  # El contenedor node con --watch consumía recursos constantemente
-  # y no es apropiado para un entorno de desarrollo controlado.
+  # No arranca como servicio permanente (no tiene 'ports' ni 'restart').
+  # Se usa con: docker compose run --rm node <comando>
   #
-  # Para compilar el frontend React usa:
-  #   docker compose run --rm node sh -c "npm install && npm run build"
-  #
-  # O ejecuta directamente en el directorio frontend/:
-  #   npm install && npm run build
-  #
-  # (Solo necesitas Node instalado localmente para esto,
-  #  que ya tienes dado que el proyecto ya funcionaba)
+  # Ejemplos:
+  #   docker compose run --rm node npm install
+  #   docker compose run --rm node npm run build
   # ============================================================
+  node:
+    image: node:20-alpine
+    working_dir: /app
+    volumes:
+      - ./frontend:/app
+      - ./php:/php    # necesario para que el build escriba en /php/public/assets/dist
+    networks:
+      - app_network
+    profiles:
+      - tools   # Solo se activa si se llama explícitamente — no interfiere con 'up'
+
+
 
 volumes:
   db_data:

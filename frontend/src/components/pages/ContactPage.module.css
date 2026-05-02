@@ -13,25 +13,24 @@
   max-width: 680px;
 }
 
-.fieldset {
+
+.formCard {
   background: linear-gradient(180deg, rgba(255, 250, 243, 0.92) 0%, rgba(255, 244, 232, 0.85) 100%);
   border: 1px solid rgba(156, 122, 61, 0.1);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-card);
   padding: 28px 36px 36px;
   font-family: var(--font-heading);
+  width: 100%;
+  max-width: 680px;
 }
 
-.legend {
-  text-align: center;
-  padding: 0 16px;
-  margin-bottom: 24px;
-}
-
-.legend h1 {
+.formTitle {
   font-size: 28px;
   color: var(--color-text-warm);
   font-weight: 600;
+  text-align: center;
+  margin-bottom: 24px;
 }
 
 /* Alertas */
@@ -159,11 +158,11 @@
     align-items: flex-start;
   }
 
-  .fieldset {
+  .formCard {
     padding: 20px 18px 28px;
   }
 
-  .legend h1 {
+  .formTitle {
     font-size: 22px;
   }
 
