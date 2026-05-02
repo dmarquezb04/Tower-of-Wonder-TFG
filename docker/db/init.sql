@@ -323,6 +323,25 @@ ALTER TABLE `two_factor_config`
 ALTER TABLE `usuario_roles`
   ADD CONSTRAINT `usuario_roles_ibfk_1` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id_usuario`) ON DELETE CASCADE,
   ADD CONSTRAINT `usuario_roles_ibfk_2` FOREIGN KEY (`id_rol`) REFERENCES `roles` (`id_rol`) ON DELETE CASCADE;
+
+-- --------------------------------------------------------
+--
+-- Tabla `jwt_blacklist` — Tokens JWT revocados (logout)
+-- Añadida en Fase 1 (migración Spring Boot auth)
+-- Permite invalidar tokens antes de su expiración natural.
+-- Ver docs/base-de-datos.md para más detalles.
+-- --------------------------------------------------------
+
+CREATE TABLE IF NOT EXISTS `jwt_blacklist` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `token_jti` varchar(64) NOT NULL,
+  `fecha_expiracion` datetime NOT NULL,
+  `fecha_revocacion` datetime DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `token_jti` (`token_jti`),
+  KEY `idx_expiracion` (`fecha_expiracion`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

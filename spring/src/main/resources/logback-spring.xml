@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    logback-spring.xml — Configuración de logs para Tower of Wonder Backend
+    =========================================================================
+    Spring Boot usa Logback como framework de logging por defecto.
+    Este archivo sobreescribe la configuración automática de Spring Boot.
+
+    Archivos generados (NO se suben al repositorio — ver .gitignore):
+      logs/tow-app.log        — todos los logs (INFO y superiores)
+      logs/tow-error.log      — solo errores (ERROR)
+
+    Rotación: diaria + máximo 10 MB por archivo. Se conservan 30 días.
+
+    Ver docs/decisiones-tecnicas.md (ADR sobre logging).
+-->
+<configuration>
+
+    <!-- ================================================================
+         PROPIEDADES
+         ================================================================ -->
+    <property name="LOG_DIR"     value="logs"/>
+    <property name="APP_LOG"     value="${LOG_DIR}/tow-app.log"/>
+    <property name="ERROR_LOG"   value="${LOG_DIR}/tow-error.log"/>
+    <!-- Patrón completo: timestamp | nivel | hilo | logger | mensaje -->
+    <property name="FILE_PATTERN"
+              value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"/>
+    <!-- Patrón para consola: igual pero con colores -->
+    <property name="CONSOLE_PATTERN"
+              value="%d{HH:mm:ss.SSS} %highlight(%-5level) %cyan(%logger{30}) - %msg%n"/>
+
+    <!-- ================================================================
+         APPENDER: CONSOLA
+         Solo activo en desarrollo. Muestra logs con colores.
+         ================================================================ -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${CONSOLE_PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <!-- ================================================================
+         APPENDER: ARCHIVO PRINCIPAL (tow-app.log)
+         Registra todos los eventos de nivel INFO y superiores.
+         Rotación: diaria o cuando supera 10 MB.
+         Conserva los últimos 30 días o un máximo de 300 MB en total.
+         ================================================================ -->
+    <appender name="FILE_APP" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${APP_LOG}</file>
+        <encoder>
+            <pattern>${FILE_PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!-- Nombre del archivo histórico. %d y %i son variables automáticas -->
+            <fileNamePattern>${LOG_DIR}/history/tow-app.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <maxFileSize>10MB</maxFileSize>
+            <maxHistory>30</maxHistory>
+            <totalSizeCap>300MB</totalSizeCap>
+        </rollingPolicy>
+    </appender>
+
+    <!-- ================================================================
+         APPENDER: ARCHIVO DE ERRORES (tow-error.log)
+         Solo registra eventos ERROR. Útil para monitorización rápida.
+         Misma política de rotación que el archivo principal.
+         ================================================================ -->
+    <appender name="FILE_ERROR" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${ERROR_LOG}</file>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>ERROR</level>
+        </filter>
+        <encoder>
+            <pattern>${FILE_PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_DIR}/history/tow-error.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <maxFileSize>10MB</maxFileSize>
+            <maxHistory>30</maxHistory>
+            <totalSizeCap>100MB</totalSizeCap>
+        </rollingPolicy>
+    </appender>
+
+    <!-- ================================================================
+         LOGGERS ESPECÍFICOS
+         Controlamos el nivel de detalle por paquete.
+         ================================================================ -->
+
+    <!-- Código propio: DEBUG en desarrollo, INFO en producción -->
+    <logger name="com.tow.backend" level="DEBUG" additivity="false">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="FILE_APP"/>
+        <appender-ref ref="FILE_ERROR"/>
+    </logger>
+
+    <!-- Spring Security: solo INFO para no saturar con trazas de filtros -->
+    <logger name="org.springframework.security" level="INFO" additivity="false">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="FILE_APP"/>
+        <appender-ref ref="FILE_ERROR"/>
+    </logger>
+
+    <!-- Hibernate SQL: solo en desarrollo (DEBUG muestra queries generadas) -->
+    <logger name="org.hibernate.SQL" level="INFO" additivity="false">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="FILE_APP"/>
+    </logger>
+
+    <!-- ================================================================
+         ROOT LOGGER
+         Captura todo lo que no tenga logger específico.
+         ================================================================ -->
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="FILE_APP"/>
+        <appender-ref ref="FILE_ERROR"/>
+    </root>
+
+</configuration>

@@ -1,4 +1,13 @@
 services:
+
+  # ============================================================
+  # NGINX — Proxy inverso y servidor de archivos estáticos
+  # Puerto 8080 del host → 80 del contenedor
+  # Rutas:
+  #   /api/**  → spring:8080 (Spring Boot)
+  #   /auth/** → php:9000   (PHP legacy, temporal durante migración)
+  #   /*       → /var/www/html/public (PHP, temporal)
+  # ============================================================
   nginx:
     image: nginx:alpine
     ports:
@@ -8,9 +17,15 @@ services:
       - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
     depends_on:
       - php
+      - spring
     networks:
       - app_network
 
+  # ============================================================
+  # PHP — Backend legacy (se mantiene durante la migración)
+  # Se irá eliminando módulo por módulo conforme Spring lo reemplaza.
+  # ⚠️ NO ELIMINAR hasta completar la migración.
+  # ============================================================
   php:
     build: ./php
     volumes:
@@ -20,21 +35,52 @@ services:
     networks:
       - app_network
 
+  # ============================================================
+  # SPRING BOOT — Nuevo backend API REST
+  # Puerto 8090 del host → 8080 del contenedor
+  # Puerto 8090 expuesto para acceso directo (debug, Swagger UI)
+  #
+  # Build multi-stage: Maven compila dentro del contenedor.
+  # NO necesitas Maven instalado localmente.
+  # ============================================================
+  spring:
+    build:
+      context: ./spring
+      dockerfile: Dockerfile
+    ports:
+      - "8090:8080"
+    env_file:
+      - .env
+    depends_on:
+      - db
+    networks:
+      - app_network
+    # Espera a que MariaDB esté disponible antes de arrancar
+    # Spring Boot reintentará la conexión si falla al inicio
+    restart: on-failure
+
+  # ============================================================
+  # MARIADB — Base de datos (compartida entre PHP y Spring Boot)
+  # ============================================================
   db:
     image: mariadb:10.6
     ports:
       - "3306:3306"
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: tower_of_wonder
-      MYSQL_USER: admin_tow_bbdd
-      MYSQL_PASSWORD: 7kr3L1UBDWgcvgY
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASS}
     volumes:
       - db_data:/var/lib/mysql
       - ./docker/db/init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - app_network
 
+  # ============================================================
+  # PHPMYADMIN — Interfaz web de administración de BD
+  # Accesible en: http://localhost:8081
+  # ============================================================
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
     ports:
@@ -42,24 +88,27 @@ services:
     environment:
       PMA_HOST: db
       PMA_PORT: 3306
-      MYSQL_ROOT_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
     depends_on:
       - db
     networks:
       - app_network
 
-  # Servicio Node.js para compilar React con Vite
-  # En desarrollo: compila y observa cambios automáticamente
-  # Build único: docker-compose run --rm node sh -c "npm install && npm run build"
-  node:
-    image: node:20-alpine
-    working_dir: /app
-    volumes:
-      - ./frontend:/app
-      - ./php/public/assets/dist:/app/dist
-    command: sh -c "npm install && npm run build -- --watch"
-    networks:
-      - app_network
+  # ============================================================
+  # NODE — ELIMINADO como servicio permanente
+  #
+  # El contenedor node con --watch consumía recursos constantemente
+  # y no es apropiado para un entorno de desarrollo controlado.
+  #
+  # Para compilar el frontend React usa:
+  #   docker compose run --rm node sh -c "npm install && npm run build"
+  #
+  # O ejecuta directamente en el directorio frontend/:
+  #   npm install && npm run build
+  #
+  # (Solo necesitas Node instalado localmente para esto,
+  #  que ya tienes dado que el proyecto ya funcionaba)
+  # ============================================================
 
 volumes:
   db_data:

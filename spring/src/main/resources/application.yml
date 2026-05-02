@@ -1,0 +1,68 @@
+##############################################################
+# application.yml — Configuración Spring Boot
+# Tower of Wonder Backend — TFG
+#
+# Los valores con ${VAR} se leen del .env via Docker Compose.
+# Ver MIGRATION.md para el historial de cambios por fase.
+##############################################################
+
+spring:
+
+  datasource:
+    url: jdbc:mariadb://${DB_HOST:db}:3306/${DB_NAME:tower_of_wonder}?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Europe/Madrid
+    username: ${DB_USER:admin_tow_bbdd}
+    password: ${DB_PASS:7kr3L1UBDWgcvgY}
+    driver-class-name: org.mariadb.jdbc.Driver
+
+  jpa:
+    hibernate:
+      # validate: Hibernate verifica que las entidades coinciden con la BD al arrancar.
+      # Cambiado de 'none' (Fase 0) a 'validate' (Fase 1) al crear las entidades JPA.
+      ddl-auto: validate
+    properties:
+      hibernate:
+        format_sql: true
+    show-sql: false
+    open-in-view: false
+
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+  thymeleaf:
+    check-template-location: false
+
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+
+# JWT — cambiar jwt.secret en producción (mínimo 32 caracteres)
+jwt:
+  secret: ${JWT_SECRET:tower-of-wonder-secret-key-change-in-production-min-32-chars}
+  expiration: 86400000  # 24 horas en ms
+
+mail:
+  from: ${MAIL_FROM:noreply.towerofwonder@gmail.com}
+  from-name: ${MAIL_FROM_NAME:Tower of Wonder}
+
+# Swagger UI: http://localhost:8090/swagger-ui.html
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+
+# Logging — configuración completa en logback-spring.xml
+# Los logs se escriben en logs/tow-app.log y logs/tow-error.log (rotación diaria)
+logging:
+  config: classpath:logback-spring.xml
