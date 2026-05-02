@@ -34,6 +34,6 @@ frontend/node_modules/
 .DS_Store
 Thumbs.db
 
-# Apuntes
+# Apuntes / Documentación interna (no va al repo)
 MIGRATION.md
-./docs
+docs/
