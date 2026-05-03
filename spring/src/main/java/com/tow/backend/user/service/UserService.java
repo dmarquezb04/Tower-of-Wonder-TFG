@@ -1,0 +1,133 @@
+package com.tow.backend.user.service;
+
+import com.tow.backend.user.dto.TwoFactorSetupDTO;
+import com.tow.backend.user.dto.UserProfileDTO;
+import com.tow.backend.user.entity.Role;
+import com.tow.backend.user.entity.User;
+import com.tow.backend.user.repository.UserRepository;
+import com.warrenstrange.googleauth.GoogleAuthenticator;
+import com.warrenstrange.googleauth.GoogleAuthenticatorKey;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Service
+@RequiredArgsConstructor
+public class UserService {
+
+    private final UserRepository userRepository;
+    private final GoogleAuthenticator googleAuthenticator;
+
+    @Transactional(readOnly = true)
+    public UserProfileDTO getUserProfile(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+                
+        List<String> roles = user.getRoles().stream()
+                .map(Role::getNombreRol)
+                .collect(Collectors.toList());
+
+        return UserProfileDTO.builder()
+                .idUsuario(user.getIdUsuario())
+                .email(user.getEmail())
+                .username(user.getUsername())
+                .twoFaEnabled(user.getTwoFaEnabled())
+                .activo(user.getActivo())
+                .fechaCreacion(user.getFechaCreacion())
+                .ultimoLogin(user.getUltimoLogin())
+                .roles(roles)
+                .build();
+    }
+
+    public TwoFactorSetupDTO generateTwoFactorSetup(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        if (Boolean.TRUE.equals(user.getTwoFaEnabled())) {
+            throw new RuntimeException("2FA ya está activado");
+        }
+
+        // Generate a new secret
+        GoogleAuthenticatorKey key = googleAuthenticator.createCredentials();
+        String secret = key.getKey();
+        
+        // Format the URI for QR code
+        // otpauth://totp/TowerOfWonder:username?secret=XYZ&issuer=TowerOfWonder
+        String issuer = "TowerOfWonder";
+        String accountName = user.getUsername() != null && !user.getUsername().isEmpty() ? user.getUsername() : user.getEmail();
+        String qrCodeUri = String.format("otpauth://totp/%s:%s?secret=%s&issuer=%s",
+                issuer, accountName, secret, issuer);
+
+        return TwoFactorSetupDTO.builder()
+                .secret(secret)
+                .qrCodeUri(qrCodeUri)
+                .build();
+    }
+
+    @Transactional
+    public void enableTwoFactor(String email, String secret, String code) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        if (Boolean.TRUE.equals(user.getTwoFaEnabled())) {
+            throw new RuntimeException("2FA ya está activado");
+        }
+
+        // Verify the code against the provided secret
+        int codeInt;
+        try {
+            codeInt = Integer.parseInt(code);
+        } catch (NumberFormatException e) {
+            throw new RuntimeException("El código debe ser numérico");
+        }
+
+        boolean isValid = googleAuthenticator.authorize(secret, codeInt);
+        if (!isValid) {
+            throw new RuntimeException("El código es incorrecto");
+        }
+
+        // Code is valid, save secret and enable 2FA
+        user.setTwofaSecret(secret);
+        user.setTwoFaEnabled(true);
+        userRepository.save(user);
+    }
+
+    @Transactional
+    public void disableTwoFactor(String email, String code) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        if (!Boolean.TRUE.equals(user.getTwoFaEnabled())) {
+            throw new RuntimeException("2FA no está activado");
+        }
+
+        // Verify the code against the current secret to allow disabling
+        int codeInt;
+        try {
+            codeInt = Integer.parseInt(code);
+        } catch (NumberFormatException e) {
+            throw new RuntimeException("El código debe ser numérico");
+        }
+
+        boolean isValid = googleAuthenticator.authorize(user.getTwofaSecret(), codeInt);
+        if (!isValid) {
+            throw new RuntimeException("El código es incorrecto");
+        }
+
+        user.setTwofaSecret(null);
+        user.setTwoFaEnabled(false);
+        userRepository.save(user);
+    }
+
+    @Transactional
+    public void deleteAccount(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        
+        user.setActivo(false);
+        userRepository.save(user);
+    }
+}

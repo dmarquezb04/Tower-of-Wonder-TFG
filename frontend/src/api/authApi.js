@@ -41,6 +41,30 @@ async function postJson(path, body, token = null) {
   return data
 }
 
+/**
+ * Helper interno: ejecuta un fetch GET y devuelve el body parseado.
+ * Lanza un Error con el mensaje del servidor si el status no es 2xx.
+ */
+async function getJson(path, token = null) {
+  const headers = {}
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`
+  }
+
+  const res = await fetch(`${API_BASE}${path}`, {
+    method: 'GET',
+    headers,
+  })
+
+  const data = await res.json().catch(() => ({}))
+
+  if (!res.ok) {
+    throw new Error(data.error || data.message || `Error ${res.status}`)
+  }
+
+  return data
+}
+
 // ============================================================
 // Autenticación
 // ============================================================
@@ -88,3 +112,52 @@ export async function register(email, username, password) {
 export async function logout(token) {
   return postJson('/auth/logout', {}, token)
 }
+
+// ============================================================
+// Usuario y 2FA
+// ============================================================
+
+export async function getProfile(token) {
+  return getJson('/user/profile', token)
+}
+
+export async function setup2FA(token) {
+  return getJson('/user/2fa/setup', token)
+}
+
+export async function enable2FA(token, secret, code) {
+  return postJson('/user/2fa/enable', { secret, code }, token)
+}
+
+export async function disable2FA(token, code) {
+  return postJson('/user/2fa/disable', { code }, token)
+}
+
+export async function deleteAccount(token) {
+  const res = await fetch(`${API_BASE}/user/me`, {
+    method: 'DELETE',
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  })
+  
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}))
+    throw new Error(data.error || data.message || `Error ${res.status}`)
+  }
+  
+  return res.json().catch(() => ({}))
+}
+
+// ============================================================
+// Administrador
+// ============================================================
+
+export async function getAdminUsers(token) {
+  return getJson('/admin/users', token)
+}
+
+export async function getAdminMetrics(token) {
+  return getJson('/admin/metrics', token)
+}
+

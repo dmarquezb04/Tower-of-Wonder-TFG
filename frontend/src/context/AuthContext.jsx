@@ -62,10 +62,16 @@ export function AuthProvider({ children }) {
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const _saveSession = useCallback((newToken, userData) => {
+    // Decodificar el token para extraer los roles
+    const payload = decodeJwtPayload(newToken)
+    const roles = payload?.roles || []
+    
+    const enhancedUserData = { ...userData, roles }
+    
     setToken(newToken)
-    setUser(userData)
+    setUser(enhancedUserData)
     localStorage.setItem(TOKEN_KEY, newToken)
-    localStorage.setItem(USER_KEY, JSON.stringify(userData))
+    localStorage.setItem(USER_KEY, JSON.stringify(enhancedUserData))
     setAuthError(null)
   }, [])
 

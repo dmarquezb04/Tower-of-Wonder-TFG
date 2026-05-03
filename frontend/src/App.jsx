@@ -6,6 +6,9 @@ import Footer from './components/Footer/Footer'
 import LoginModal from './components/LoginModal/LoginModal'
 import HomePage from './components/pages/HomePage'
 import ContactPage from './components/pages/ContactPage'
+import UserDashboard from './components/pages/UserDashboard'
+import AdminDashboard from './components/pages/AdminDashboard'
+import ProtectedRoute from './components/ProtectedRoute'
 
 /**
  * App — Componente raíz de la aplicación.
@@ -47,6 +50,19 @@ function App() {
           <Routes>
             <Route path="/"         element={<HomePage />} />
             <Route path="/contacto" element={<ContactPage />} />
+            
+            {/* Rutas Privadas */}
+            <Route path="/dashboard" element={
+              <ProtectedRoute>
+                <UserDashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin" element={
+              <ProtectedRoute requireAdmin={true}>
+                <AdminDashboard />
+              </ProtectedRoute>
+            } />
+
             {/* Cualquier ruta desconocida redirige al inicio */}
             <Route path="*"         element={<Navigate to="/" replace />} />
           </Routes>

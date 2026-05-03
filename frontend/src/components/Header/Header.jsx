@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import NavMenu from '../NavMenu/NavMenu'
 import { useAuth } from '../../context/AuthContext'
 import styles from './Header.module.css'
@@ -8,6 +9,7 @@ const ASSETS_URL = '/assets/'
 export default function Header({ onLoginClick }) {
   const { isAuthenticated, user, logout } = useAuth()
   const [menuOpen, setMenuOpen] = useState(false)
+  const [dropdownOpen, setDropdownOpen] = useState(false)
 
   const handleLogout = async () => {
     await logout()
@@ -26,14 +28,49 @@ export default function Header({ onLoginClick }) {
 
       {isAuthenticated ? (
         <div className={styles.userWelcome}>
-          Bienvenido, {user?.username} |{' '}
-          <button
-            className={styles.logoutLink}
-            onClick={handleLogout}
-            aria-label="Cerrar sesión"
-          >
-            Salir
-          </button>
+          <div className={styles.dropdownContainer}>
+            <button 
+              className={styles.dropdownToggle} 
+              onClick={() => setDropdownOpen(!dropdownOpen)}
+            >
+              Bienvenido, <span>{user?.username}</span> ▾
+            </button>
+            
+            {dropdownOpen && (
+              <div className={styles.dropdownMenu}>
+                <Link 
+                  to="/dashboard" 
+                  className={styles.dropdownItem}
+                  onClick={() => setDropdownOpen(false)}
+                >
+                  👤 Mi Perfil (Dashboard)
+                </Link>
+                
+                {(user?.roles?.includes('admin') || user?.roles?.includes('ROLE_ADMIN')) && (
+                  <Link 
+                    to="/admin" 
+                    className={styles.dropdownItem}
+                    onClick={() => setDropdownOpen(false)}
+                  >
+                    ⚙️ Administración
+                  </Link>
+                )}
+                
+                <hr className={styles.dropdownDivider} />
+                
+                <button
+                  className={styles.dropdownItem}
+                  onClick={() => {
+                    setDropdownOpen(false);
+                    handleLogout();
+                  }}
+                  aria-label="Cerrar sesión"
+                >
+                  🚪 Cerrar Sesión
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       ) : (
         <button

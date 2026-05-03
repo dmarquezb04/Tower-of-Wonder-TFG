@@ -1,0 +1,220 @@
+.container {
+  padding: 40px 20px;
+  max-width: 800px;
+  margin: 0 auto;
+  color: var(--color-text-light);
+  flex: 1;
+  overflow-y: auto;
+  width: 100%;
+}
+
+.title {
+  font-family: var(--font-heading);
+  font-size: 32px;
+  margin-bottom: 24px;
+  color: var(--color-gold-light);
+  border-bottom: 1px solid rgba(198, 161, 86, 0.3);
+  padding-bottom: 12px;
+}
+
+.card {
+  background: rgba(20, 15, 30, 0.7);
+  border: 1px solid rgba(198, 161, 86, 0.2);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(8px);
+}
+
+.card h2 {
+  font-family: var(--font-heading);
+  font-size: 24px;
+  margin-bottom: 16px;
+  color: #fff;
+}
+
+.card p {
+  margin-bottom: 12px;
+  line-height: 1.6;
+}
+
+.success {
+  color: #4ade80;
+  background: rgba(74, 222, 128, 0.1);
+  padding: 10px;
+  border-radius: var(--radius-md);
+  margin-bottom: 16px;
+}
+
+.error {
+  color: #f87171;
+  background: rgba(248, 113, 113, 0.1);
+  padding: 10px;
+  border-radius: var(--radius-md);
+  margin-bottom: 16px;
+}
+
+.statusOn {
+  color: #4ade80;
+  font-weight: bold;
+}
+
+.statusOff {
+  color: #f87171;
+  font-weight: bold;
+}
+
+.securitySection {
+  margin-top: 16px;
+}
+
+.form {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+  align-items: center;
+}
+
+.input {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(198, 161, 86, 0.4);
+  color: #fff;
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  font-family: monospace;
+  font-size: 16px;
+  width: 180px;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--color-gold);
+  box-shadow: 0 0 0 2px rgba(198, 161, 86, 0.2);
+}
+
+.btnAction {
+  background: linear-gradient(90deg, #3b2a4a 0%, #5b3f6a 100%);
+  color: #f3e8d6;
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 10px 20px;
+  font-weight: 600;
+  font-family: var(--font-heading);
+  cursor: pointer;
+  transition: transform 0.2s, filter 0.2s;
+}
+
+.btnAction:hover {
+  filter: brightness(1.1);
+  transform: translateY(-2px);
+}
+
+.btnDanger {
+  background: rgba(220, 38, 38, 0.8);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 10px 20px;
+  font-weight: 600;
+  font-family: var(--font-heading);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btnDanger:hover {
+  background: rgba(220, 38, 38, 1);
+}
+
+.btnCancel {
+  background: transparent;
+  color: var(--color-text-light);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: var(--radius-md);
+  padding: 10px 20px;
+  font-weight: 600;
+  font-family: var(--font-heading);
+  cursor: pointer;
+}
+
+.btnCancel:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.setupBox {
+  margin-top: 20px;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(198, 161, 86, 0.2);
+}
+
+.qrWrapper {
+  background: white;
+  padding: 16px;
+  border-radius: 8px;
+  display: inline-block;
+  margin: 16px 0;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 40px;
+}
+
+.secretBox {
+  margin: 16px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.secretValue {
+  background: rgba(0, 0, 0, 0.3);
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px dashed rgba(198, 161, 86, 0.5);
+  font-family: monospace;
+  color: var(--color-gold-light);
+  word-break: break-all;
+}
+
+.btnCopy {
+  background: rgba(198, 161, 86, 0.1);
+  color: var(--color-gold-light);
+  border: 1px solid var(--color-gold-light);
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.2s;
+  align-self: flex-start;
+}
+
+.btnCopy:hover {
+  background: var(--color-gold-light);
+  color: #000;
+}
+
+@media (max-width: 768px) {
+  .secretValue {
+    display: none; /* Hide the long text on mobile as requested */
+  }
+  
+  .btnCopy {
+    width: 100%;
+    padding: 12px;
+    font-size: 15px;
+  }
+  .form {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .input {
+    width: 100%;
+  }
+}
