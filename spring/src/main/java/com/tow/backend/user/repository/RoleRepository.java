@@ -12,7 +12,7 @@ import java.util.Optional;
  * @author Darío Márquez Bautista
  */
 @Repository
-public interface RoleRepository extends JpaRepository<Role, Integer> {
+public interface RoleRepository extends JpaRepository<Role, Long> {
 
     /**
      * Busca un rol por nombre. Usado al registrar un nuevo usuario

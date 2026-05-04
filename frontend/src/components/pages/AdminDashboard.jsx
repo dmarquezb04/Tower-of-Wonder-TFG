@@ -1,9 +1,14 @@
 import { useState, useEffect } from 'react'
-import { getAdminUsers } from '../../api/authApi'
+import { getAdminUsers, updateUser, deleteUser } from '../../api/authApi'
 import { getAdminMetricsStats } from '../../api/metricsApi'
-import { getAdminProducts } from '../../api/adminShopApi'
+import { getAdminProducts, createProduct, updateProduct, deleteProduct } from '../../api/adminShopApi'
 import { useAuth } from '../../context/AuthContext'
 import styles from './AdminDashboard.module.css'
+
+// Modales
+import UserEditModal from './UserEditModal'
+import ProductEditModal from './ProductEditModal'
+import DialogModal from '../DialogModal/DialogModal'
 
 export default function AdminDashboard() {
   const { token } = useAuth()
@@ -20,6 +25,15 @@ export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('metrics') // 'metrics' | 'users' | 'products'
   const [searchTerm, setSearchTerm] = useState('')
 
+  // Estados para Modales
+  const [isUserModalOpen, setIsUserModalOpen] = useState(false)
+  const [selectedUser, setSelectedUser] = useState(null)
+  
+  const [isProductModalOpen, setIsProductModalOpen] = useState(false)
+  const [selectedProduct, setSelectedProduct] = useState(null)
+
+  const [confirmDelete, setConfirmDelete] = useState({ open: false, type: '', id: null, title: '' })
+
   // 1. Detectar redimensión para bloqueo móvil
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768)
@@ -27,7 +41,7 @@ export default function AdminDashboard() {
     return () => window.removeEventListener('resize', handleResize)
   }, [])
 
-  // 2. Cargar métricas al entrar (son ligeras)
+  // 2. Cargar métricas al entrar
   useEffect(() => {
     const fetchMetrics = async () => {
       try {
@@ -40,19 +54,12 @@ export default function AdminDashboard() {
     if (token && !isMobile && activeTab === 'metrics') fetchMetrics()
   }, [token, isMobile, activeTab])
 
-  // 3. Cargar usuarios
+  // 3. Gestión de Usuarios
   const handleLoadUsers = async () => {
     try {
       setLoading(true)
       const usersData = await getAdminUsers(token)
-      if (searchTerm) {
-        setUsers(usersData.filter(u => 
-          u.username?.toLowerCase().includes(searchTerm.toLowerCase()) || 
-          u.email.toLowerCase().includes(searchTerm.toLowerCase())
-        ))
-      } else {
-        setUsers(usersData)
-      }
+      setUsers(usersData)
     } catch (err) {
       setError('Error al cargar usuarios: ' + err.message)
     } finally {
@@ -60,11 +67,20 @@ export default function AdminDashboard() {
     }
   }
 
-  // 4. Cargar productos
+  const handleSaveUser = async (userId, userData) => {
+    await updateUser(token, userId, userData)
+    handleLoadUsers() // Recargar lista
+  }
+
+  const openUserModal = (user) => {
+    setSelectedUser(user)
+    setIsUserModalOpen(true)
+  }
+
+  // 4. Gestión de Productos
   const handleLoadProducts = async () => {
     try {
       setLoading(true)
-      // Aquí usaremos el endpoint real cuando lo creemos
       const productsData = await getAdminProducts(token)
       setProducts(productsData)
     } catch (err) {
@@ -73,6 +89,58 @@ export default function AdminDashboard() {
       setLoading(false)
     }
   }
+
+  const handleSaveProduct = async (id, productData) => {
+    if (id) {
+      await updateProduct(token, id, productData)
+    } else {
+      await createProduct(token, productData)
+    }
+    handleLoadProducts() // Recargar lista
+  }
+
+  const openProductModal = (product = null) => {
+    setSelectedProduct(product)
+    setIsProductModalOpen(true)
+  }
+
+  // 5. Eliminación genérica
+  const askDelete = (type, id, name) => {
+    setConfirmDelete({ 
+      open: true, 
+      type, 
+      id, 
+      title: `¿Eliminar ${type === 'user' ? 'usuario' : 'producto'}?`,
+      message: `¿Estás seguro de que deseas eliminar permanentemente a "${name}"? Esta acción no se puede deshacer.`
+    })
+  }
+
+  const onConfirmDelete = async () => {
+    try {
+      if (confirmDelete.type === 'user') {
+        await deleteUser(token, confirmDelete.id)
+        handleLoadUsers()
+      } else {
+        await deleteProduct(token, confirmDelete.id)
+        handleLoadProducts()
+      }
+    } catch (err) {
+      alert('Error al eliminar: ' + err.message)
+    } finally {
+      setConfirmDelete({ ...confirmDelete, open: false })
+    }
+  }
+
+  // Filtrado en el cliente para búsqueda rápida
+  const filteredUsers = users.filter(u => 
+    u.username?.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    u.email.toLowerCase().includes(searchTerm.toLowerCase())
+  )
+
+  const filteredProducts = products.filter(p => 
+    p.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    p.category?.toLowerCase().includes(searchTerm.toLowerCase())
+  )
 
   // Si es móvil, bloqueamos el acceso
   if (isMobile) {
@@ -115,7 +183,7 @@ export default function AdminDashboard() {
 
       {error && <p className={styles.error}>{error}</p>}
 
-      {/* CONTENIDO MÉTICAS */}
+      {/* CONTENIDO MÉTRICAS */}
       {activeTab === 'metrics' && (
         <section className={styles.section}>
           <h2 className={styles.sectionTitle}>Métricas de Visitas</h2>
@@ -167,23 +235,35 @@ export default function AdminDashboard() {
               className={styles.searchInput}
             />
             <button onClick={handleLoadUsers} className={styles.btnPrimary} disabled={loading}>
-              {loading ? 'Buscando...' : 'Cargar Usuarios'}
+              {loading ? 'Cargando...' : 'Cargar / Refrescar'}
             </button>
           </div>
           <div className={styles.tableWrapper}>
             <table className={styles.table}>
               <thead>
-                <tr><th>Username</th><th>Email</th><th>Roles</th><th>Estado</th><th>Acciones</th></tr>
+                <tr><th>Username</th><th>Email</th><th>Rol</th><th>Activo</th><th>Acciones</th></tr>
               </thead>
               <tbody>
-                {users.map(u => (
+                {filteredUsers.map(u => (
                   <tr key={u.idUsuario}>
                     <td>{u.username}</td><td>{u.email}</td>
-                    <td>{u.roles.join(', ')}</td>
+                    <td>
+                      <span className={u.role === 'admin' ? styles.badgeAdmin : (u.role === 'moderator' ? styles.badgeModerator : styles.badgeUser)}>
+                        {u.role || 'SIN ROL'}
+                      </span>
+                    </td>
                     <td>{u.activo ? '✅' : '❌'}</td>
-                    <td><button className={styles.btnAction}>Gestionar</button></td>
+                    <td>
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <button className={styles.btnAction} onClick={() => openUserModal(u)}>Gestionar</button>
+                        <button className={`${styles.btnAction} ${styles.btnDanger}`} onClick={() => askDelete('user', u.idUsuario, u.username)}>Eliminar</button>
+                      </div>
+                    </td>
                   </tr>
                 ))}
+                {users.length === 0 && !loading && (
+                  <tr><td colSpan="5" className={styles.textCenter}>Pulsa en cargar para ver los usuarios.</td></tr>
+                )}
               </tbody>
             </table>
           </div>
@@ -195,15 +275,16 @@ export default function AdminDashboard() {
         <section className={styles.section}>
           <div className={styles.headerWithAction}>
             <h2 className={styles.sectionTitle}>Catálogo de Productos</h2>
-            <button className={styles.btnSuccess}>+ Añadir Producto</button>
+            <button className={styles.btnSuccess} onClick={() => openProductModal()}>+ Añadir Producto</button>
           </div>
           <div className={styles.controls}>
             <input 
-              type="text" placeholder="Buscar producto..." 
+              type="text" placeholder="Buscar producto o categoría..." 
+              value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
               className={styles.searchInput}
             />
             <button onClick={handleLoadProducts} className={styles.btnPrimary} disabled={loading}>
-              Cargar Productos
+              Cargar / Refrescar
             </button>
           </div>
           <div className={styles.tableWrapper}>
@@ -212,15 +293,21 @@ export default function AdminDashboard() {
                 <tr><th>Imagen</th><th>Nombre</th><th>Precio</th><th>Stock</th><th>Estado</th><th>Acciones</th></tr>
               </thead>
               <tbody>
-                {products.map(p => (
+                {filteredProducts.map(p => (
                   <tr key={p.id}>
-                    <td><img src={p.imageUrl} alt={p.name} width="40" /></td>
-                    <td>{p.name}</td><td>{p.price}€</td><td>{p.stock}</td>
-                    <td>{p.active ? 'Activo' : 'Oculto'}</td>
-                    <td><button className={styles.btnAction}>Editar</button></td>
+                    <td><img src={p.imageUrl} alt={p.name} width="40" style={{ borderRadius: '4px' }} /></td>
+                    <td>{p.name} <br/><small style={{color: '#888'}}>{p.category}</small></td>
+                    <td>{p.price}€</td><td>{p.stock}</td>
+                    <td>{p.active ? '✅' : '🚫'}</td>
+                    <td>
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <button className={styles.btnAction} onClick={() => openProductModal(p)}>Editar</button>
+                        <button className={`${styles.btnAction} ${styles.btnDanger}`} onClick={() => askDelete('product', p.id, p.name)}>Eliminar</button>
+                      </div>
+                    </td>
                   </tr>
                 ))}
-                {products.length === 0 && (
+                {products.length === 0 && !loading && (
                   <tr><td colSpan="6" className={styles.textCenter}>Pulsa en cargar para ver los productos.</td></tr>
                 )}
               </tbody>
@@ -228,6 +315,31 @@ export default function AdminDashboard() {
           </div>
         </section>
       )}
+
+      {/* MODALES */}
+      <UserEditModal 
+        isOpen={isUserModalOpen} 
+        user={selectedUser} 
+        onClose={() => setIsUserModalOpen(false)} 
+        onSave={handleSaveUser} 
+      />
+
+      <ProductEditModal 
+        isOpen={isProductModalOpen} 
+        product={selectedProduct} 
+        onClose={() => setIsProductModalOpen(false)} 
+        onSave={handleSaveProduct} 
+      />
+
+      <DialogModal 
+        isOpen={confirmDelete.open}
+        title={confirmDelete.title}
+        message={confirmDelete.message}
+        onConfirm={onConfirmDelete}
+        onCancel={() => setConfirmDelete({ ...confirmDelete, open: false })}
+        confirmText="Eliminar"
+        isDanger={true}
+      />
     </div>
   )
 }

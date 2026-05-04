@@ -2,7 +2,7 @@ package com.tow.backend.user.service;
 
 import com.tow.backend.user.dto.TwoFactorSetupDTO;
 import com.tow.backend.user.dto.UserProfileDTO;
-import com.tow.backend.user.entity.Role;
+
 import com.tow.backend.user.entity.User;
 import com.tow.backend.user.repository.UserRepository;
 import com.tow.backend.email.service.MailService;
@@ -13,10 +13,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -31,10 +29,6 @@ public class UserService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
                 
-        List<String> roles = user.getRoles().stream()
-                .map(Role::getNombreRol)
-                .collect(Collectors.toList());
-
         return UserProfileDTO.builder()
                 .idUsuario(user.getIdUsuario())
                 .email(user.getEmail())
@@ -43,7 +37,7 @@ public class UserService {
                 .activo(user.getActivo())
                 .fechaCreacion(user.getFechaCreacion())
                 .ultimoLogin(user.getUltimoLogin())
-                .roles(roles)
+                .role(user.getRole().getNombreRol())
                 .build();
     }
 

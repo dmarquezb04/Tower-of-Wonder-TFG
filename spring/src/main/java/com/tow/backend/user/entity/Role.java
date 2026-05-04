@@ -3,6 +3,7 @@ package com.tow.backend.user.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 
 /**
@@ -22,12 +23,13 @@ import lombok.NoArgsConstructor;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 public class Role {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_rol")
-    private Integer idRol;
+    private Long idRol;
 
     /**
      * Nombre del rol. Spring Security lo leerá como autoridad.

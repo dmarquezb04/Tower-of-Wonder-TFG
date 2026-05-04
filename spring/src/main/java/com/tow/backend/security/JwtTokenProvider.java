@@ -58,7 +58,7 @@ public class JwtTokenProvider {
      * @param roles   lista de nombres de roles (ej: ["user", "admin"])
      * @return token JWT firmado
      */
-    public String generateToken(Integer userId, String email, List<String> roles) {
+    public String generateToken(Long userId, String email, List<String> roles) {
         Date now = new Date();
         Date expiration = new Date(now.getTime() + expirationMs);
 
@@ -85,7 +85,7 @@ public class JwtTokenProvider {
      * @param email  email del usuario
      * @return token JWT temporal de 2FA
      */
-    public String generateTwoFactorPendingToken(Integer userId, String email) {
+    public String generateTwoFactorPendingToken(Long userId, String email) {
         Date now = new Date();
         Date expiration = new Date(now.getTime() + TWO_FACTOR_EXPIRATION_MS);
 
@@ -116,8 +116,8 @@ public class JwtTokenProvider {
      * @param token token JWT
      * @return ID del usuario
      */
-    public Integer getUserIdFromToken(String token) {
-        return parseClaims(token).get("userId", Integer.class);
+    public Long getUserIdFromToken(String token) {
+        return parseClaims(token).get("userId", Long.class);
     }
 
     /**

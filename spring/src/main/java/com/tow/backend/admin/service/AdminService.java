@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Set;
+
 import java.util.stream.Collectors;
 
 @Service
@@ -43,7 +43,7 @@ public class AdminService {
     }
 
     @Transactional
-    public void updateUserStatus(Integer id, boolean activo) {
+    public void updateUserStatus(Long id, boolean activo) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
         user.setActivo(activo);
@@ -51,21 +51,22 @@ public class AdminService {
     }
 
     @Transactional
-    public void updateUserRoles(Integer id, List<String> roleNames) {
+    public void updateUser(Long id, String username, String roleName, boolean activo) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
         
-        Set<Role> newRoles = roleNames.stream()
-                .map(name -> roleRepository.findByNombreRol(name)
-                        .orElseThrow(() -> new RuntimeException("Rol no encontrado: " + name)))
-                .collect(Collectors.toSet());
+        Role newRole = roleRepository.findByNombreRol(roleName)
+                .orElseThrow(() -> new RuntimeException("Rol no encontrado: " + roleName));
         
-        user.setRoles(newRoles);
+        user.setUsername(username);
+        user.setRole(newRole);
+        user.setActivo(activo);
+        
         userRepository.save(user);
     }
 
     @Transactional
-    public void deleteUser(Integer id) {
+    public void deleteUser(Long id) {
         if (!userRepository.existsById(id)) {
             throw new RuntimeException("Usuario no encontrado");
         }
@@ -73,10 +74,6 @@ public class AdminService {
     }
 
     private UserAdminDTO mapToDTO(User user) {
-        List<String> roles = user.getRoles().stream()
-                .map(Role::getNombreRol)
-                .collect(Collectors.toList());
-
         return UserAdminDTO.builder()
                 .idUsuario(user.getIdUsuario())
                 .email(user.getEmail())
@@ -85,7 +82,7 @@ public class AdminService {
                 .activo(user.getActivo())
                 .fechaCreacion(user.getFechaCreacion())
                 .ultimoLogin(user.getUltimoLogin())
-                .roles(roles)
+                .role(user.getRole().getNombreRol())
                 .build();
     }
 }

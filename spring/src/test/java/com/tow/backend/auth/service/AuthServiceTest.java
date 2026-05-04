@@ -22,7 +22,6 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
-import java.util.Set;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -31,11 +30,13 @@ import static org.mockito.Mockito.*;
 /**
  * Tests unitarios para {@link AuthService}.
  *
- * <p>Estrategia: cada dependencia se sustituye por un mock de Mockito.
+ * <p>
+ * Estrategia: cada dependencia se sustituye por un mock de Mockito.
  * Esto permite testear solo la lógica de AuthService de forma aislada,
  * sin base de datos ni Spring Boot corriendo (tests rápidos).
  *
- * <p>Estructura: tests agrupados por método con {@code @Nested},
+ * <p>
+ * Estructura: tests agrupados por método con {@code @Nested},
  * lo que genera un informe más legible en el IDE.
  *
  * @author Darío Márquez Bautista
@@ -45,47 +46,52 @@ import static org.mockito.Mockito.*;
 class AuthServiceTest {
 
     // Mocks — simulan las dependencias
-    @Mock private UserRepository     userRepository;
-    @Mock private RoleRepository     roleRepository;
-    @Mock private JwtTokenProvider   tokenProvider;
-    @Mock private PasswordEncoder    passwordEncoder;
-    @Mock private GoogleAuthenticator googleAuthenticator;
+    @Mock
+    private UserRepository userRepository;
+    @Mock
+    private RoleRepository roleRepository;
+    @Mock
+    private JwtTokenProvider tokenProvider;
+    @Mock
+    private PasswordEncoder passwordEncoder;
+    @Mock
+    private GoogleAuthenticator googleAuthenticator;
 
     // El objeto real que estamos testeando
     @InjectMocks
     private AuthService authService;
 
     // Datos de prueba reutilizables
-    private User    activeUser;
-    private User    twoFaUser;
-    private Role    userRole;
+    private User activeUser;
+    private User twoFaUser;
+    private Role userRole;
 
     @BeforeEach
     void setUp() {
         userRole = new Role();
-        userRole.setIdRol(3);
+        userRole.setIdRol(3L);
         userRole.setNombreRol("user");
 
         // Usuario normal sin 2FA
         activeUser = new User();
-        activeUser.setIdUsuario(1);
+        activeUser.setIdUsuario(1L);
         activeUser.setEmail("user@tow.com");
         activeUser.setUsername("testuser");
         activeUser.setPasswordHash("$2a$10$hashedpassword");
         activeUser.setActivo(true);
         activeUser.setTwoFaEnabled(false);
-        activeUser.getRoles().add(userRole);
+        activeUser.setRole(userRole);
 
         // Usuario con 2FA activo
         twoFaUser = new User();
-        twoFaUser.setIdUsuario(2);
+        twoFaUser.setIdUsuario(2L);
         twoFaUser.setEmail("admin@tow.com");
         twoFaUser.setUsername("adminuser");
         twoFaUser.setPasswordHash("$2a$10$hashedpassword2fa");
         twoFaUser.setActivo(true);
         twoFaUser.setTwoFaEnabled(true);
         twoFaUser.setTwofaSecret("JBSWY3DPEHPK3PXP");
-        twoFaUser.getRoles().add(userRole);
+        twoFaUser.setRole(userRole);
     }
 
     // ================================================================
@@ -105,7 +111,7 @@ class AuthServiceTest {
 
             when(userRepository.findByEmail("user@tow.com")).thenReturn(Optional.of(activeUser));
             when(passwordEncoder.matches("Password123!", activeUser.getPasswordHash())).thenReturn(true);
-            when(tokenProvider.generateToken(anyInt(), anyString(), anyList())).thenReturn("jwt-token-full");
+            when(tokenProvider.generateToken(anyLong(), anyString(), anyList())).thenReturn("jwt-token-full");
 
             // WHEN
             LoginResponse response = authService.login(request);
@@ -115,7 +121,7 @@ class AuthServiceTest {
             assertThat(response.getToken()).isEqualTo("jwt-token-full");
             assertThat(response.getEmail()).isEqualTo("user@tow.com");
             // No debe llamar al método de token temporal
-            verify(tokenProvider, never()).generateTwoFactorPendingToken(anyInt(), anyString());
+            verify(tokenProvider, never()).generateTwoFactorPendingToken(anyLong(), anyString());
         }
 
         @Test
@@ -128,7 +134,7 @@ class AuthServiceTest {
 
             when(userRepository.findByEmail("admin@tow.com")).thenReturn(Optional.of(twoFaUser));
             when(passwordEncoder.matches(anyString(), anyString())).thenReturn(true);
-            when(tokenProvider.generateTwoFactorPendingToken(anyInt(), anyString()))
+            when(tokenProvider.generateTwoFactorPendingToken(anyLong(), anyString()))
                     .thenReturn("jwt-token-temp");
 
             // WHEN
@@ -138,7 +144,7 @@ class AuthServiceTest {
             assertThat(response.isRequiresTwoFactor()).isTrue();
             assertThat(response.getToken()).isEqualTo("jwt-token-temp");
             // No debe generar token completo
-            verify(tokenProvider, never()).generateToken(anyInt(), anyString(), anyList());
+            verify(tokenProvider, never()).generateToken(anyLong(), anyString(), anyList());
         }
 
         @Test
@@ -203,7 +209,7 @@ class AuthServiceTest {
 
             when(userRepository.findByEmail("user@tow.com")).thenReturn(Optional.of(activeUser));
             when(passwordEncoder.matches(anyString(), anyString())).thenReturn(true);
-            when(tokenProvider.generateToken(anyInt(), anyString(), anyList())).thenReturn("token");
+            when(tokenProvider.generateToken(anyLong(), anyString(), anyList())).thenReturn("token");
 
             // WHEN
             authService.login(request);
@@ -238,13 +244,11 @@ class AuthServiceTest {
             authService.register(request);
 
             // THEN — se debe haber guardado un usuario nuevo
-            verify(userRepository).save(argThat(user ->
-                    user.getEmail().equals("nuevo@tow.com") &&
+            verify(userRepository).save(argThat(user -> user.getEmail().equals("nuevo@tow.com") &&
                     user.getUsername().equals("nuevousuario") &&
                     user.getPasswordHash().equals("$2a$10$hashedNewPass") &&
                     !user.getTwoFaEnabled() &&
-                    user.getRoles().contains(userRole)
-            ));
+                    user.getRole().equals(userRole)));
         }
 
         @Test
@@ -307,7 +311,7 @@ class AuthServiceTest {
             when(tokenProvider.getEmailFromToken(tempToken)).thenReturn("admin@tow.com");
             when(userRepository.findByEmail("admin@tow.com")).thenReturn(Optional.of(twoFaUser));
             when(googleAuthenticator.authorize("JBSWY3DPEHPK3PXP", 123456)).thenReturn(true);
-            when(tokenProvider.generateToken(anyInt(), anyString(), anyList())).thenReturn("full-jwt");
+            when(tokenProvider.generateToken(anyLong(), anyString(), anyList())).thenReturn("full-jwt");
 
             // WHEN
             LoginResponse response = authService.verifyTwoFactor(tempToken, request);

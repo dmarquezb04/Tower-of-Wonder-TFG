@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
  * @author Darío Márquez Bautista
  */
 @Repository
-public interface JwtBlacklistRepository extends JpaRepository<JwtBlacklist, Integer> {
+public interface JwtBlacklistRepository extends JpaRepository<JwtBlacklist, Long> {
 
     /**
      * Comprueba si un token (por su JTI) ha sido revocado.

@@ -77,7 +77,7 @@ public class AuthService {
             throw new BadCredentialsException("La cuenta está desactivada");
         }
 
-        List<String> roles = extractRoleNames(user);
+        List<String> roles = List.of(user.getRole().getNombreRol());
 
         // 4a. Si tiene 2FA → token temporal, el cliente debe completar el flujo
         if (Boolean.TRUE.equals(user.getTwoFaEnabled())) {
@@ -149,7 +149,7 @@ public class AuthService {
         tokenProvider.revokeToken(tokenTemporal);
 
         // Emitir token completo
-        List<String> roles = extractRoleNames(user);
+        List<String> roles = List.of(user.getRole().getNombreRol());
         String token = tokenProvider.generateToken(user.getIdUsuario(), user.getEmail(), roles);
         actualizarUltimoLogin(user);
 
@@ -193,7 +193,7 @@ public class AuthService {
         newUser.setPasswordHash(passwordEncoder.encode(request.getPassword()));
         newUser.setActivo(true);
         newUser.setTwoFaEnabled(false);
-        newUser.getRoles().add(defaultRole);
+        newUser.setRole(defaultRole);
 
         userRepository.save(newUser);
         log.info("Nuevo usuario registrado: {}", request.getEmail());
@@ -218,9 +218,7 @@ public class AuthService {
     // ============================================================
 
     private List<String> extractRoleNames(User user) {
-        return user.getRoles().stream()
-                .map(Role::getNombreRol)
-                .collect(Collectors.toList());
+        return List.of(user.getRole().getNombreRol());
     }
 
     private void actualizarUltimoLogin(User user) {

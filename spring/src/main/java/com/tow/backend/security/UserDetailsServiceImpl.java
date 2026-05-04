@@ -12,8 +12,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.List;
 
 /**
  * Implementación de {@link UserDetailsService} que carga usuarios desde la BD.
@@ -52,7 +51,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             throw new UsernameNotFoundException("Cuenta desactivada: " + email);
         }
 
-        Set<GrantedAuthority> authorities = mapRolesToAuthorities(user.getRoles());
+        List<GrantedAuthority> authorities = mapRolesToAuthorities(user.getRole());
 
         // Spring Security requiere un objeto UserDetails.
         // Usamos el builder estándar de Spring.
@@ -74,11 +73,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
      * @param roles conjunto de roles del usuario
      * @return autoridades Spring Security
      */
-    private Set<GrantedAuthority> mapRolesToAuthorities(Set<Role> roles) {
-        return roles.stream()
-                .map(role -> new SimpleGrantedAuthority(
-                        "ROLE_" + role.getNombreRol().toUpperCase()
-                ))
-                .collect(Collectors.toSet());
+    private List<GrantedAuthority> mapRolesToAuthorities(Role role) {
+        return List.of(new SimpleGrantedAuthority("ROLE_" + role.getNombreRol().toUpperCase()));
     }
 }

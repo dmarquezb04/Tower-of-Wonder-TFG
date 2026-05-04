@@ -15,7 +15,7 @@ import java.util.Optional;
  * @author Darío Márquez Bautista
  */
 @Repository
-public interface UserRepository extends JpaRepository<User, Integer> {
+public interface UserRepository extends JpaRepository<User, Long> {
 
     /**
      * Busca un usuario por email. Equivale al método

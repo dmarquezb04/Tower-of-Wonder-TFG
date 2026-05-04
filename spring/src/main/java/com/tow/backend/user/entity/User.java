@@ -1,13 +1,10 @@
 package com.tow.backend.user.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
+
 
 /**
  * Entidad JPA que mapea la tabla {@code usuarios} de la base de datos.
@@ -20,15 +17,16 @@ import java.util.Set;
  */
 @Entity
 @Table(name = "usuarios")
-@Getter
-@Setter
+@Data
+@Builder
 @NoArgsConstructor
+@AllArgsConstructor
 public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_usuario")
-    private Integer idUsuario;
+    private Long idUsuario;
 
     /** Email único de acceso — usado como username en Spring Security. */
     @Column(nullable = false, unique = true, length = 255)
@@ -79,13 +77,13 @@ public class User {
      * a través de la tabla intermedia {@code usuario_roles}.
      * EAGER: se cargan siempre (necesario para Spring Security).
      */
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-        name = "usuario_roles",
-        joinColumns = @JoinColumn(name = "id_usuario"),
-        inverseJoinColumns = @JoinColumn(name = "id_rol")
-    )
-    private Set<Role> roles = new HashSet<>();
+    /**
+     * Rol del usuario. Relación ManyToOne con la tabla {@code roles}.
+     * Cada usuario tiene asignado exactamente un rol.
+     */
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "id_rol", nullable = true)
+    private Role role;
 
     /** Establece la fecha de creación automáticamente antes de persistir. */
     @PrePersist

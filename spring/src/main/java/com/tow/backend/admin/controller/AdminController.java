@@ -22,20 +22,18 @@ public class AdminController {
         return ResponseEntity.ok(adminService.getAllUsers());
     }
 
-    @PutMapping("/users/{id}/status")
-    public ResponseEntity<?> updateUserStatus(@PathVariable Integer id, @RequestBody Map<String, Boolean> body) {
-        adminService.updateUserStatus(id, body.get("activo"));
-        return ResponseEntity.ok(Map.of("message", "Estado de usuario actualizado"));
-    }
-
-    @PutMapping("/users/{id}/roles")
-    public ResponseEntity<?> updateUserRoles(@PathVariable Integer id, @RequestBody List<String> roles) {
-        adminService.updateUserRoles(id, roles);
-        return ResponseEntity.ok(Map.of("message", "Roles de usuario actualizados"));
+    @PutMapping("/users/{id}")
+    public ResponseEntity<?> updateUser(@PathVariable Long id, @RequestBody Map<String, Object> body) {
+        String username = (String) body.get("username");
+        String role = (String) body.get("role");
+        boolean activo = (boolean) body.get("activo");
+        
+        adminService.updateUser(id, username, role, activo);
+        return ResponseEntity.ok(Map.of("message", "Usuario actualizado con éxito"));
     }
 
     @DeleteMapping("/users/{id}")
-    public ResponseEntity<?> deleteUser(@PathVariable Integer id) {
+    public ResponseEntity<?> deleteUser(@PathVariable Long id) {
         adminService.deleteUser(id);
         return ResponseEntity.ok(Map.of("message", "Usuario eliminado con éxito"));
     }

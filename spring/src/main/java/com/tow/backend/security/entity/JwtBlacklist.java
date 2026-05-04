@@ -28,7 +28,7 @@ public class JwtBlacklist {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     /** ID único del token JWT (claim 'jti'). */
     @Column(name = "token_jti", nullable = false, unique = true, length = 64)

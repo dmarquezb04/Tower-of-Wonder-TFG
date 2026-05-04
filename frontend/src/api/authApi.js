@@ -1,116 +1,53 @@
 /**
  * authApi.js — Capa de comunicación con el backend Spring Boot
  *
- * Centraliza todas las llamadas a /api/auth/* para que ningún componente
- * haga fetch() directamente. Si el endpoint cambia, solo cambia aquí.
- *
- * No usa Axios (la dependencia no está instalada). fetch() nativo es
- * suficiente y evita una dependencia extra para este módulo.
+ * Centraliza todas las llamadas a /api/auth/* y /api/user/*
+ * Ahora utiliza Axios para mayor consistencia y mejores funcionalidades.
  */
 
-const API_BASE = '/api'
+import axios from 'axios';
+
+const API_BASE = '/api';
+
+// Instancia de axios para centralizar configuración si fuera necesario
+const api = axios.create({
+  baseURL: API_BASE,
+  headers: {
+    'Content-Type': 'application/json'
+  }
+});
 
 /**
- * Helper interno: ejecuta un fetch POST con JSON y devuelve el body parseado.
- * Lanza un Error con el mensaje del servidor si el status no es 2xx.
- *
- * @param {string} path  — ruta relativa (ej: '/auth/login')
- * @param {object} body  — objeto que se serializa a JSON
- * @param {string} [token] — si se proporciona, añade Authorization: Bearer <token>
- * @returns {Promise<object>} body de la respuesta
+ * Helper para añadir el token a las cabeceras
  */
-async function postJson(path, body, token = null) {
-  const headers = { 'Content-Type': 'application/json' }
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`
+const getAuthHeader = (token) => ({
+  headers: {
+    'Authorization': `Bearer ${token}`
   }
-
-  const res = await fetch(`${API_BASE}${path}`, {
-    method: 'POST',
-    headers,
-    body: JSON.stringify(body),
-  })
-
-  const data = await res.json().catch(() => ({}))
-
-  if (!res.ok) {
-    // Usar el mensaje del servidor si lo hay, o un genérico
-    throw new Error(data.error || data.message || `Error ${res.status}`)
-  }
-
-  return data
-}
-
-/**
- * Helper interno: ejecuta un fetch GET y devuelve el body parseado.
- * Lanza un Error con el mensaje del servidor si el status no es 2xx.
- */
-async function getJson(path, token = null) {
-  const headers = {}
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`
-  }
-
-  const res = await fetch(`${API_BASE}${path}`, {
-    method: 'GET',
-    headers,
-  })
-
-  const data = await res.json().catch(() => ({}))
-
-  if (!res.ok) {
-    throw new Error(data.error || data.message || `Error ${res.status}`)
-  }
-
-  return data
-}
+});
 
 // ============================================================
 // Autenticación
 // ============================================================
 
-/**
- * Inicia sesión con email y contraseña.
- *
- * @param {string} email
- * @param {string} password
- * @returns {Promise<{token: string, requiresTwoFactor: boolean, email: string, username: string, message: string}>}
- */
 export async function login(email, password) {
-  return postJson('/auth/login', { email, password })
+  const response = await api.post('/auth/login', { email, password });
+  return response.data;
 }
 
-/**
- * Verifica el código TOTP para completar el login con 2FA.
- *
- * @param {string} tempToken — token temporal recibido en el paso de login
- * @param {string} code      — código de 6 dígitos de Google Authenticator
- * @returns {Promise<{token: string, email: string, username: string}>}
- */
 export async function verifyTwoFactor(tempToken, code) {
-  return postJson('/auth/verify-2fa', { code }, tempToken)
+  const response = await api.post('/auth/verify-2fa', { code }, getAuthHeader(tempToken));
+  return response.data;
 }
 
-/**
- * Registra un nuevo usuario.
- *
- * @param {string} email
- * @param {string} username
- * @param {string} password
- * @returns {Promise<{message: string}>}
- */
 export async function register(email, username, password) {
-  return postJson('/auth/register', { email, username, password })
+  const response = await api.post('/auth/register', { email, username, password });
+  return response.data;
 }
 
-/**
- * Cierra la sesión revocando el token en el servidor.
- *
- * @param {string} token — JWT actual
- * @returns {Promise<{message: string}>}
- */
 export async function logout(token) {
-  return postJson('/auth/logout', {}, token)
+  const response = await api.post('/auth/logout', {}, getAuthHeader(token));
+  return response.data;
 }
 
 // ============================================================
@@ -118,46 +55,50 @@ export async function logout(token) {
 // ============================================================
 
 export async function getProfile(token) {
-  return getJson('/user/profile', token)
+  const response = await api.get('/user/profile', getAuthHeader(token));
+  return response.data;
 }
 
 export async function setup2FA(token) {
-  return getJson('/user/2fa/setup', token)
+  const response = await api.get('/user/2fa/setup', getAuthHeader(token));
+  return response.data;
 }
 
 export async function enable2FA(token, secret, code) {
-  return postJson('/user/2fa/enable', { secret, code }, token)
+  const response = await api.post('/user/2fa/enable', { secret, code }, getAuthHeader(token));
+  return response.data;
 }
 
 export async function disable2FA(token, code) {
-  return postJson('/user/2fa/disable', { code }, token)
+  const response = await api.post('/user/2fa/disable', { code }, getAuthHeader(token));
+  return response.data;
 }
 
 export async function deleteAccount(token) {
-  const res = await fetch(`${API_BASE}/user/me`, {
-    method: 'DELETE',
-    headers: {
-      'Authorization': `Bearer ${token}`
-    }
-  })
-  
-  if (!res.ok) {
-    const data = await res.json().catch(() => ({}))
-    throw new Error(data.error || data.message || `Error ${res.status}`)
-  }
-  
-  return res.json().catch(() => ({}))
+  const response = await api.delete('/user/me', getAuthHeader(token));
+  return response.data;
 }
 
 // ============================================================
-// Administrador
+// Administrador (Usuarios)
 // ============================================================
 
 export async function getAdminUsers(token) {
-  return getJson('/admin/users', token)
+  const response = await api.get('/admin/users', getAuthHeader(token));
+  return response.data;
+}
+
+export async function updateUser(token, userId, userData) {
+  const response = await api.put(`/admin/users/${userId}`, userData, getAuthHeader(token));
+  return response.data;
+}
+
+export async function deleteUser(token, userId) {
+  const response = await api.delete(`/admin/users/${userId}`, getAuthHeader(token));
+  return response.data;
 }
 
 export async function getAdminMetrics(token) {
-  return getJson('/admin/metrics', token)
+  const response = await api.get('/admin/metrics', getAuthHeader(token));
+  return response.data;
 }
-

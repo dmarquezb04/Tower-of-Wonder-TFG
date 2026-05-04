@@ -59,14 +59,14 @@ class JwtTokenProviderTest {
         @Test
         @DisplayName("Genera un token no vacío")
         void generateToken_returnsNonBlankToken() {
-            String token = tokenProvider.generateToken(1, "user@test.com", List.of("user"));
+            String token = tokenProvider.generateToken(1L, "user@test.com", List.of("user"));
             assertThat(token).isNotBlank();
         }
 
         @Test
         @DisplayName("El token contiene tres partes (header.payload.signature)")
         void generateToken_hasThreeParts() {
-            String token = tokenProvider.generateToken(1, "user@test.com", List.of("user"));
+            String token = tokenProvider.generateToken(1L, "user@test.com", List.of("user"));
             assertThat(token.split("\\.")).hasSize(3);
         }
     }
@@ -82,7 +82,7 @@ class JwtTokenProviderTest {
         @DisplayName("Extrae el email correcto del token")
         void getEmailFromToken_returnsCorrectEmail() {
             String email = "usuario@tow.com";
-            String token = tokenProvider.generateToken(42, email, List.of("user"));
+            String token = tokenProvider.generateToken(42L, email, List.of("user"));
 
             assertThat(tokenProvider.getEmailFromToken(token)).isEqualTo(email);
         }
@@ -98,9 +98,9 @@ class JwtTokenProviderTest {
         @Test
         @DisplayName("Extrae el userId correcto del token")
         void getUserIdFromToken_returnsCorrectId() {
-            String token = tokenProvider.generateToken(99, "test@tow.com", List.of("admin"));
+            String token = tokenProvider.generateToken(99L, "test@tow.com", List.of("admin"));
 
-            assertThat(tokenProvider.getUserIdFromToken(token)).isEqualTo(99);
+            assertThat(tokenProvider.getUserIdFromToken(token)).isEqualTo(99L);
         }
     }
 
@@ -114,7 +114,7 @@ class JwtTokenProviderTest {
         @Test
         @DisplayName("Un token válido recién generado se valida correctamente")
         void validateToken_validToken_returnsTrue() {
-            String token = tokenProvider.generateToken(1, "user@test.com", List.of("user"));
+            String token = tokenProvider.generateToken(1L, "user@test.com", List.of("user"));
             when(blacklistRepository.existsByTokenJti(any())).thenReturn(false);
 
             assertThat(tokenProvider.validateToken(token)).isTrue();
@@ -123,7 +123,7 @@ class JwtTokenProviderTest {
         @Test
         @DisplayName("Un token con firma incorrecta no se valida")
         void validateToken_tamperedToken_returnsFalse() {
-            String token = tokenProvider.generateToken(1, "user@test.com", List.of("user"));
+            String token = tokenProvider.generateToken(1L, "user@test.com", List.of("user"));
             // Modificar la firma: reemplazar los últimos 5 chars
             String tampered = token.substring(0, token.length() - 5) + "XXXXX";
 
@@ -133,7 +133,7 @@ class JwtTokenProviderTest {
         @Test
         @DisplayName("Un token revocado (en blacklist) no se valida")
         void validateToken_blacklistedToken_returnsFalse() {
-            String token = tokenProvider.generateToken(1, "user@test.com", List.of("user"));
+            String token = tokenProvider.generateToken(1L, "user@test.com", List.of("user"));
             when(blacklistRepository.existsByTokenJti(any())).thenReturn(true);
 
             assertThat(tokenProvider.validateToken(token)).isFalse();
@@ -162,14 +162,14 @@ class JwtTokenProviderTest {
         @Test
         @DisplayName("Un token normal tiene twoFactorPending = false")
         void isTwoFactorPending_normalToken_returnsFalse() {
-            String token = tokenProvider.generateToken(1, "user@test.com", List.of("user"));
+            String token = tokenProvider.generateToken(1L, "user@test.com", List.of("user"));
             assertThat(tokenProvider.isTwoFactorPending(token)).isFalse();
         }
 
         @Test
         @DisplayName("Un token temporal de 2FA tiene twoFactorPending = true")
         void isTwoFactorPending_pendingToken_returnsTrue() {
-            String token = tokenProvider.generateTwoFactorPendingToken(1, "user@test.com");
+            String token = tokenProvider.generateTwoFactorPendingToken(1L, "user@test.com");
             assertThat(tokenProvider.isTwoFactorPending(token)).isTrue();
         }
     }
@@ -184,7 +184,7 @@ class JwtTokenProviderTest {
         @Test
         @DisplayName("Revocar un token guarda el JTI en la blacklist")
         void revokeToken_savesJtiToBlacklist() {
-            String token = tokenProvider.generateToken(1, "user@test.com", List.of("user"));
+            String token = tokenProvider.generateToken(1L, "user@test.com", List.of("user"));
 
             tokenProvider.revokeToken(token);
 

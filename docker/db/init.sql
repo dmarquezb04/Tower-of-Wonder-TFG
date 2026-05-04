@@ -36,15 +36,8 @@ CREATE TABLE `login_attempts` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
--- Volcado de datos para la tabla `login_attempts`
+-- Volcado de datos para la tabla `login_attempts` — Vacío por seguridad
 --
-
-INSERT INTO `login_attempts` (`id_intento`, `email`, `ip`, `exitoso`, `fecha`) VALUES
-(1, 'dmarquezb04@educarex.es', '::1', 1, '2026-02-04 21:39:17'),
-(2, 'dmarquezb04@educarex.es', '::1', 1, '2026-02-04 21:39:27'),
-(3, 'dmarquezb04@educarex.es', '::1', 1, '2026-02-04 21:47:00'),
-(5, 'dmarquezb04@educarex.es', '::1', 1, '2026-02-04 21:49:29'),
-(6, 'dmarquezb04@educarex.es', '::1', 1, '2026-02-05 21:16:45');
 
 -- --------------------------------------------------------
 
@@ -61,22 +54,8 @@ CREATE TABLE `logs_acceso` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
--- Volcado de datos para la tabla `logs_acceso`
+-- Volcado de datos para la tabla `logs_acceso` — Vacío por seguridad
 --
-
-INSERT INTO `logs_acceso` (`id_log`, `id_usuario`, `accion`, `ip`, `fecha`) VALUES
-(1, 1, 'logout', '::1', '2026-02-04 21:18:49'),
-(2, 1, 'logout', '::1', '2026-02-04 21:26:21'),
-(3, 1, 'logout', '::1', '2026-02-04 21:26:54'),
-(4, 1, 'login', '::1', '2026-02-04 21:39:17'),
-(5, 1, 'login', '::1', '2026-02-04 21:39:27'),
-(6, 1, 'logout', '::1', '2026-02-04 21:46:54'),
-(7, 1, 'login', '::1', '2026-02-04 21:47:00'),
-(8, 1, 'logout', '::1', '2026-02-04 21:47:01'),
-(9, 1, 'login', '::1', '2026-02-04 21:49:29'),
-(10, 1, 'logout', '::1', '2026-02-04 21:49:42'),
-(11, 1, 'login', '::1', '2026-02-05 21:16:45'),
-(12, 1, 'logout', '::1', '2026-02-05 21:16:57');
 
 -- --------------------------------------------------------
 
@@ -158,15 +137,13 @@ CREATE TABLE `usuarios` (
   `twofa_secret` varchar(255) DEFAULT NULL,
   `activo` tinyint(1) DEFAULT 1,
   `fecha_creacion` datetime DEFAULT current_timestamp(),
-  `ultimo_login` datetime DEFAULT NULL
+  `ultimo_login` datetime DEFAULT NULL,
+  `id_rol` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
--- Volcado de datos para la tabla `usuarios`
+-- Volcado de datos para la tabla `usuarios` — Se inicializa via Java (DataInitializer)
 --
-
-INSERT INTO `usuarios` (`id_usuario`, `email`, `username`, `password_hash`, `two_fa_enabled`, `twofa_secret`, `activo`, `fecha_creacion`, `ultimo_login`) VALUES
-(1, 'dmarquezb04@educarex.es', 'dmarquezb04', '$2y$10$6I5DJZspgozgGXcgu73t4OZ3BjIJ4Ocw5w2LioKhlw6N9HX00c9z6', 0, NULL, 1, '2026-02-03 21:28:01', '2026-02-05 21:16:45');
 
 -- --------------------------------------------------------
 
@@ -174,17 +151,13 @@ INSERT INTO `usuarios` (`id_usuario`, `email`, `username`, `password_hash`, `two
 -- Estructura de tabla para la tabla `usuario_roles`
 --
 
-CREATE TABLE `usuario_roles` (
-  `id_usuario` int(11) NOT NULL,
-  `id_rol` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 
 --
 -- Volcado de datos para la tabla `usuario_roles`
 --
 
-INSERT INTO `usuario_roles` (`id_usuario`, `id_rol`) VALUES
-(1, 3);
+
 
 --
 -- Índices para tablas volcadas
@@ -240,14 +213,13 @@ ALTER TABLE `two_factor_config`
 ALTER TABLE `usuarios`
   ADD PRIMARY KEY (`id_usuario`),
   ADD UNIQUE KEY `email` (`email`),
-  ADD KEY `idx_username` (`username`);
+  ADD KEY `idx_username` (`username`),
+  ADD KEY `id_rol` (`id_rol`);
 
 --
 -- Indices de la tabla `usuario_roles`
 --
-ALTER TABLE `usuario_roles`
-  ADD PRIMARY KEY (`id_usuario`,`id_rol`),
-  ADD KEY `id_rol` (`id_rol`);
+
 
 --
 -- AUTO_INCREMENT de las tablas volcadas
@@ -317,12 +289,13 @@ ALTER TABLE `two_factor_codes`
 ALTER TABLE `two_factor_config`
   ADD CONSTRAINT `two_factor_config_ibfk_1` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id_usuario`) ON DELETE CASCADE;
 
+ALTER TABLE `usuarios`
+  ADD CONSTRAINT `usuarios_ibfk_1` FOREIGN KEY (`id_rol`) REFERENCES `roles` (`id_rol`);
+
 --
 -- Filtros para la tabla `usuario_roles`
 --
-ALTER TABLE `usuario_roles`
-  ADD CONSTRAINT `usuario_roles_ibfk_1` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id_usuario`) ON DELETE CASCADE,
-  ADD CONSTRAINT `usuario_roles_ibfk_2` FOREIGN KEY (`id_rol`) REFERENCES `roles` (`id_rol`) ON DELETE CASCADE;
+
 
 -- --------------------------------------------------------
 --
