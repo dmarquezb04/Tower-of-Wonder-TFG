@@ -48,7 +48,8 @@ public class ShopController {
     @Operation(summary = "Simular la compra del carrito (requiere autenticación)")
     public ResponseEntity<?> checkout(@RequestBody List<Map<String, Object>> cartItems) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getPrincipal())) {
+        if (authentication == null || !authentication.isAuthenticated()
+                || "anonymousUser".equals(authentication.getPrincipal())) {
             return ResponseEntity.status(401).body(Map.of("error", "Debes iniciar sesión para comprar"));
         }
 
@@ -72,7 +73,8 @@ public class ShopController {
                     .orElseThrow(() -> new RuntimeException("Producto no encontrado: " + productId));
 
             if (product.getStock() < quantity) {
-                return ResponseEntity.badRequest().body(Map.of("error", "No hay suficiente stock para: " + product.getName()));
+                return ResponseEntity.badRequest()
+                        .body(Map.of("error", "No hay suficiente stock para: " + product.getName()));
             }
 
             // Restar stock
@@ -97,9 +99,10 @@ public class ShopController {
             Map<String, Object> emailVars = new HashMap<>();
             emailVars.put("username", user.getUsername() != null ? user.getUsername() : user.getEmail());
             emailVars.put("orderId", savedOrder.getId());
-            emailVars.put("orderDate", savedOrder.getOrderDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")));
+            emailVars.put("orderDate",
+                    savedOrder.getOrderDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")));
             emailVars.put("totalPrice", savedOrder.getTotalPrice());
-            
+
             List<Map<String, Object>> itemsList = savedOrder.getItems().stream().map(item -> {
                 Map<String, Object> m = new HashMap<>();
                 m.put("productName", item.getProduct().getName());
@@ -109,16 +112,15 @@ public class ShopController {
             }).collect(Collectors.toList());
             emailVars.put("items", itemsList);
 
-            mailService.sendHtmlEmail(user.getEmail(), "Recibo de Compra - Tower of Wonder", "order_receipt", emailVars);
+            mailService.sendHtmlEmail(user.getEmail(), "Recibo de Compra - Tower of Wonder", "order_receipt",
+                    emailVars);
         } catch (Exception e) {
             // Logueamos el error pero no fallamos la compra por el email
         }
 
         return ResponseEntity.ok(Map.of(
-            "message", "Compra simulada con éxito. Se ha enviado un recibo a tu correo.",
-            "orderId", savedOrder.getId(),
-            "total", total
-        ));
+                "message", "Compra simulada con éxito. Se ha enviado un recibo a tu correo.",
+                "orderId", savedOrder.getId(),
+                "total", total));
     }
-}
 }

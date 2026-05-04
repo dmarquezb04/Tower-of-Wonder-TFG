@@ -5,11 +5,13 @@ import com.tow.backend.admin.dto.UserAdminDTO;
 import com.tow.backend.user.entity.Role;
 import com.tow.backend.user.entity.User;
 import com.tow.backend.user.repository.UserRepository;
+import com.tow.backend.user.repository.RoleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -17,6 +19,7 @@ import java.util.stream.Collectors;
 public class AdminService {
 
     private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
 
     @Transactional(readOnly = true)
     public AdminMetricsDTO getMetrics() {
@@ -37,6 +40,36 @@ public class AdminService {
         return userRepository.findAll().stream()
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void updateUserStatus(Integer id, boolean activo) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        user.setActivo(activo);
+        userRepository.save(user);
+    }
+
+    @Transactional
+    public void updateUserRoles(Integer id, List<String> roleNames) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        
+        Set<Role> newRoles = roleNames.stream()
+                .map(name -> roleRepository.findByNombreRol(name)
+                        .orElseThrow(() -> new RuntimeException("Rol no encontrado: " + name)))
+                .collect(Collectors.toSet());
+        
+        user.setRoles(newRoles);
+        userRepository.save(user);
+    }
+
+    @Transactional
+    public void deleteUser(Integer id) {
+        if (!userRepository.existsById(id)) {
+            throw new RuntimeException("Usuario no encontrado");
+        }
+        userRepository.deleteById(id);
     }
 
     private UserAdminDTO mapToDTO(User user) {

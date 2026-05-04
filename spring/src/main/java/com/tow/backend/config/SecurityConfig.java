@@ -51,10 +51,13 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/auth/register").permitAll()
                 .requestMatchers(HttpMethod.POST, "/auth/verify-2fa").permitAll()
                 .requestMatchers(HttpMethod.POST, "/auth/reactivate").permitAll()
-                // Tienda y Newsletter — públicos
+                // Tienda, Newsletter y Métricas — públicos
                 .requestMatchers(HttpMethod.GET, "/shop/products").permitAll()
                 .requestMatchers("/newsletter/**").permitAll()
-                .requestMatchers("/admin/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.POST, "/metrics/track").permitAll()
+                
+                // Admin — protegido
+                .requestMatchers("/admin/**", "/metrics/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
             );
 

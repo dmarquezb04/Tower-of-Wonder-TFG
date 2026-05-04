@@ -13,6 +13,15 @@ import ReactivateAccount from './components/pages/ReactivateAccount'
 import NewsletterConfirmPage from './components/pages/NewsletterConfirmPage'
 import ProtectedRoute from './components/ProtectedRoute'
 import { CartProvider } from './context/CartContext'
+import { useTrackVisit } from './hooks/useTrackVisit'
+
+/**
+ * Componente auxiliar para ejecutar el hook de métricas dentro del Router.
+ */
+function TrackHandler() {
+  useTrackVisit()
+  return null
+}
 
 /**
  * App — Componente raíz de la aplicación.
@@ -47,6 +56,7 @@ function App() {
 
   return (
     <BrowserRouter>
+      <TrackHandler />
       <AuthProvider>
         <CartProvider>
           <Header onLoginClick={() => openModal('login')} />
