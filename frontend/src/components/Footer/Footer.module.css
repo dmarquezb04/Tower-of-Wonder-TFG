@@ -91,6 +91,24 @@
   transform: translateY(-2px);
 }
 
+.newsletterBtn:active {
+  transform: translateY(1px);
+}
+
+.successMessage {
+  color: var(--color-success);
+  font-size: 14px;
+  margin-top: 8px;
+  font-family: var(--font-body);
+}
+
+.errorMessage {
+  color: var(--color-error);
+  font-size: 14px;
+  margin-top: 8px;
+  font-family: var(--font-body);
+}
+
 @media (max-width: 768px) {
   /* FIX Bug 2: el footer ocupaba demasiado en móvil.
      Reducimos padding y compactamos el layout. */

@@ -110,7 +110,7 @@ body {
   flex: 1;
   display: flex;
   flex-direction: column;
-  overflow: hidden; /* Desktop: el scroll queda contenido dentro de cada sección */
+  overflow-y: auto; /* Desktop: permite scroll si el contenido es largo */
 }
 
 @media (max-width: 768px) {

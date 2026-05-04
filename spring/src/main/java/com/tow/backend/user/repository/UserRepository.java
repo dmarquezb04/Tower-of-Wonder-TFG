@@ -42,4 +42,12 @@ public interface UserRepository extends JpaRepository<User, Integer> {
      * @return true si ya está en uso
      */
     boolean existsByUsername(String username);
+
+    /**
+     * Busca un usuario por su token de recuperación de cuenta.
+     *
+     * @param recoveryToken el token generado al borrar la cuenta
+     * @return Optional con el usuario
+     */
+    Optional<User> findByRecoveryToken(String recoveryToken);
 }

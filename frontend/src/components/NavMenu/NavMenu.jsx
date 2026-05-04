@@ -10,6 +10,7 @@ import styles from './NavMenu.module.css'
  */
 const NAV_ITEMS = [
   { label: 'INICIO',       to: '/' },
+  { label: '🏪 TIENDA',    to: '/shop' },
   {
     label: 'PERSONAJES', href: '#',
     children: [

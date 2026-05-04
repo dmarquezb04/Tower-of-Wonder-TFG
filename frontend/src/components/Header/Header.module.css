@@ -51,6 +51,33 @@
   font-size: 14px;
 }
 
+.cartNavLink {
+  background: linear-gradient(90deg, var(--color-gold-light) 0%, var(--color-gold-dark) 100%);
+  color: var(--color-text-light);
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 6px 12px;
+  font-weight: 600;
+  font-family: var(--font-heading);
+  cursor: pointer;
+  transition: transform var(--t-fast), filter var(--t-fast);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  margin-left: 12px;
+}
+
+.cartNavLink:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.08);
+}
+
+.cartCount {
+  font-size: 13px;
+  opacity: 0.9;
+}
+
 .logoutLink {
   background: none;
   border: none;
@@ -70,12 +97,12 @@
 
 .menuToggle {
   display: none;
-  background: none;
+  background: transparent;
   border: none;
-  font-size: 28px;
-  color: var(--color-text-light);
+  color: var(--color-gold);
+  font-size: 1.5rem;
   cursor: pointer;
-  padding: 8px;
+  padding: 4px;
   line-height: 1;
   order: 3;
 }

@@ -1,15 +1,22 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import NavMenu from '../NavMenu/NavMenu'
+import CartModal from '../CartModal/CartModal'
 import { useAuth } from '../../context/AuthContext'
+import { useCart } from '../../context/CartContext'
 import styles from './Header.module.css'
 
 const ASSETS_URL = '/assets/'
 
 export default function Header({ onLoginClick }) {
   const { isAuthenticated, user, logout } = useAuth()
+  const { cartCount, setIsCartOpen } = useCart()
   const [menuOpen, setMenuOpen] = useState(false)
   const [dropdownOpen, setDropdownOpen] = useState(false)
+  const location = useLocation()
+  const navigate = useNavigate()
+
+  const isShopPage = location.pathname === '/shop'
 
   const handleLogout = async () => {
     await logout()
@@ -93,6 +100,7 @@ export default function Header({ onLoginClick }) {
       </button>
 
       <NavMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
+      <CartModal openLoginModal={onLoginClick} />
     </header>
   )
 }

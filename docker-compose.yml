@@ -5,33 +5,17 @@ services:
   # Puerto 8080 del host → 80 del contenedor
   # Rutas:
   #   /api/**  → spring:8080 (Spring Boot)
-  #   /auth/** → php:9000   (PHP legacy, temporal durante migración)
-  #   /*       → /var/www/html/public (PHP, temporal)
+  #   /*       → React SPA (servido desde frontend/dist)
   # ============================================================
   nginx:
     image: nginx:alpine
     ports:
       - "8080:80"
     volumes:
-      - ./php:/var/www/html
+      - ./frontend/dist:/usr/share/nginx/html
       - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
     depends_on:
-      - php
       - spring
-    networks:
-      - app_network
-
-  # ============================================================
-  # PHP — Backend legacy (se mantiene durante la migración)
-  # Se irá eliminando módulo por módulo conforme Spring lo reemplaza.
-  # ⚠️ NO ELIMINAR hasta completar la migración.
-  # ============================================================
-  php:
-    build: ./php
-    volumes:
-      - ./php:/var/www/html
-    env_file:
-      - .env
     networks:
       - app_network
 
@@ -58,6 +42,8 @@ services:
     # Espera a que MariaDB esté disponible antes de arrancar
     # Spring Boot reintentará la conexión si falla al inicio
     restart: on-failure
+    volumes:
+      - ./spring/logs:/app/logs
 
   # ============================================================
   # MARIADB — Base de datos (compartida entre PHP y Spring Boot)
@@ -78,23 +64,6 @@ services:
       - app_network
 
   # ============================================================
-  # PHPMYADMIN — Interfaz web de administración de BD
-  # Accesible en: http://localhost:8081
-  # ============================================================
-  phpmyadmin:
-    image: phpmyadmin/phpmyadmin
-    ports:
-      - "8081:80"
-    environment:
-      PMA_HOST: db
-      PMA_PORT: 3306
-      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
-    depends_on:
-      - db
-    networks:
-      - app_network
-
-  # ============================================================
   # NODE — Herramienta de build del frontend React (one-shot)
   #
   # No arranca como servicio permanente (no tiene 'ports' ni 'restart').
@@ -109,7 +78,6 @@ services:
     working_dir: /app
     volumes:
       - ./frontend:/app
-      - ./php:/php    # necesario para que el build escriba en /php/public/assets/dist
     networks:
       - app_network
     profiles:

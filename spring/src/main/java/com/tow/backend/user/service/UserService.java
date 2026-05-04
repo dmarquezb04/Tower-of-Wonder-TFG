@@ -5,13 +5,17 @@ import com.tow.backend.user.dto.UserProfileDTO;
 import com.tow.backend.user.entity.Role;
 import com.tow.backend.user.entity.User;
 import com.tow.backend.user.repository.UserRepository;
+import com.tow.backend.email.service.MailService;
 import com.warrenstrange.googleauth.GoogleAuthenticator;
 import com.warrenstrange.googleauth.GoogleAuthenticatorKey;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -20,6 +24,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final GoogleAuthenticator googleAuthenticator;
+    private final MailService mailService;
 
     @Transactional(readOnly = true)
     public UserProfileDTO getUserProfile(String email) {
@@ -128,6 +133,35 @@ public class UserService {
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
         
         user.setActivo(false);
+        String token = UUID.randomUUID().toString();
+        user.setRecoveryToken(token);
+        user.setRecoveryTokenExpiry(LocalDateTime.now().plusDays(7));
+        userRepository.save(user);
+        
+        String reactivateLink = "http://localhost:5173/reactivate?token=" + token;
+        mailService.sendHtmlEmail(
+            user.getEmail(),
+            "Tu cuenta ha sido desactivada",
+            "account_deactivation",
+            Map.of(
+                "username", user.getUsername() != null && !user.getUsername().isEmpty() ? user.getUsername() : "Usuario",
+                "reactivationLink", reactivateLink
+            )
+        );
+    }
+
+    @Transactional
+    public void reactivateAccount(String token) {
+        User user = userRepository.findByRecoveryToken(token)
+                .orElseThrow(() -> new RuntimeException("Enlace de recuperación inválido o expirado"));
+
+        if (user.getRecoveryTokenExpiry() != null && user.getRecoveryTokenExpiry().isBefore(LocalDateTime.now())) {
+            throw new RuntimeException("El enlace de recuperación ha caducado. Contacta con soporte.");
+        }
+
+        user.setActivo(true);
+        user.setRecoveryToken(null);
+        user.setRecoveryTokenExpiry(null);
         userRepository.save(user);
     }
 }

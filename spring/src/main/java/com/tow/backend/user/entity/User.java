@@ -60,6 +60,14 @@ public class User {
     @Column(nullable = false)
     private Boolean activo = true;
 
+    /** Token de recuperación para reactivar cuentas borradas lógicamente. */
+    @Column(name = "recovery_token", length = 100)
+    private String recoveryToken;
+
+    /** Fecha de expiración del token de recuperación (normalmente 7 días). */
+    @Column(name = "recovery_token_expiry")
+    private LocalDateTime recoveryTokenExpiry;
+
     @Column(name = "fecha_creacion")
     private LocalDateTime fechaCreacion;
 

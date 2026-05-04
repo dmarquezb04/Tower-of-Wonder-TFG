@@ -1,6 +1,8 @@
+import { useState } from 'react'
 import styles from './Footer.module.css'
 
-const { assetsUrl, baseUrl } = window.APP_DATA
+const assetsUrl = '/assets/'
+const baseUrl = '/'
 
 const SOCIAL_LINKS = [
   { href: 'https://www.x.com', src: `${assetsUrl}img/social_media/twitter.png`, alt: 'Twitter' },
@@ -11,11 +13,37 @@ const SOCIAL_LINKS = [
 ]
 
 export default function Footer() {
-  const handleNewsletterSubmit = (e) => {
+  const [loading, setLoading] = useState(false)
+  const [message, setMessage] = useState(null)
+  const [error, setError] = useState(null)
+
+  const handleNewsletterSubmit = async (e) => {
     e.preventDefault()
-    // TODO: conectar a endpoint newsletter
-    alert('¡Gracias por suscribirte!')
-    e.target.reset()
+    setLoading(true)
+    setMessage(null)
+    setError(null)
+    
+    const email = e.target[0].value
+
+    try {
+      const res = await fetch('/api/newsletter/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      })
+      const data = await res.json()
+      
+      if (res.ok) {
+        setMessage(data.message)
+        e.target.reset()
+      } else {
+        setError(data.error || 'Error al suscribirse')
+      }
+    } catch (err) {
+      setError('Error de conexión')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -49,11 +77,14 @@ export default function Footer() {
             placeholder="¡Suscríbete a nuestra newsletter!"
             className={styles.newsletterInput}
             required
+            disabled={loading}
           />
-          <button type="submit" className={styles.newsletterBtn}>
-            SUSCRIBIRSE
+          <button type="submit" className={styles.newsletterBtn} disabled={loading}>
+            {loading ? '...' : 'SUSCRIBIRSE'}
           </button>
         </form>
+        {message && <p className={styles.successMessage}>{message}</p>}
+        {error && <p className={styles.errorMessage}>{error}</p>}
       </div>
     </footer>
   )

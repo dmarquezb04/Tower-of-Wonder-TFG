@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Recibo de Compra - Tower of Wonder</title>
+    <style>
+        body {
+            font-family: 'Inter', Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            color: #2b2b2b;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #2b1b3a 0%, #1f1628 100%);
+            padding: 40px 20px;
+            text-align: center;
+            color: #f5eddc;
+        }
+        .header h1 {
+            font-family: 'Cinzel', serif;
+            margin: 0;
+            font-size: 28px;
+            letter-spacing: 2px;
+            color: #c6a156;
+        }
+        .content {
+            padding: 30px;
+        }
+        .welcome-text {
+            font-size: 18px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        .order-info {
+            background-color: #fcf8f0;
+            border-left: 4px solid #b88628;
+            padding: 15px;
+            margin-bottom: 25px;
+            border-radius: 4px;
+        }
+        .order-info p {
+            margin: 5px 0;
+            font-size: 14px;
+        }
+        .product-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 25px;
+        }
+        .product-table th {
+            text-align: left;
+            border-bottom: 2px solid #e2e8f0;
+            padding: 12px 8px;
+            font-size: 14px;
+            color: #718096;
+            text-transform: uppercase;
+        }
+        .product-table td {
+            padding: 12px 8px;
+            border-bottom: 1px solid #edf2f7;
+            font-size: 15px;
+        }
+        .total-row {
+            font-weight: bold;
+            font-size: 18px;
+            color: #2b1b3a;
+        }
+        .footer {
+            background-color: #f8fafc;
+            padding: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #a0aec0;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 25px;
+            background: linear-gradient(180deg, #b88628 0%, #8a5f1a 100%);
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>TOWER OF WONDER</h1>
+            <p>Tu aventura comienza aquí</p>
+        </div>
+        <div class="content">
+            <p class="welcome-text">¡Gracias por tu compra, <span th:text="${username}">Usuario</span>!</p>
+            
+            <div class="order-info">
+                <p><strong>Número de Pedido:</strong> #<span th:text="${orderId}">0000</span></p>
+                <p><strong>Fecha:</strong> <span th:text="${orderDate}">01/01/2024</span></p>
+                <p><strong>Estado:</strong> Completado (Simulación)</p>
+            </div>
+
+            <table class="product-table">
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th style="text-align: center;">Cant.</th>
+                        <th style="text-align: right;">Precio</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="item : ${items}">
+                        <td th:text="${item.productName}">Producto</td>
+                        <td style="text-align: center;" th:text="${item.quantity}">1</td>
+                        <td style="text-align: right;" th:text="${item.price + ' €'}">0.00 €</td>
+                    </tr>
+                    <tr class="total-row">
+                        <td colspan="2" style="text-align: right; padding-top: 20px;">TOTAL</td>
+                        <td style="text-align: right; padding-top: 20px;"><span th:text="${totalPrice}">0.00</span> €</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <p>Has adquirido recursos valiosos para tu viaje. Los cristales y bendiciones se han añadido a tu cuenta virtual.</p>
+            
+            <center>
+                <a href="http://localhost:8080/" class="btn">Volver a la Torre</a>
+            </center>
+        </div>
+        <div class="footer">
+            <p>© 2024 Tower of Wonder — Este es un recibo generado automáticamente por una simulación de compra.</p>
+        </div>
+    </div>
+</body>
+</html>

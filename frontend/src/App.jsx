@@ -8,7 +8,11 @@ import HomePage from './components/pages/HomePage'
 import ContactPage from './components/pages/ContactPage'
 import UserDashboard from './components/pages/UserDashboard'
 import AdminDashboard from './components/pages/AdminDashboard'
+import ShopPage from './components/pages/ShopPage'
+import ReactivateAccount from './components/pages/ReactivateAccount'
+import NewsletterConfirmPage from './components/pages/NewsletterConfirmPage'
 import ProtectedRoute from './components/ProtectedRoute'
+import { CartProvider } from './context/CartContext'
 
 /**
  * App — Componente raíz de la aplicación.
@@ -44,12 +48,18 @@ function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <Header onLoginClick={() => openModal('login')} />
+        <CartProvider>
+          <Header onLoginClick={() => openModal('login')} />
 
         <main className="app-main">
           <Routes>
             <Route path="/"         element={<HomePage />} />
             <Route path="/contacto" element={<ContactPage />} />
+            <Route path="/shop"     element={<ShopPage />} />
+            
+            {/* Rutas de Acciones por Email */}
+            <Route path="/reactivate" element={<ReactivateAccount />} />
+            <Route path="/newsletter/confirm" element={<NewsletterConfirmPage />} />
             
             {/* Rutas Privadas */}
             <Route path="/dashboard" element={
@@ -75,6 +85,7 @@ function App() {
           onClose={closeModal}
           initialMode={modalMode}
         />
+        </CartProvider>
       </AuthProvider>
     </BrowserRouter>
   )

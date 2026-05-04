@@ -1,6 +1,7 @@
 import styles from './HomePage.module.css'
 
-const { assetsUrl, baseUrl } = window.APP_DATA
+const assetsUrl = '/assets/'
+const baseUrl = '/'
 
 const PLATFORMS = [
   { name: 'Steam', img: `${assetsUrl}img/plataformas_descarga/steam_logo.png`, href: '#' },

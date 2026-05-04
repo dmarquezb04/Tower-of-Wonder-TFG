@@ -2,6 +2,7 @@ package com.tow.backend;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableAsync;
 
 /**
  * Punto de entrada de la aplicación Spring Boot — Tower of Wonder Backend.
@@ -17,6 +18,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @version 0.1.0
  */
 @SpringBootApplication
+@EnableAsync
 public class TowerOfWonderApplication {
 
     /**

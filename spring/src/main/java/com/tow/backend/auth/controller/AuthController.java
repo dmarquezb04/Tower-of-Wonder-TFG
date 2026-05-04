@@ -5,6 +5,7 @@ import com.tow.backend.auth.dto.LoginResponse;
 import com.tow.backend.auth.dto.RegisterRequest;
 import com.tow.backend.auth.dto.TwoFactorRequest;
 import com.tow.backend.auth.service.AuthService;
+import com.tow.backend.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -40,6 +41,7 @@ import java.util.Map;
 public class AuthController {
 
     private final AuthService authService;
+    private final UserService userService;
 
     /**
      * Inicia sesión con email y contraseña.
@@ -125,6 +127,28 @@ public class AuthController {
         String token = extractBearerToken(authHeader);
         authService.logout(token);
         return ResponseEntity.ok(Map.of("message", "Sesión cerrada correctamente"));
+    }
+
+    /**
+     * Reactiva una cuenta que fue borrada (borrado lógico).
+     *
+     * @param body map con el token
+     * @return 200 OK
+     */
+    @PostMapping("/reactivate")
+    @Operation(summary = "Reactivar cuenta borrada")
+    public ResponseEntity<?> reactivateAccount(@RequestBody Map<String, String> body) {
+        String token = body.get("token");
+        if (!StringUtils.hasText(token)) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Falta el token de recuperación"));
+        }
+        try {
+            userService.reactivateAccount(token);
+            return ResponseEntity.ok(Map.of("message", "Cuenta reactivada correctamente. Ya puedes iniciar sesión."));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", e.getMessage()));
+        }
     }
 
     // ============================================================

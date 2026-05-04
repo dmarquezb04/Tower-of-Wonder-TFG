@@ -16,9 +16,9 @@ spring:
 
   jpa:
     hibernate:
-      # validate: Hibernate verifica que las entidades coinciden con la BD al arrancar.
-      # Cambiado de 'none' (Fase 0) a 'validate' (Fase 1) al crear las entidades JPA.
-      ddl-auto: validate
+      # update: Hibernate crea las tablas si no existen o las modifica si faltan columnas.
+      # Cambiado de 'validate' a 'update' para permitir la creación de tablas de la Fase 4.
+      ddl-auto: update
     properties:
       hibernate:
         format_sql: true

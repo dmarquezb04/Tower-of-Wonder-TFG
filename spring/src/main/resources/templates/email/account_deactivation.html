@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Confirmación de Cuenta Borrada</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; background-color: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        h1 { color: #d9534f; }
+        .btn { display: inline-block; padding: 12px 24px; background-color: #5cb85c; color: white; text-decoration: none; border-radius: 4px; font-weight: bold; margin-top: 20px; }
+        .footer { margin-top: 30px; font-size: 12px; color: #888; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Cuenta Desactivada</h1>
+        <p>Hola <strong th:text="${username}">Usuario</strong>,</p>
+        <p>Te confirmamos que hemos procesado tu solicitud y tu cuenta en <strong>Tower of Wonder</strong> ha sido desactivada correctamente.</p>
+        <p>Si cambias de opinión, tienes <strong>7 días</strong> para recuperar tu cuenta y todos tus datos haciendo clic en el siguiente botón:</p>
+        <div style="text-align: center;">
+            <a th:href="${reactivationLink}" class="btn">Reactivar mi cuenta</a>
+        </div>
+        <p style="margin-top: 30px;">Si no has solicitado borrar tu cuenta, ponte en contacto con nuestro equipo de soporte inmediatamente.</p>
+        
+        <div class="footer">
+            <p>&copy; 2026 Tower of Wonder. Todos los derechos reservados.</p>
+        </div>
+    </div>
+</body>
+</html>

@@ -3,23 +3,17 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
-  // Base URL para assets dentro del bundle (imágenes importadas, etc.)
-  base: '/assets/dist/',
   build: {
-    // Output va directamente donde PHP/nginx sirve los assets.
-    // El contenedor node monta el proyecto raíz en /workspace,
-    // y escribe aquí → php/public/assets/dist/ en el host.
-    outDir: '../php/public/assets/dist',
+    // Output estándar para una SPA servida por Nginx
+    outDir: 'dist',
     emptyOutDir: true,
     rollupOptions: {
       output: {
-        // Nombres fijos sin hash para que PHP pueda referenciarlos siempre igual
-        entryFileNames: 'main.js',
-        chunkFileNames: '[name].js',
-        assetFileNames: (assetInfo) => {
-          if (assetInfo.name?.endsWith('.css')) return 'main.css'
-          return '[name][extname]'
-        }
+        // Mantenemos nombres fijos para consistencia si es necesario, 
+        // aunque en una SPA pura podríamos usar hashes por defecto.
+        entryFileNames: 'assets/[name].js',
+        chunkFileNames: 'assets/[name].js',
+        assetFileNames: 'assets/[name].[ext]'
       }
     }
   }
