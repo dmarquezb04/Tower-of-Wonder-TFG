@@ -8,6 +8,7 @@ import styles from './AdminDashboard.module.css'
 // Modales
 import UserEditModal from './UserEditModal'
 import ProductEditModal from './ProductEditModal'
+import CategoryManagementModal from './CategoryManagementModal'
 import DialogModal from '../DialogModal/DialogModal'
 
 export default function AdminDashboard() {
@@ -31,6 +32,8 @@ export default function AdminDashboard() {
   
   const [isProductModalOpen, setIsProductModalOpen] = useState(false)
   const [selectedProduct, setSelectedProduct] = useState(null)
+  
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false)
 
   const [confirmDelete, setConfirmDelete] = useState({ open: false, type: '', id: null, title: '' })
 
@@ -132,15 +135,17 @@ export default function AdminDashboard() {
   }
 
   // Filtrado en el cliente para búsqueda rápida
-  const filteredUsers = users.filter(u => 
-    u.username?.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    u.email.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+  const filteredUsers = (users || []).filter(u => {
+    const usernameMatch = (u.username?.toLowerCase() || "").includes(searchTerm.toLowerCase());
+    const emailMatch = (u.email?.toLowerCase() || "").includes(searchTerm.toLowerCase());
+    return usernameMatch || emailMatch;
+  });
 
-  const filteredProducts = products.filter(p => 
-    p.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    p.category?.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+  const filteredProducts = (products || []).filter(p => {
+    const nameMatch = (p.name?.toLowerCase() || "").includes(searchTerm.toLowerCase());
+    const categoryMatch = (p.category?.name?.toLowerCase() || "").includes(searchTerm.toLowerCase());
+    return nameMatch || categoryMatch;
+  });
 
   // Si es móvil, bloqueamos el acceso
   if (isMobile) {
@@ -275,7 +280,10 @@ export default function AdminDashboard() {
         <section className={styles.section}>
           <div className={styles.headerWithAction}>
             <h2 className={styles.sectionTitle}>Catálogo de Productos</h2>
-            <button className={styles.btnSuccess} onClick={() => openProductModal()}>+ Añadir Producto</button>
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button className={styles.btnAction} onClick={() => setIsCategoryModalOpen(true)}>📁 Categorías</button>
+              <button className={styles.btnSuccess} onClick={() => openProductModal()}>+ Añadir Producto</button>
+            </div>
           </div>
           <div className={styles.controls}>
             <input 
@@ -296,7 +304,7 @@ export default function AdminDashboard() {
                 {filteredProducts.map(p => (
                   <tr key={p.id}>
                     <td><img src={p.imageUrl} alt={p.name} width="40" style={{ borderRadius: '4px' }} /></td>
-                    <td>{p.name} <br/><small style={{color: '#888'}}>{p.category}</small></td>
+                    <td>{p.name} <br/><small style={{color: '#888'}}>{p.category?.name || 'Sin categoría'}</small></td>
                     <td>{p.price}€</td><td>{p.stock}</td>
                     <td>{p.active ? '✅' : '🚫'}</td>
                     <td>
@@ -329,6 +337,11 @@ export default function AdminDashboard() {
         product={selectedProduct} 
         onClose={() => setIsProductModalOpen(false)} 
         onSave={handleSaveProduct} 
+      />
+
+      <CategoryManagementModal 
+        isOpen={isCategoryModalOpen} 
+        onClose={() => setIsCategoryModalOpen(false)} 
       />
 
       <DialogModal 

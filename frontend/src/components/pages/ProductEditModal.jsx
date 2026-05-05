@@ -1,17 +1,24 @@
 import { useState, useEffect } from 'react'
+import axios from 'axios'
+import { useAuth } from '../../context/AuthContext'
 import styles from './AdminDashboard.module.css'
 
 export default function ProductEditModal({ isOpen, product, onClose, onSave }) {
+  const { token } = useAuth()
   const [formData, setFormData] = useState({
     name: '',
     description: '',
     price: '',
     stock: '',
-    category: '',
+    category: null,
     imageUrl: '',
     active: true
   })
+  const [categories, setCategories] = useState([])
+  const [newCategoryName, setNewCategoryName] = useState('')
+  const [showNewCategoryInput, setShowNewCategoryInput] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
 
   useEffect(() => {
     if (product) {
@@ -20,7 +27,7 @@ export default function ProductEditModal({ isOpen, product, onClose, onSave }) {
         description: product.description || '',
         price: product.price || '',
         stock: product.stock || '',
-        category: product.category || '',
+        category: product.category || null,
         imageUrl: product.imageUrl || '',
         active: product.active ?? true
       })
@@ -30,12 +37,30 @@ export default function ProductEditModal({ isOpen, product, onClose, onSave }) {
         description: '',
         price: '',
         stock: '',
-        category: '',
+        category: null,
         imageUrl: '',
         active: true
       })
     }
+    setError(null)
+    setShowNewCategoryInput(false)
   }, [product, isOpen])
+
+  // Cargar categorías al abrir el modal
+  useEffect(() => {
+    if (isOpen && token) {
+      axios.get('/api/categories', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+        .then(res => {
+          setCategories(res.data)
+        })
+        .catch(err => {
+          console.error('Error cargando categorías:', err)
+          setError('No se pudieron cargar las categorías')
+        })
+    }
+  }, [isOpen])
 
   if (!isOpen) return null
 
@@ -50,13 +75,35 @@ export default function ProductEditModal({ isOpen, product, onClose, onSave }) {
   const handleSubmit = async (e) => {
     e.preventDefault()
     setLoading(true)
+    setError(null)
     try {
-      await onSave(product?.id, formData)
+      // Si hay una categoría seleccionada por ID, nos aseguramos de enviar el objeto esperado
+      const dataToSave = { ...formData }
+      await onSave(product?.id, dataToSave)
       onClose()
     } catch (err) {
-      alert('Error al guardar el producto: ' + err.message)
+      setError(err.message)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleAddCategory = async () => {
+    if (!newCategoryName.trim()) return
+    try {
+      const res = await axios.post('/api/categories', 
+        { name: newCategoryName },
+        { headers: { 'Authorization': `Bearer ${token}` } }
+      )
+      
+      const newCat = res.data
+      setCategories(prev => [...prev, newCat])
+      setFormData(prev => ({ ...prev, category: newCat }))
+      setNewCategoryName('')
+      setShowNewCategoryInput(false)
+    } catch (err) {
+      console.error(err)
+      alert('Error al crear categoría: Verifique sus permisos de admin')
     }
   }
 
@@ -64,6 +111,8 @@ export default function ProductEditModal({ isOpen, product, onClose, onSave }) {
     <div className={styles.modalOverlay}>
       <div className={styles.modalContent} style={{ maxWidth: '600px' }}>
         <h2>{product ? 'Editar Producto' : 'Nuevo Producto'}</h2>
+        
+        {error && <div className={styles.error}>{error}</div>}
         
         <form onSubmit={handleSubmit} className={styles.modalForm}>
           <div className={styles.formGroup}>
@@ -93,10 +142,45 @@ export default function ProductEditModal({ isOpen, product, onClose, onSave }) {
 
           <div className={styles.formGroup}>
             <label>Categoría</label>
-            <input 
-              type="text" name="category" value={formData.category} 
-              onChange={handleChange} className={styles.searchInput}
-            />
+            <div style={{ display: 'flex', gap: '8px' }}>
+              {!showNewCategoryInput ? (
+                <>
+                  <select 
+                    name="category" 
+                    value={formData.category?.id || ''} 
+                    onChange={(e) => {
+                      const cat = categories.find(c => c.id === parseInt(e.target.value))
+                      setFormData({ ...formData, category: cat })
+                    }}
+                    className={styles.searchInput}
+                    required
+                  >
+                    <option value="">Selecciona una categoría...</option>
+                    {categories.map(cat => (
+                      <option key={cat.id} value={cat.id}>{cat.name}</option>
+                    ))}
+                  </select>
+                  <button 
+                    type="button" className={styles.btnAction} 
+                    onClick={() => setShowNewCategoryInput(true)}
+                  >
+                    + Nueva
+                  </button>
+                </>
+              ) : (
+                <>
+                  <input 
+                    type="text" 
+                    placeholder="Nombre de la categoría..."
+                    value={newCategoryName}
+                    onChange={(e) => setNewCategoryName(e.target.value)}
+                    className={styles.searchInput}
+                  />
+                  <button type="button" className={styles.btnSuccess} onClick={handleAddCategory}>Añadir</button>
+                  <button type="button" className={styles.btnCancel} onClick={() => setShowNewCategoryInput(false)}>X</button>
+                </>
+              )}
+            </div>
           </div>
 
           <div className={styles.formGroup}>

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import axios from 'axios'
 import styles from './ContactPage.module.css'
 
 const CONTACT_API = '/api/contacto'  // Fase 4: endpoint Spring Boot (de momento PHP vía proxy)
@@ -28,18 +29,13 @@ export default function ContactPage() {
     setErrorMsg('')
 
     try {
-      const res = await fetch(CONTACT_PHP, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
-      })
-      const data = await res.json()
-      if (data.ok) {
+      const res = await axios.post(CONTACT_PHP, form)
+      if (res.data.ok) {
         setStatus('success')
         setForm(INITIAL_FORM)
       } else {
         setStatus('error')
-        setErrorMsg(data.message ?? 'Error al enviar el mensaje. Inténtalo de nuevo.')
+        setErrorMsg(res.data.message ?? 'Error al enviar el mensaje. Inténtalo de nuevo.')
       }
     } catch {
       setStatus('error')

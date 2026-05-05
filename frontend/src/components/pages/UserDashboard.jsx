@@ -43,9 +43,10 @@ export default function UserDashboard() {
   }
 
   useEffect(() => {
-    loadProfile()
-    // eslint-disable-next-deps
-  }, [])
+    if (token) {
+      loadProfile()
+    }
+  }, [token]) // Re-ejecutar si el token cambia o se carga
 
   const handleStartSetup2FA = async () => {
     try {
@@ -126,8 +127,8 @@ export default function UserDashboard() {
   }
 
   if (loading) return <div className={styles.container}>Cargando perfil...</div>
-  if (error) return <div className={styles.container}>{error}</div>
-  if (!profile) return null
+  if (error) return <div className={styles.container}><p className={styles.error}>{error}</p></div>
+  if (!profile) return <div className={styles.container}>No se ha podido cargar la información del usuario. Por favor, inicia sesión de nuevo.</div>
 
   return (
     <div className={styles.container}>
@@ -138,7 +139,7 @@ export default function UserDashboard() {
         <p><strong>Usuario:</strong> {profile.username || 'Sin definir'}</p>
         <p><strong>Email:</strong> {profile.email}</p>
         <p><strong>Miembro desde:</strong> {new Date(profile.fechaCreacion).toLocaleDateString()}</p>
-        <p><strong>Roles:</strong> {profile.roles.join(', ')}</p>
+        <p><strong>Rol:</strong> {profile.role || 'Usuario'}</p>
       </div>
 
       <div className={styles.card}>

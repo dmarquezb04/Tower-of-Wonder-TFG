@@ -159,6 +159,11 @@
   font-family: inherit;
 }
 
+.searchInput option {
+  background-color: #1a1525;
+  color: #fff;
+}
+
 .btnPrimary {
   background: var(--color-gold);
   color: #000;

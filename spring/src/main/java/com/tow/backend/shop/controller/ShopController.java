@@ -11,6 +11,8 @@ import com.tow.backend.user.repository.UserRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -26,6 +28,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/shop")
 @RequiredArgsConstructor
+@Slf4j
 @Tag(name = "Tienda", description = "Catálogo de productos y checkout simulado")
 public class ShopController {
 
@@ -34,12 +37,15 @@ public class ShopController {
     private final UserRepository userRepository;
     private final MailService mailService;
 
+    @Value("${app.frontend-url}")
+    private String frontendUrl;
+
     @GetMapping("/products")
     @Operation(summary = "Obtener todos los productos activos")
     public ResponseEntity<List<Product>> getProducts(
             @RequestParam(required = false) String category) {
         if (category != null && !category.isEmpty()) {
-            return ResponseEntity.ok(productRepository.findByCategoryAndActiveTrue(category));
+            return ResponseEntity.ok(productRepository.findByCategoryNameAndActiveTrue(category));
         }
         return ResponseEntity.ok(productRepository.findByActiveTrue());
     }
@@ -93,6 +99,8 @@ public class ShopController {
 
         order.setTotalPrice(total);
         Order savedOrder = orderRepository.save(order);
+        log.info("Compra realizada con éxito. Pedido ID: {}, Usuario: {}, Total: {}", 
+                savedOrder.getId(), user.getEmail(), total);
 
         // Enviar Recibo por Email (Asíncrono)
         try {
@@ -111,11 +119,12 @@ public class ShopController {
                 return m;
             }).collect(Collectors.toList());
             emailVars.put("items", itemsList);
+            emailVars.put("baseUrl", frontendUrl);
 
             mailService.sendHtmlEmail(user.getEmail(), "Recibo de Compra - Tower of Wonder", "order_receipt",
                     emailVars);
         } catch (Exception e) {
-            // Logueamos el error pero no fallamos la compra por el email
+            log.error("Error al enviar el email de recibo para el pedido {}: {}", savedOrder.getId(), e.getMessage());
         }
 
         return ResponseEntity.ok(Map.of(

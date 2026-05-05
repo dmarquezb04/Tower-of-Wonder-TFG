@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import styles from './MessagePage.module.css';
 
 export default function ReactivateAccount() {
@@ -18,24 +19,13 @@ export default function ReactivateAccount() {
 
     const reactivate = async () => {
       try {
-        const response = await fetch('/api/auth/reactivate', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ token })
-        });
-        
-        const data = await response.json();
-        
-        if (response.ok) {
-          setStatus('success');
-          setMessage(data.message || 'Cuenta reactivada correctamente.');
-        } else {
-          setStatus('error');
-          setMessage(data.error || 'Error al reactivar la cuenta.');
-        }
+        const response = await axios.post('/api/auth/reactivate', { token });
+        setStatus('success');
+        setMessage(response.data.message || 'Cuenta reactivada correctamente.');
       } catch (err) {
         setStatus('error');
-        setMessage('Error de conexión con el servidor.');
+        const errorMsg = err.response?.data?.error || 'Error al reactivar la cuenta.';
+        setMessage(errorMsg);
       }
     };
 

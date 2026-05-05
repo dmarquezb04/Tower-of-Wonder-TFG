@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import axios from 'axios'
 import styles from './Footer.module.css'
 
 const assetsUrl = '/assets/'
@@ -26,21 +27,11 @@ export default function Footer() {
     const email = e.target[0].value
 
     try {
-      const res = await fetch('/api/newsletter/subscribe', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email })
-      })
-      const data = await res.json()
-      
-      if (res.ok) {
-        setMessage(data.message)
-        e.target.reset()
-      } else {
-        setError(data.error || 'Error al suscribirse')
-      }
+      const res = await axios.post('/api/newsletter/subscribe', { email })
+      setMessage(res.data.message)
+      e.target.reset()
     } catch (err) {
-      setError('Error de conexión')
+      setError(err.response?.data?.error || 'Error de conexión')
     } finally {
       setLoading(false)
     }

@@ -7,6 +7,7 @@ import com.tow.backend.user.entity.User;
 import com.tow.backend.user.repository.UserRepository;
 import com.tow.backend.user.repository.RoleRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,6 +17,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AdminService {
 
     private final UserRepository userRepository;
@@ -44,6 +46,7 @@ public class AdminService {
 
     @Transactional
     public void updateUserStatus(Long id, boolean activo) {
+        log.info("Cambiando estado de usuario ID {} a activo={}", id, activo);
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
         user.setActivo(activo);
@@ -52,6 +55,7 @@ public class AdminService {
 
     @Transactional
     public void updateUser(Long id, String username, String roleName, boolean activo) {
+        log.info("Actualizando datos de usuario ID {}: username={}, role={}, activo={}", id, username, roleName, activo);
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
         
@@ -63,14 +67,18 @@ public class AdminService {
         user.setActivo(activo);
         
         userRepository.save(user);
+        log.info("Usuario ID {} actualizado correctamente", id);
     }
 
     @Transactional
     public void deleteUser(Long id) {
+        log.warn("Solicitud de borrado para usuario ID: {}", id);
         if (!userRepository.existsById(id)) {
+            log.error("Fallo al borrar: El usuario con ID {} no existe", id);
             throw new RuntimeException("Usuario no encontrado");
         }
         userRepository.deleteById(id);
+        log.info("Usuario ID {} eliminado con éxito", id);
     }
 
     private UserAdminDTO mapToDTO(User user) {

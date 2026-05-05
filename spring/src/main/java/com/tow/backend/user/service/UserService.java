@@ -9,6 +9,8 @@ import com.tow.backend.email.service.MailService;
 import com.warrenstrange.googleauth.GoogleAuthenticator;
 import com.warrenstrange.googleauth.GoogleAuthenticatorKey;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,11 +20,15 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserService {
 
     private final UserRepository userRepository;
     private final GoogleAuthenticator googleAuthenticator;
     private final MailService mailService;
+
+    @Value("${app.frontend-url}")
+    private String frontendUrl;
 
     @Transactional(readOnly = true)
     public UserProfileDTO getUserProfile(String email) {
@@ -92,6 +98,7 @@ public class UserService {
         user.setTwofaSecret(secret);
         user.setTwoFaEnabled(true);
         userRepository.save(user);
+        log.info("2FA activado correctamente para el usuario: {}", email);
     }
 
     @Transactional
@@ -119,6 +126,7 @@ public class UserService {
         user.setTwofaSecret(null);
         user.setTwoFaEnabled(false);
         userRepository.save(user);
+        log.info("2FA desactivado para el usuario: {}", email);
     }
 
     @Transactional
@@ -131,8 +139,9 @@ public class UserService {
         user.setRecoveryToken(token);
         user.setRecoveryTokenExpiry(LocalDateTime.now().plusDays(7));
         userRepository.save(user);
+        log.info("Cuenta desactivada (borrado lógico). Token de recuperación generado para: {}", email);
         
-        String reactivateLink = "http://localhost:5173/reactivate?token=" + token;
+        String reactivateLink = frontendUrl + "/reactivate?token=" + token;
         mailService.sendHtmlEmail(
             user.getEmail(),
             "Tu cuenta ha sido desactivada",
@@ -157,5 +166,6 @@ public class UserService {
         user.setRecoveryToken(null);
         user.setRecoveryTokenExpiry(null);
         userRepository.save(user);
+        log.info("Cuenta reactivada con éxito mediante token para el usuario: {}", user.getEmail());
     }
 }

@@ -66,3 +66,7 @@ springdoc:
 # Los logs se escriben en logs/tow-app.log y logs/tow-error.log (rotación diaria)
 logging:
   config: classpath:logback-spring.xml
+
+# Configuración personalizada de la aplicación
+app:
+  frontend-url: http://localhost:8080

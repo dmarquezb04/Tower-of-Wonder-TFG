@@ -1,5 +1,5 @@
 .container {
-  min-height: calc(100vh - var(--header-height) - 100px);
+  flex: 1;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -37,7 +37,7 @@
 
 .message {
   font-family: var(--font-body);
-  color: var(--color-text-light);
+  color: var(--color-text-warm);
   line-height: 1.6;
   margin-bottom: 30px;
   font-size: 16px;

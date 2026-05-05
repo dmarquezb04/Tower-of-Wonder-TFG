@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import styles from './MessagePage.module.css';
 
 export default function NewsletterConfirmPage() {
@@ -18,24 +19,13 @@ export default function NewsletterConfirmPage() {
 
     const confirm = async () => {
       try {
-        const response = await fetch('/api/newsletter/confirm', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ token })
-        });
-        
-        const data = await response.json();
-        
-        if (response.ok) {
-          setStatus('success');
-          setMessage(data.message || 'Suscripción confirmada correctamente.');
-        } else {
-          setStatus('error');
-          setMessage(data.error || 'Error al confirmar la suscripción.');
-        }
+        const response = await axios.post('/api/newsletter/confirm', { token });
+        setStatus('success');
+        setMessage(response.data.message || 'Suscripción confirmada correctamente.');
       } catch (err) {
         setStatus('error');
-        setMessage('Error de conexión con el servidor.');
+        const errorMsg = err.response?.data?.error || 'Error al confirmar la suscripción.';
+        setMessage(errorMsg);
       }
     };
 

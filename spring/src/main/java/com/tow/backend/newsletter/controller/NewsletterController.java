@@ -6,6 +6,7 @@ import com.tow.backend.newsletter.repository.SubscriberRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,6 +22,9 @@ public class NewsletterController {
 
     private final SubscriberRepository subscriberRepository;
     private final MailService mailService;
+
+    @Value("${app.frontend-url}")
+    private String frontendUrl;
 
     @PostMapping("/subscribe")
     @Operation(summary = "Suscribirse a la newsletter (paso 1)")
@@ -50,7 +54,7 @@ public class NewsletterController {
         subscriber.setConfirmed(false);
         subscriberRepository.save(subscriber);
 
-        String confirmLink = "http://localhost:5173/newsletter/confirm?token=" + token;
+        String confirmLink = frontendUrl + "/newsletter/confirm?token=" + token;
         mailService.sendHtmlEmail(
             email,
             "Confirma tu suscripción a la Newsletter",

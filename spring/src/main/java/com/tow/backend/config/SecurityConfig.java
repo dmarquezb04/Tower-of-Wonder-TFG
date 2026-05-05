@@ -43,21 +43,24 @@ public class SecurityConfig {
             .authenticationProvider(daoAuthProvider())
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
             .authorizeHttpRequests(auth -> auth
-                // Públicos
-                .requestMatchers("/health", "/error").permitAll()
-                .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/api-docs/**").permitAll()
-                // Auth — públicos (excepto /logout que necesita token válido)
-                .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
-                .requestMatchers(HttpMethod.POST, "/auth/register").permitAll()
-                .requestMatchers(HttpMethod.POST, "/auth/verify-2fa").permitAll()
-                .requestMatchers(HttpMethod.POST, "/auth/reactivate").permitAll()
-                // Tienda, Newsletter y Métricas — públicos
-                .requestMatchers(HttpMethod.GET, "/shop/products").permitAll()
+                // 1. ACCESO PÚBLICO
+                .requestMatchers("/health", "/error", "/v3/api-docs/**", "/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/docs/javadoc/**").permitAll()
+                
+                // Autenticación y Registro
+                .requestMatchers(HttpMethod.POST, "/auth/login", "/auth/register", "/auth/verify-2fa", "/auth/reactivate").permitAll()
+                
+                // Lectura pública (Tienda y Categorías)
+                .requestMatchers(HttpMethod.GET, "/shop/products", "/categories/**").permitAll()
+                
+                // Otros servicios públicos
                 .requestMatchers("/newsletter/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/metrics/track").permitAll()
                 
-                // Admin — protegido
-                .requestMatchers("/admin/**", "/metrics/admin/**").hasRole("ADMIN")
+                // 2. ACCESO RESTRINGIDO (ADMIN)
+                // Cualquier método en /admin, /metrics/admin o modificación de categorías requiere rol ADMIN
+                .requestMatchers("/admin/**", "/metrics/admin/**", "/categories/**").hasRole("ADMIN")
+                
+                // 3. RESTO DE PETICIONES (Requiere login)
                 .anyRequest().authenticated()
             );
 
