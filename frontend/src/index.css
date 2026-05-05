@@ -92,6 +92,12 @@ body {
    En móvil permitimos scroll natural con min-height: 100dvh (dvh = Dynamic Viewport Height,
    tiene en cuenta la barra de navegación del navegador en iOS/Android). */
 @media (max-width: 768px) {
+  html, body {
+    width: 100%;
+    overflow-x: hidden;
+    position: relative;
+  }
+
   body {
     height: auto;
     min-height: 100dvh;
@@ -99,9 +105,10 @@ body {
   }
 
   #root {
+    width: 100%;
     height: auto;
     min-height: 100dvh;
-    overflow: visible;
+    overflow-x: hidden;
   }
 }
 
