@@ -7,16 +7,53 @@
 .shopHeader {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
   gap: 20px;
   margin-bottom: 40px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+}
+
+.categoriesWrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: white;
+  padding: 4px;
+  border-radius: 30px;
+  border: 1px solid #e2e8f0;
+  max-width: 50%;
 }
 
 .filters {
   display: flex;
   gap: 12px;
-  flex-wrap: wrap;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;  /* IE and Edge */
+  padding: 2px 0;
+}
+
+.filters::-webkit-scrollbar {
+  display: none; /* Chrome, Safari and Opera */
+}
+
+.scrollBtn {
+  background: none;
+  border: none;
+  font-size: 20px;
+  color: var(--color-gold);
+  cursor: pointer;
+  padding: 0 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s;
+  user-select: none;
+}
+
+.scrollBtn:hover {
+  transform: scale(1.2);
 }
 
 .filterBtn {
@@ -30,6 +67,7 @@
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
+  white-space: nowrap;
 }
 
 .filterBtn:hover {
@@ -110,7 +148,7 @@
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 30px;
   width: 100%;
 }

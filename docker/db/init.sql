@@ -59,6 +59,11 @@ CREATE TABLE `categories` (
   UNIQUE KEY `name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+INSERT INTO `categories` (`id`, `name`) VALUES
+(1, 'Peluche'),
+(2, 'Llavero'),
+(3, 'Pegatina');
+
 -- --------------------------------------------------------
 -- 4. Productos (Tienda)
 -- --------------------------------------------------------
@@ -75,6 +80,20 @@ CREATE TABLE `products` (
   KEY `category_id` (`category_id`),
   CONSTRAINT `fk_product_category` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT INTO `products` (`name`, `description`, `price`, `stock`, `category_id`, `active`, `image_url`) VALUES
+('Peluche de Kyra', 'Peluche de tu protagonista favorita, Kyra', 20.99, 999, 1, 1, '/assets/img/products/peluche_kyra.png'),
+('Peluche de Lycaon', 'Peluche de tu interés amoroso favorito, Lycaon', 20.99, 999, 1, 1, '/assets/img/products/peluche_lycaon.png'),
+('Peluche de Albion', 'Peluche de tu compañero de aventuras favorito, Albion', 20.99, 999, 1, 0, ''),
+('Peluche de Alfimbio', 'Peluche de tu extremista favorito, Alfimbio', 20.99, 999, 1, 0, ''),
+('Llavero de Kyra', 'Llavero de tu protagonista favorita, Kyra', 4.99, 999, 2, 1, ''),
+('Llavero de Lycaon', 'Llavero de tu interés amoroso favorito, Lycaon', 4.99, 999, 2, 1, ''),
+('Llavero de Albion', 'Llavero de tu compañero de aventuras favorito, Albion', 4.99, 999, 2, 1, ''),
+('Llavero de Alfimbio', 'Llavero de tu extremista favorito, Alfimbio', 4.99, 999, 2, 1  , ''),
+('Pegatina de Kyra', 'Pegatina de tu protagonista favorita, Kyra', 0.99, 999, 3, 1, ''),
+('Pegatina de Lycaon', 'Pegatina de tu interés amoroso favorito, Lycaon', 0.99, 999, 3, 1, ''),
+('Pegatina de Albion', 'Pegatina de tu compañero de aventuras favorito, Albion', 0.99, 999, 3, 1, ''),
+('Pegatina de Alfimbio', 'Pegatina de tu extremista favorito, Alfimbio', 0.99, 999, 3, 1, '');
 
 -- --------------------------------------------------------
 -- 5. Pedidos y Detalles
@@ -145,4 +164,4 @@ COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

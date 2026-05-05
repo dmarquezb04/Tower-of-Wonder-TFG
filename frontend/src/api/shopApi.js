@@ -1,6 +1,15 @@
 import axios from 'axios';
 
 const API_URL = '/api/shop';
+const CAT_URL = '/api/categories';
+
+/**
+ * Obtiene todas las categorías de la base de datos.
+ */
+export const getCategories = async () => {
+  const response = await axios.get(CAT_URL);
+  return response.data;
+};
 
 /**
  * Obtiene todos los productos, opcionalmente filtrados por categoría.

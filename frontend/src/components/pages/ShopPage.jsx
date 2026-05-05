@@ -1,18 +1,34 @@
-import { useState, useEffect } from 'react';
-import { getProducts } from '../../api/shopApi';
+import { useState, useEffect, useRef } from 'react';
+import { getProducts, getCategories } from '../../api/shopApi';
 import { useCart } from '../../context/CartContext';
 import ProductCard from '../ProductCard/ProductCard';
 import styles from './ShopPage.module.css';
 
-export default function ShopPage() {
+const ShopPage = () => {
   const [products, setProducts] = useState([]);
+  const [dbCategories, setDbCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [category, setCategory] = useState(''); 
   const [searchTerm, setSearchTerm] = useState('');
+  const scrollRef = useRef(null);
   
   const { cartCount, setIsCartOpen } = useCart();
 
+  // Cargar categorías una sola vez al montar
+  useEffect(() => {
+    const fetchCats = async () => {
+      try {
+        const data = await getCategories();
+        setDbCategories(data);
+      } catch (err) {
+        console.error("Error cargando categorías:", err);
+      }
+    };
+    fetchCats();
+  }, []);
+
+  // Cargar productos cuando cambie la categoría
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -28,14 +44,15 @@ export default function ShopPage() {
     fetchProducts();
   }, [category]);
 
-  const categories = [
-    { id: '', label: 'Todo' },
-    { id: 'Bendición Lunar', label: 'Bendición Lunar' },
-    { id: 'Pase de Batalla', label: 'Pase de Batalla' },
-    { id: 'Cristal génesis', label: 'Cristal génesis' }
+  const allCategories = [
+    { name: 'Todo', filter: '' },
+    ...dbCategories.map(c => ({ name: c.name, filter: c.name }))
   ];
 
-  // Filtrado por nombre (cliente)
+  const scroll = (offset) => {
+    scrollRef.current.scrollBy({ left: offset, behavior: 'smooth' });
+  };
+
   const filteredProducts = products.filter(p => 
     p.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -43,55 +60,56 @@ export default function ShopPage() {
   return (
     <div className={styles.container}>
       <div className={styles.shopHeader}>
-        {/* Píldoras de Filtro */}
-        <div className={styles.filters}>
-          {categories.map(cat => (
-            <button
-              key={cat.id}
-              className={`${styles.filterBtn} ${category === cat.id ? styles.active : ''}`}
-              onClick={() => setCategory(cat.id)}
-            >
-              {cat.label}
-            </button>
-          ))}
+        <div className={styles.categoriesWrapper}>
+          <button className={styles.scrollBtn} onClick={() => scroll(-150)}>‹</button>
+          <div className={styles.filters} ref={scrollRef}>
+            {allCategories.map((cat) => (
+              <button
+                key={cat.name}
+                className={`${styles.filterBtn} ${category === cat.filter ? styles.active : ''}`}
+                onClick={() => setCategory(cat.filter)}
+              >
+                {cat.name}
+              </button>
+            ))}
+          </div>
+          <button className={styles.scrollBtn} onClick={() => scroll(150)}>›</button>
         </div>
 
-        {/* Buscador y Carrito */}
         <div className={styles.controls}>
           <div className={styles.searchWrapper}>
             <span className={styles.searchIcon}>🔍</span>
             <input 
               type="text" 
-              placeholder="Buscar por nombre..." 
+              placeholder="Buscar productos..." 
               className={styles.searchInput}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
           
-          <button 
-            className={styles.cartBtn} 
-            onClick={() => setIsCartOpen(true)}
-            aria-label="Abrir carrito"
-          >
-            🛒 Carrito {cartCount > 0 && <span className={styles.cartCount}>({cartCount})</span>}
+          <button className={styles.cartBtn} onClick={() => setIsCartOpen(true)}>
+            <span>🛒 Carrito</span>
+            <span className={styles.cartCount}>({cartCount})</span>
           </button>
         </div>
       </div>
 
-      {loading && <p className={styles.loading}>Cargando productos...</p>}
-      {error && <p className={styles.error}>{error}</p>}
-      
-      {!loading && !error && filteredProducts.length === 0 && (
-        <p className={styles.empty}>No se han encontrado productos.</p>
-      )}
-
-      {/* Grid de Productos */}
       <div className={styles.grid}>
-        {filteredProducts.map(product => (
-          <ProductCard key={product.id} product={product} />
-        ))}
+        {loading ? (
+          <div className={styles.loading}>Cargando productos...</div>
+        ) : error ? (
+          <div className={styles.error}>{error}</div>
+        ) : filteredProducts.length === 0 ? (
+          <div className={styles.empty}>No se encontraron productos.</div>
+        ) : (
+          filteredProducts.map(product => (
+            <ProductCard key={product.id} product={product} />
+          ))
+        )}
       </div>
     </div>
   );
-}
+};
+
+export default ShopPage;

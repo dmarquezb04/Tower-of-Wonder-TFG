@@ -19,7 +19,7 @@
         <p>¡Gracias por unirte a nuestra comunidad!</p>
         
         <div class="footer">
-            <p>&copy; 2026 Tower of Wonder. Todos los derechos reservados.</p>
+            <p>&copy; <span th:text="${#calendars.year(#calendars.createNow())}">2026</span> Tower of Wonder. Todos los derechos reservados.</p>
             <p>Si deseas darte de baja en el futuro, podrás hacerlo desde el enlace que incluiremos en el pie de cada correo.</p>
         </div>
     </div>

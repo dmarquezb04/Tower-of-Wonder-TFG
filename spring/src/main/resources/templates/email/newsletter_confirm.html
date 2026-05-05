@@ -23,7 +23,7 @@
         <p style="margin-top: 30px;">Si no has solicitado esta suscripción, puedes ignorar este correo tranquilamente.</p>
         
         <div class="footer">
-            <p>&copy; 2026 Tower of Wonder. Todos los derechos reservados.</p>
+            <p>&copy; <span th:text="${#calendars.year(#calendars.createNow())}">2026</span> Tower of Wonder. Todos los derechos reservados.</p>
         </div>
     </div>
 </body>
