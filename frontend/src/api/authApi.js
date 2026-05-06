@@ -79,6 +79,11 @@ export async function deleteAccount(token) {
   return response.data;
 }
 
+export async function updateProfile(token, profileData) {
+  const response = await api.put('/user/profile', profileData, getAuthHeader(token));
+  return response.data;
+}
+
 // ============================================================
 // Administrador (Usuarios)
 // ============================================================

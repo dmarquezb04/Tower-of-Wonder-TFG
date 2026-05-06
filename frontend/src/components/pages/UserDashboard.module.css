@@ -1,11 +1,13 @@
 .container {
-  padding: 40px 20px;
-  max-width: 800px;
+  padding: 60px 20px;
+  max-width: 900px;
   margin: 0 auto;
   color: var(--color-text-light);
-  flex: 1;
-  overflow-y: auto;
+  min-height: 100vh;
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
 }
 
 .title {
@@ -18,13 +20,18 @@
 }
 
 .card {
-  background: rgba(20, 15, 30, 0.7);
-  border: 1px solid rgba(198, 161, 86, 0.2);
+  background: rgba(26, 20, 35, 0.9);
+  border: 1px solid rgba(198, 161, 86, 0.3);
   border-radius: var(--radius-lg);
-  padding: 24px;
-  margin-bottom: 24px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-  backdrop-filter: blur(8px);
+  padding: 32px;
+  margin-bottom: 0;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(12px);
+  transition: transform 0.3s ease;
+}
+
+.card:hover {
+  border-color: rgba(198, 161, 86, 0.6);
 }
 
 .card h2 {
@@ -217,4 +224,106 @@
   .input {
     width: 100%;
   }
+}
+
+/* New Profile Management Styles */
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 12px;
+}
+
+.cardHeader h2 {
+  margin-bottom: 0;
+}
+
+.personalInfoContent {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.fieldGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.label {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.5);
+  font-weight: 500;
+}
+
+.valueText {
+  font-size: 16px;
+  color: #fff;
+  margin-bottom: 0 !important;
+}
+
+.passwordEditSection {
+  margin-top: 4px;
+}
+
+.passwordInputs {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 300px;
+}
+
+.passwordInputs .input {
+  width: 100%;
+  font-family: var(--font-body);
+}
+
+.personalInfoActions {
+  margin-top: 12px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.editButtons {
+  display: flex;
+  gap: 12px;
+}
+
+.btnSecondary {
+  background: transparent;
+  color: var(--color-gold-light);
+  border: 1px solid rgba(198, 161, 86, 0.4);
+  padding: 8px 16px;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btnSecondary:hover {
+  background: rgba(198, 161, 86, 0.1);
+  border-color: var(--color-gold-light);
+}
+
+.btnLink {
+  background: transparent;
+  border: none;
+  color: var(--color-gold-light);
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 0;
+  align-self: flex-start;
+}
+
+.btnLink:hover {
+  color: #fff;
+}
+
+.input:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
 }

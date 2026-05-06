@@ -3,6 +3,7 @@ package com.tow.backend.user.controller;
 import com.tow.backend.user.dto.TwoFactorCodeDTO;
 import com.tow.backend.user.dto.TwoFactorSetupDTO;
 import com.tow.backend.user.dto.UserProfileDTO;
+import com.tow.backend.user.dto.UpdateProfileRequest;
 import com.tow.backend.user.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -55,6 +56,17 @@ public class UserController {
         try {
             userService.deleteAccount(userDetails.getUsername());
             return ResponseEntity.ok().body("{\"message\": \"Cuenta desactivada correctamente\"}");
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body("{\"error\": \"" + e.getMessage() + "\"}");
+        }
+    }
+
+    @PutMapping("/profile")
+    public ResponseEntity<?> updateProfile(@AuthenticationPrincipal UserDetails userDetails,
+                                         @RequestBody UpdateProfileRequest request) {
+        try {
+            userService.updateProfile(userDetails.getUsername(), request);
+            return ResponseEntity.ok().body("{\"message\": \"Perfil actualizado correctamente\"}");
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body("{\"error\": \"" + e.getMessage() + "\"}");
         }

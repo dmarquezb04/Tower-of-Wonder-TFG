@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { QRCodeSVG } from 'qrcode.react'
-import { getProfile, setup2FA, enable2FA, disable2FA, deleteAccount } from '../../api/authApi'
+import { getProfile, setup2FA, enable2FA, disable2FA, deleteAccount, updateProfile } from '../../api/authApi'
 import { useAuth } from '../../context/AuthContext'
 import DialogModal from '../DialogModal/DialogModal'
 import styles from './UserDashboard.module.css'
@@ -15,9 +15,21 @@ export default function UserDashboard() {
   // 2FA state
   const [setupData, setSetupData] = useState(null)
   const [verificationCode, setVerificationCode] = useState('')
-  const [actionError, setActionError] = useState(null)
-  const [actionSuccess, setActionSuccess] = useState(null)
+  const [securityError, setSecurityError] = useState(null)
+  const [securitySuccess, setSecuritySuccess] = useState(null)
   const [copied, setCopied] = useState(false)
+  
+  // Edit Profile state
+  const [isEditing, setIsEditing] = useState(false)
+  const [showPasswordChange, setShowPasswordChange] = useState(false)
+  const [formData, setFormData] = useState({
+    username: '',
+    currentPassword: '',
+    newPassword: ''
+  })
+  const [isSaving, setIsSaving] = useState(false)
+  const [personalInfoError, setPersonalInfoError] = useState(null)
+  const [personalInfoSuccess, setPersonalInfoSuccess] = useState(null)
   
   // Custom Dialog Modal state
   const [dialog, setDialog] = useState({
@@ -35,6 +47,10 @@ export default function UserDashboard() {
       setLoading(true)
       const data = await getProfile(token)
       setProfile(data)
+      setFormData(prev => ({
+        ...prev,
+        username: data.username || ''
+      }))
     } catch (err) {
       setError('No se pudo cargar el perfil. ' + err.message)
     } finally {
@@ -50,38 +66,38 @@ export default function UserDashboard() {
 
   const handleStartSetup2FA = async () => {
     try {
-      setActionError(null)
+      setSecurityError(null)
       const data = await setup2FA(token)
       setSetupData(data)
     } catch (err) {
-      setActionError(err.message)
+      setSecurityError(err.message)
     }
   }
 
   const handleEnable2FA = async (e) => {
     e.preventDefault()
     try {
-      setActionError(null)
+      setSecurityError(null)
       await enable2FA(token, setupData.secret, verificationCode)
-      setActionSuccess('2FA activado correctamente.')
+      setSecuritySuccess('2FA activado correctamente.')
       setSetupData(null)
       setVerificationCode('')
       loadProfile()
     } catch (err) {
-      setActionError(err.message)
+      setSecurityError(err.message)
     }
   }
 
   const handleDisable2FA = async (e) => {
     e.preventDefault()
     try {
-      setActionError(null)
+      setSecurityError(null)
       await disable2FA(token, verificationCode)
-      setActionSuccess('2FA desactivado correctamente.')
+      setSecuritySuccess('2FA desactivado correctamente.')
       setVerificationCode('')
       loadProfile()
     } catch (err) {
-      setActionError(err.message)
+      setSecurityError(err.message)
     }
   }
 
@@ -100,7 +116,7 @@ export default function UserDashboard() {
   const executeDeactivateAccount = async () => {
     setDialog(prev => ({ ...prev, isOpen: false }))
     try {
-      setActionError(null)
+      setSecurityError(null)
       await deleteAccount(token)
       setDialog({
         isOpen: true,
@@ -115,7 +131,7 @@ export default function UserDashboard() {
         onCancel: () => {}
       })
     } catch (err) {
-      setActionError(err.message)
+      setSecurityError(err.message)
     }
   }
 
@@ -124,6 +140,59 @@ export default function UserDashboard() {
     navigator.clipboard.writeText(setupData.secret)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
+  }
+
+  const handleEditToggle = () => {
+    if (isEditing) {
+      // Cancel edit
+      setFormData(prev => ({
+        ...prev,
+        username: profile.username || '',
+        currentPassword: '',
+        newPassword: ''
+      }))
+      setShowPasswordChange(false)
+    }
+    setIsEditing(!isEditing)
+  }
+
+  const handleSave = async () => {
+    try {
+      setIsSaving(true)
+      setPersonalInfoError(null)
+      setPersonalInfoSuccess(null)
+      
+      const updateData = {
+        username: formData.username
+      }
+      
+      if (showPasswordChange) {
+        if (!formData.currentPassword || !formData.newPassword) {
+          throw new Error('Debes completar los campos de contraseña')
+        }
+        updateData.currentPassword = formData.currentPassword
+        updateData.newPassword = formData.newPassword
+      }
+      
+      await updateProfile(token, updateData)
+      
+      setPersonalInfoSuccess('Perfil actualizado correctamente.')
+      setIsEditing(false)
+      setShowPasswordChange(false)
+      setFormData(prev => ({ ...prev, currentPassword: '', newPassword: '' }))
+      loadProfile()
+    } catch (err) {
+      const msg = err.response?.data?.error || err.message
+      setPersonalInfoError(msg)
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  const hasChanges = () => {
+    if (formData.username !== (profile.username || '')) return true
+    if (showPasswordChange && (formData.currentPassword || formData.newPassword)) return true
+    return false
   }
 
   if (loading) return <div className={styles.container}>Cargando perfil...</div>
@@ -135,18 +204,106 @@ export default function UserDashboard() {
       <h1 className={styles.title}>Panel de Usuario</h1>
       
       <div className={styles.card}>
-        <h2>Mis Datos</h2>
-        <p><strong>Usuario:</strong> {profile.username || 'Sin definir'}</p>
-        <p><strong>Email:</strong> {profile.email}</p>
-        <p><strong>Miembro desde:</strong> {new Date(profile.fechaCreacion).toLocaleDateString()}</p>
-        <p><strong>Rol:</strong> {profile.role || 'Usuario'}</p>
+        <div className={styles.cardHeader}>
+          <h2>Información personal</h2>
+        </div>
+        
+        {personalInfoSuccess && <p className={styles.success}>{personalInfoSuccess}</p>}
+        {personalInfoError && <p className={styles.error}>{personalInfoError}</p>}
+
+        <div className={styles.personalInfoContent}>
+          <div className={styles.fieldGroup}>
+            <label className={styles.label}>Nombre de usuario</label>
+            {isEditing ? (
+              <input
+                type="text"
+                className={styles.input}
+                value={formData.username}
+                onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+              />
+            ) : (
+              <p className={styles.valueText}>{profile.username || 'Sin definir'}</p>
+            )}
+          </div>
+
+          <div className={styles.fieldGroup}>
+            <label className={styles.label}>Correo electrónico</label>
+            <p className={styles.valueText}>{profile.email}</p>
+          </div>
+
+          <div className={styles.fieldGroup}>
+            <label className={styles.label}>Contraseña</label>
+            {isEditing ? (
+              <div className={styles.passwordEditSection}>
+                {!showPasswordChange ? (
+                  <button 
+                    className={styles.btnSecondary}
+                    onClick={() => setShowPasswordChange(true)}
+                  >
+                    Cambiar contraseña
+                  </button>
+                ) : (
+                  <div className={styles.passwordInputs}>
+                    <input
+                      type="password"
+                      placeholder="Contraseña actual"
+                      className={styles.input}
+                      value={formData.currentPassword}
+                      onChange={(e) => setFormData({ ...formData, currentPassword: e.target.value })}
+                    />
+                    <input
+                      type="password"
+                      placeholder="Nueva contraseña"
+                      className={styles.input}
+                      value={formData.newPassword}
+                      onChange={(e) => setFormData({ ...formData, newPassword: e.target.value })}
+                    />
+                    <button 
+                      className={styles.btnLink}
+                      onClick={() => {
+                        setShowPasswordChange(false)
+                        setFormData({ ...formData, currentPassword: '', newPassword: '' })
+                      }}
+                    >
+                      Cancelar cambio
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <p className={styles.valueText}>••••••••••••</p>
+            )}
+          </div>
+
+          <div className={styles.personalInfoActions}>
+            {!isEditing ? (
+              <button className={styles.btnSecondary} onClick={handleEditToggle}>
+                Editar datos personales
+              </button>
+            ) : (
+              <div className={styles.editButtons}>
+                <button 
+                  className={styles.btnAction} 
+                  onClick={handleSave}
+                  disabled={isSaving || !hasChanges()}
+                >
+                  {isSaving ? 'Guardando...' : 'Guardar cambios'}
+                </button>
+                <button className={styles.btnCancel} onClick={handleEditToggle} disabled={isSaving}>
+                  Cancelar
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
+
 
       <div className={styles.card}>
         <h2>Seguridad (2FA)</h2>
         
-        {actionSuccess && <p className={styles.success}>{actionSuccess}</p>}
-        {actionError && <p className={styles.error}>{actionError}</p>}
+        {securitySuccess && <p className={styles.success}>{securitySuccess}</p>}
+        {securityError && <p className={styles.error}>{securityError}</p>}
 
         {profile.twoFaEnabled ? (
           <div className={styles.securitySection}>

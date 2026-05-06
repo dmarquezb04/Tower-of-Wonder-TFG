@@ -2,6 +2,7 @@ package com.tow.backend.user.service;
 
 import com.tow.backend.user.dto.TwoFactorSetupDTO;
 import com.tow.backend.user.dto.UserProfileDTO;
+import com.tow.backend.user.dto.UpdateProfileRequest;
 
 import com.tow.backend.user.entity.User;
 import com.tow.backend.user.repository.UserRepository;
@@ -26,6 +27,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final GoogleAuthenticator googleAuthenticator;
     private final MailService mailService;
+    private final org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
 
     @Value("${app.frontend-url}")
     private String frontendUrl;
@@ -141,6 +143,7 @@ public class UserService {
         userRepository.save(user);
         log.info("Cuenta desactivada (borrado lógico). Token de recuperación generado para: {}", email);
         
+    
         String reactivateLink = frontendUrl + "/reactivate?token=" + token;
         mailService.sendHtmlEmail(
             user.getEmail(),
@@ -167,5 +170,57 @@ public class UserService {
         user.setRecoveryTokenExpiry(null);
         userRepository.save(user);
         log.info("Cuenta reactivada con éxito mediante token para el usuario: {}", user.getEmail());
+    }
+
+    @Transactional
+    public void updateProfile(String currentEmail, UpdateProfileRequest request) {
+        User user = userRepository.findByEmail(currentEmail)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        boolean usernameChanged = false;
+        boolean passwordChanged = false;
+
+        // 1. Update username
+        if (request.getUsername() != null && !request.getUsername().trim().isEmpty() &&
+                !request.getUsername().equals(user.getUsername())) {
+            user.setUsername(request.getUsername());
+            usernameChanged = true;
+        }
+
+        // 2. Update password
+        if (request.getNewPassword() != null && !request.getNewPassword().trim().isEmpty()) {
+            if (request.getCurrentPassword() == null || request.getCurrentPassword().isEmpty()) {
+                throw new RuntimeException("Debes introducir tu contraseña actual para cambiarla");
+            }
+            
+            if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPasswordHash())) {
+                throw new RuntimeException("La contraseña actual es incorrecta");
+            }
+
+            user.setPasswordHash(passwordEncoder.encode(request.getNewPassword()));
+            passwordChanged = true;
+        }
+
+        if (usernameChanged || passwordChanged) {
+            userRepository.save(user);
+            log.info("Perfil actualizado para {}: usernameChanged={}, passwordChanged={}", 
+                    currentEmail, usernameChanged, passwordChanged);
+
+            // Send notification email
+            StringBuilder changes = new StringBuilder();
+            if (usernameChanged) changes.append("Nombre de usuario");
+            if (usernameChanged && passwordChanged) changes.append(" y ");
+            if (passwordChanged) changes.append("Contraseña");
+
+            mailService.sendHtmlEmail(
+                user.getEmail(),
+                "Seguridad: Cambios en tu cuenta",
+                "credential_update",
+                Map.of(
+                    "username", user.getUsername() != null ? user.getUsername() : "Usuario",
+                    "changedFields", changes.toString()
+                )
+            );
+        }
     }
 }

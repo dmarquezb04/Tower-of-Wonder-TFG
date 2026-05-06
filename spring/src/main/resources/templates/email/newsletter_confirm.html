@@ -2,28 +2,94 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Confirma tu suscripción a la Newsletter</title>
+    <title>Confirma tu suscripción - Tower of Wonder</title>
     <style>
-        body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px; color: #333; }
-        .container { max-width: 600px; margin: 0 auto; background-color: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); border-top: 4px solid #c6a156; }
-        h1 { color: #2d3748; }
-        .btn { display: inline-block; padding: 14px 28px; background: linear-gradient(180deg, #c6a156 0%, #a97c44 100%); color: white; text-decoration: none; border-radius: 4px; font-weight: bold; margin-top: 20px; font-size: 16px; }
-        .footer { margin-top: 30px; font-size: 12px; color: #888; text-align: center; border-top: 1px solid #eee; padding-top: 20px; }
+        body {
+            font-family: 'Inter', Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            color: #2b2b2b;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #2b1b3a 0%, #1f1628 100%);
+            padding: 40px 20px;
+            text-align: center;
+            color: #f5eddc;
+        }
+        .header h1 {
+            font-family: 'Cinzel', serif;
+            margin: 0;
+            font-size: 28px;
+            letter-spacing: 2px;
+            color: #c6a156;
+        }
+        .content {
+            padding: 30px;
+        }
+        .welcome-text {
+            font-size: 18px;
+            margin-bottom: 20px;
+            font-weight: 600;
+            color: #2b1b3a;
+        }
+        .footer {
+            background-color: #f8fafc;
+            padding: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #a0aec0;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 25px;
+            background: linear-gradient(180deg, #b88628 0%, #8a5f1a 100%);
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+        .info-box {
+            background-color: #fcf8f0;
+            border-left: 4px solid #c6a156;
+            padding: 15px;
+            margin-bottom: 25px;
+            border-radius: 4px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>¡Estás a un paso!</h1>
-        <p>Hola,</p>
-        <p>Hemos recibido una solicitud para suscribir este correo electrónico (<strong><span th:text="${email}"></span></strong>) a la Newsletter de Tower of Wonder.</p>
-        <p>Para confirmar tu suscripción y empezar a recibir nuestras novedades, por favor haz clic en el siguiente botón:</p>
-        <div style="text-align: center;">
-            <a th:href="${confirmationLink}" class="btn">Confirmar Suscripción</a>
+        <div class="header">
+            <h1>TOWER OF WONDER</h1>
+            <p>Tu aventura comienza aquí</p>
         </div>
-        <p style="margin-top: 30px;">Si no has solicitado esta suscripción, puedes ignorar este correo tranquilamente.</p>
-        
+        <div class="content">
+            <p class="welcome-text">¡Estás a un paso!</p>
+            
+            <div class="info-box">
+                <p>Hemos recibido una solicitud para suscribir este correo electrónico (<strong><span th:text="${email}"></span></strong>) a la Newsletter de Tower of Wonder.</p>
+            </div>
+
+            <p>Para confirmar tu suscripción y empezar a recibir nuestras novedades, por favor haz clic en el siguiente botón:</p>
+            
+            <center>
+                <a th:href="${confirmationLink}" class="btn">Confirmar Suscripción</a>
+            </center>
+
+            <p style="margin-top: 30px; font-size: 14px; color: #718096;">Si no has solicitado esta suscripción, puedes ignorar este correo tranquilamente.</p>
+        </div>
         <div class="footer">
-            <p>&copy; <span th:text="${#calendars.year(#calendars.createNow())}">2026</span> Tower of Wonder. Todos los derechos reservados.</p>
+            <p>&copy; <span th:text="${#calendars.year(#calendars.createNow())}">2026</span> Tower of Wonder — Todos los derechos reservados.</p>
         </div>
     </div>
 </body>

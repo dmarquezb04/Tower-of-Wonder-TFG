@@ -69,4 +69,5 @@ logging:
 
 # Configuración personalizada de la aplicación
 app:
-  frontend-url: http://localhost:8080
+  frontend-url: ${FRONTEND_URL:http://localhost:8080}
+  admin-email: ${ADMIN_EMAIL:noreply.towerofwonder@gmail.com}

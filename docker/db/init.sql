@@ -160,6 +160,19 @@ CREATE TABLE `jwt_blacklist` (
   KEY `idx_expiracion` (`fecha_expiracion`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- --------------------------------------------------------
+-- 9. Mensajes de Contacto
+-- --------------------------------------------------------
+CREATE TABLE `contact_messages` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `nombre` varchar(100) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `asunto` varchar(150) DEFAULT NULL,
+  `mensaje` text NOT NULL,
+  `fecha_creacion` datetime DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
