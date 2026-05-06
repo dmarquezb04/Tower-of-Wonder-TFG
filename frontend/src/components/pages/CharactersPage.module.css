@@ -1,0 +1,347 @@
+/* ─── Contenedor principal (igual que ContactPage — fondo degradado) ─── */
+.contenido {
+  flex: 1;
+  background: linear-gradient(180deg, var(--color-bg-start) 0%, var(--color-bg-end) 100%);
+  display: flex;
+  align-items: stretch;
+  overflow-y: auto;
+  padding: 32px 20px;
+}
+
+/* ─── Layout Maestro-Detalle ─────────────────────────────────────────── */
+.layout {
+  display: flex;
+  gap: 28px;
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* ─── Sidebar (lista de personajes) ─────────────────────────────────── */
+.sidebar {
+  width: 220px;
+  flex-shrink: 0;
+  background: linear-gradient(180deg, rgba(255, 250, 243, 0.92) 0%, rgba(255, 244, 232, 0.85) 100%);
+  border: 1px solid rgba(156, 122, 61, 0.15);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: 20px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-self: flex-start;
+  /* Queda pegado arriba mientras scrolleas el detalle */
+  position: sticky;
+  top: 20px;
+}
+
+.sidebarTitle {
+  font-family: var(--font-heading);
+  font-size: 20px;
+  color: var(--color-text-warm);
+  text-align: center;
+  border-bottom: 1px solid rgba(156, 122, 61, 0.2);
+  padding-bottom: 10px;
+  margin-bottom: 4px;
+}
+
+.characterList {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.characterBtn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: none;
+  border-radius: var(--radius-md);
+  background: transparent;
+  cursor: pointer;
+  transition: background var(--t-normal), transform var(--t-normal);
+  text-align: left;
+}
+
+.characterBtn:hover {
+  background: rgba(184, 134, 40, 0.1);
+  transform: translateX(3px);
+}
+
+.characterBtn.active {
+  background: linear-gradient(90deg, rgba(184, 134, 40, 0.15) 0%, rgba(184, 134, 40, 0.06) 100%);
+  border-left: 3px solid var(--color-gold);
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  border: 2px solid rgba(184, 134, 40, 0.3);
+  background: rgba(184, 134, 40, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top; /* Para que se vea la cabeza/parte superior del personaje */
+}
+
+.avatarPlaceholder {
+  font-size: 18px;
+  color: var(--color-gold);
+}
+
+.charName {
+  font-family: var(--font-heading);
+  font-size: 14px;
+  color: var(--color-text-warm);
+  line-height: 1.2;
+}
+
+/* ─── Panel de Detalle ───────────────────────────────────────────────── */
+.detail {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1.6fr 1fr; /* Carrusel a la izquierda, Info a la derecha */
+  gap: 24px;
+  align-items: start;
+}
+
+/* ─── Carrusel ───────────────────────────────────────────────────────── */
+.carousel {
+  position: relative;
+  width: 100%;
+  height: 600px; /* Altura fija mayor para que ocupe más espacio vertical */
+  background: rgba(15, 10, 5, 0.95);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  border: 1px solid rgba(156, 122, 61, 0.15);
+  box-shadow: var(--shadow-card);
+}
+
+.carouselImg {
+  width: 100%;
+  height: 100%;
+  object-fit: contain; /* Para que se vea la imagen completa */
+  display: block;
+  animation: fadeInImg 0.3s ease;
+}
+
+/* Overlay para el nombre dentro de la imagen (Arriba a la izquierda) */
+.nameOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  padding: 24px 24px 60px 24px;
+  background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%);
+  z-index: 1;
+  pointer-events: none;
+}
+
+.nameOverlay h2 {
+  font-family: var(--font-heading);
+  font-size: 42px;
+  color: var(--color-gold-light);
+  margin: 0;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+  letter-spacing: 2px;
+}
+
+@keyframes fadeInImg {
+  from { opacity: 0; transform: scale(1.02); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.carouselArrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(27, 18, 18, 0.55);
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  font-size: 28px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background var(--t-fast), transform var(--t-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+
+.carouselArrow:hover {
+  background: rgba(184, 134, 40, 0.8);
+  transform: translateY(-50%) scale(1.1);
+}
+
+.carouselPrev { left: 12px; }
+.carouselNext { right: 12px; }
+
+.dots {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+  z-index: 2;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  padding: 0;
+  transition: background var(--t-fast), transform var(--t-fast);
+}
+
+.dot:hover { background: rgba(255, 255, 255, 0.8); }
+
+.dotActive {
+  background: var(--color-gold);
+  transform: scale(1.25);
+}
+
+.noImage {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-warm);
+  font-style: italic;
+  opacity: 0.5;
+}
+
+/* ─── Info del personaje ─────────────────────────────────────────────── */
+.info {
+  background: linear-gradient(180deg, rgba(255, 250, 243, 0.92) 0%, rgba(255, 244, 232, 0.85) 100%);
+  border: 1px solid rgba(156, 122, 61, 0.15);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: 28px 32px;
+}
+
+/* .charTitle eliminado: ahora se usa el .nameOverlay dentro del carrusel */
+
+.charDescription {
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.8;
+  color: #4a3728;
+  white-space: pre-wrap;
+}
+
+/* ─── Estados de carga / error ───────────────────────────────────────── */
+.loadingState, .errorState, .emptyState {
+  margin: auto;
+  text-align: center;
+  font-family: var(--font-body);
+  color: var(--color-text-warm);
+  font-size: 18px;
+  padding: 80px 20px;
+}
+
+.errorState { color: var(--color-error); }
+
+/* ─── Móvil ──────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .contenido {
+    padding: 16px 12px;
+    align-items: flex-start;
+  }
+
+  .layout {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .detail {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    position: static;
+  }
+
+  .sidebarTitle {
+    font-size: 18px;
+  }
+
+  .characterList {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    gap: 8px;
+    padding-bottom: 6px;
+    scrollbar-width: none;
+  }
+
+  .characterList::-webkit-scrollbar { display: none; }
+
+  .characterBtn {
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 8px;
+    min-width: 72px;
+  }
+
+  .characterBtn.active {
+    border-left: none;
+    border-bottom: 3px solid var(--color-gold);
+  }
+
+  .charName {
+    font-size: 12px;
+    text-align: center;
+  }
+
+  .carousel {
+    height: auto;
+    aspect-ratio: 4 / 3;
+  }
+
+  .carouselArrow {
+    width: 36px;
+    height: 36px;
+    font-size: 22px;
+  }
+
+  .charTitle {
+    font-size: 24px;
+  }
+
+  .charDescription {
+    font-size: 15px;
+  }
+
+  .info {
+    padding: 20px 16px;
+    width: 100%; /* Forzar que ocupe todo el ancho disponible */
+  }
+
+  .nameOverlay h2 {
+    font-size: 20px; /* Reducido a menos de la mitad para móviles */
+    letter-spacing: 1px;
+  }
+}

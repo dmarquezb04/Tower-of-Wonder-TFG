@@ -49,16 +49,22 @@ public class SecurityConfig {
                 // Autenticación y Registro
                 .requestMatchers(HttpMethod.POST, "/auth/login", "/auth/register", "/auth/verify-2fa", "/auth/reactivate").permitAll()
                 
-                // Lectura pública (Tienda y Categorías)
-                .requestMatchers(HttpMethod.GET, "/shop/products", "/categories/**").permitAll()
+                // Lectura pública (Tienda, Categorías, Personajes, Noticias)
+                .requestMatchers(HttpMethod.GET, "/shop/products", "/categories/**",
+                        "/characters", "/characters/*",
+                        "/news", "/news/*").permitAll()
                 
                 // Otros servicios públicos
                 .requestMatchers("/newsletter/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/metrics/track").permitAll()
                 
                 // 2. ACCESO RESTRINGIDO (ADMIN)
-                // Cualquier método en /admin, /metrics/admin o modificación de categorías requiere rol ADMIN
-                .requestMatchers("/admin/**", "/metrics/admin/**", "/categories/**").hasRole("ADMIN")
+                .requestMatchers("/admin/**", "/metrics/admin/**", "/categories/**",
+                        "/characters/admin/**", "/news/admin/**").hasRole("ADMIN")
+                // POST/PUT/DELETE en /characters y /news requieren rol ADMIN
+                .requestMatchers(HttpMethod.POST, "/characters", "/news").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PUT, "/characters/**", "/news/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/characters/**", "/news/**").hasRole("ADMIN")
                 
                 // 3. RESTO DE PETICIONES (Requiere login)
                 .anyRequest().authenticated()

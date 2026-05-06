@@ -46,7 +46,7 @@ services:
       - ./spring/logs:/app/logs
 
   # ============================================================
-  # MARIADB — Base de datos (compartida entre PHP y Spring Boot)
+  # MARIADB — Base de datos del sistema
   # ============================================================
   db:
     image: mariadb:10.6

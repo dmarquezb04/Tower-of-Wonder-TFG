@@ -1,0 +1,34 @@
+package com.tow.backend.character.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+
+/**
+ * Imagen de un personaje. Permite cualquier número de imágenes por personaje.
+ * ON DELETE CASCADE: si se elimina el personaje, sus imágenes se eliminan automáticamente.
+ */
+@Entity
+@Table(name = "character_images")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class CharacterImage {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "character_id", nullable = false)
+    @com.fasterxml.jackson.annotation.JsonIgnore
+    private GameCharacter character;
+
+    @Column(name = "image_url", nullable = false)
+    private String imageUrl;
+
+    /** Posición en el carrusel (0 = primera) */
+    @Column(name = "sort_order", nullable = false)
+    private Integer sortOrder = 0;
+}

@@ -9,26 +9,11 @@ import styles from './NavMenu.module.css'
  * - children: submenú desplegable
  */
 const NAV_ITEMS = [
-  { label: 'INICIO',       to: '/' },
-  { label: '🏪 TIENDA',    to: '/shop' },
-  {
-    label: 'PERSONAJES', href: '#',
-    children: [
-      { label: 'Personaje 1', href: '#' },
-      { label: 'Personaje 2', href: '#' },
-      { label: 'Personaje 3', href: '#' },
-      { label: 'Personaje 4', href: '#' },
-    ]
-  },
-  {
-    label: 'NOTICIAS', href: '#',
-    children: [
-      { label: 'Updates',           href: '#' },
-      { label: 'Blog de desarrollo', href: '#' },
-    ]
-  },
-  { label: 'FAQ',      href: '#' },
-  { label: 'CONTACTO', to: '/contacto' },
+  { label: 'INICIO',      to: '/' },
+  { label: '🏪 TIENDA',   to: '/shop' },
+  { label: 'PERSONAJES',  to: '/personajes' },
+  { label: 'NOTICIAS',    to: '/noticias' },
+  { label: 'CONTACTO',    to: '/contacto' },
 ]
 
 export default function NavMenu({ isOpen, onClose }) {

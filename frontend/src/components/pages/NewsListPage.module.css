@@ -1,0 +1,149 @@
+.contenido {
+  flex: 1;
+  background: linear-gradient(180deg, var(--color-bg-start) 0%, var(--color-bg-end) 100%);
+  overflow-y: auto;
+  padding: 40px 20px;
+}
+
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.pageTitle {
+  font-family: var(--font-heading);
+  font-size: 36px;
+  color: var(--color-text-warm);
+  margin-bottom: 32px;
+  border-bottom: 2px solid rgba(156, 122, 61, 0.2);
+  padding-bottom: 14px;
+}
+
+/* ─── Grid de tarjetas ───────────────────────────────────────────────── */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 28px;
+}
+
+/* ─── Tarjeta individual ─────────────────────────────────────────────── */
+.card {
+  background: linear-gradient(180deg, rgba(255, 250, 243, 0.95) 0%, rgba(255, 244, 232, 0.88) 100%);
+  border: 1px solid rgba(156, 122, 61, 0.15);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform var(--t-normal), box-shadow var(--t-normal), border-color var(--t-normal);
+  display: flex;
+  flex-direction: column;
+}
+
+.card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 16px 40px rgba(27, 18, 18, 0.18);
+  border-color: rgba(184, 134, 40, 0.35);
+}
+
+.card:focus-visible {
+  outline: 3px solid var(--color-gold);
+  outline-offset: 2px;
+}
+
+.cardImage {
+  width: 100%;
+  height: 180px;
+  overflow: hidden;
+}
+
+.cardImage img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--t-slow);
+}
+
+.card:hover .cardImage img {
+  transform: scale(1.05);
+}
+
+.cardBody {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+.cardDate {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--color-gold-dark);
+  font-weight: 500;
+  letter-spacing: 0.4px;
+}
+
+.cardTitle {
+  font-family: var(--font-heading);
+  font-size: 18px;
+  color: var(--color-text-warm);
+  line-height: 1.3;
+}
+
+.cardSummary {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: #5a4a3a;
+  line-height: 1.6;
+  flex: 1;
+
+  /* Limitar a 3 líneas */
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.readMore {
+  font-family: var(--font-heading);
+  font-size: 14px;
+  color: var(--color-gold);
+  font-weight: 600;
+  transition: color var(--t-fast);
+  margin-top: auto;
+}
+
+.card:hover .readMore {
+  color: var(--color-gold-darker);
+}
+
+/* ─── Estados ────────────────────────────────────────────────────────── */
+.loading, .empty, .error {
+  text-align: center;
+  font-family: var(--font-body);
+  color: var(--color-text-warm);
+  font-size: 18px;
+  margin-top: 80px;
+}
+
+.error { color: var(--color-error); }
+
+/* ─── Móvil ──────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .contenido {
+    padding: 20px 12px;
+  }
+
+  .pageTitle {
+    font-size: 26px;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .cardImage {
+    height: 160px;
+  }
+}

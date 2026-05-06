@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react'
 import { getAdminUsers, updateUser, deleteUser } from '../../api/authApi'
 import { getAdminMetricsStats } from '../../api/metricsApi'
 import { getAdminProducts, createProduct, updateProduct, deleteProduct } from '../../api/adminShopApi'
+import { getAdminCharacters, createCharacter, updateCharacter, deleteCharacter } from '../../api/characterApi'
+import { getAdminNewsPosts, createNewsPost, updateNewsPost, deleteNewsPost } from '../../api/newsApi'
 import { useAuth } from '../../context/AuthContext'
 import styles from './AdminDashboard.module.css'
 
@@ -9,6 +11,8 @@ import styles from './AdminDashboard.module.css'
 import UserEditModal from './UserEditModal'
 import ProductEditModal from './ProductEditModal'
 import CategoryManagementModal from './CategoryManagementModal'
+import CharacterEditModal from './CharacterEditModal'
+import NewsPostEditModal from './NewsPostEditModal'
 import DialogModal from '../DialogModal/DialogModal'
 
 export default function AdminDashboard() {
@@ -23,7 +27,7 @@ export default function AdminDashboard() {
   
   // Estados para UI
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768)
-  const [activeTab, setActiveTab] = useState('metrics') // 'metrics' | 'users' | 'products'
+  const [activeTab, setActiveTab] = useState('metrics') // 'metrics' | 'users' | 'products' | 'characters' | 'news'
   const [searchTerm, setSearchTerm] = useState('')
 
   // Estados para Modales
@@ -34,6 +38,12 @@ export default function AdminDashboard() {
   const [selectedProduct, setSelectedProduct] = useState(null)
   
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false)
+
+  const [isCharacterModalOpen, setIsCharacterModalOpen] = useState(false)
+  const [selectedCharacter, setSelectedCharacter] = useState(null)
+
+  const [isNewsModalOpen, setIsNewsModalOpen] = useState(false)
+  const [selectedNews, setSelectedNews] = useState(null)
 
   const [confirmDelete, setConfirmDelete] = useState({ open: false, type: '', id: null, title: '' })
 
@@ -107,14 +117,59 @@ export default function AdminDashboard() {
     setIsProductModalOpen(true)
   }
 
-  // 5. Eliminación genérica
+  // 5. Gestión de Personajes
+  const [characters, setCharacters] = useState([])
+  const handleLoadCharacters = async () => {
+    try {
+      setLoading(true)
+      const data = await getAdminCharacters(token)
+      setCharacters(data)
+    } catch (err) {
+      setError('Error al cargar personajes: ' + err.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+  const handleSaveCharacter = async (id, data) => {
+    if (id) { await updateCharacter(token, id, data) }
+    else     { await createCharacter(token, data) }
+    handleLoadCharacters()
+  }
+  const openCharacterModal = (char = null) => {
+    setSelectedCharacter(char)
+    setIsCharacterModalOpen(true)
+  }
+
+  // 6. Gestión de Noticias
+  const [newsPosts, setNewsPosts] = useState([])
+  const handleLoadNews = async () => {
+    try {
+      setLoading(true)
+      const data = await getAdminNewsPosts(token)
+      setNewsPosts(data)
+    } catch (err) {
+      setError('Error al cargar noticias: ' + err.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+  const handleSaveNews = async (id, data) => {
+    if (id) { await updateNewsPost(token, id, data) }
+    else     { await createNewsPost(token, data) }
+    handleLoadNews()
+  }
+  const openNewsModal = (post = null) => {
+    setSelectedNews(post)
+    setIsNewsModalOpen(true)
+  }
+
+  // 7. Eliminación genérica
   const askDelete = (type, id, name) => {
+    const labels = { user: 'usuario', product: 'producto', character: 'personaje', news: 'noticia' }
     setConfirmDelete({ 
-      open: true, 
-      type, 
-      id, 
-      title: `¿Eliminar ${type === 'user' ? 'usuario' : 'producto'}?`,
-      message: `¿Estás seguro de que deseas eliminar permanentemente a "${name}"? Esta acción no se puede deshacer.`
+      open: true, type, id, 
+      title: `¿Eliminar ${labels[type] || type}?`,
+      message: `¿Estás seguro de que deseas eliminar permanentemente "${name}"? Esta acción no se puede deshacer.`
     })
   }
 
@@ -123,9 +178,15 @@ export default function AdminDashboard() {
       if (confirmDelete.type === 'user') {
         await deleteUser(token, confirmDelete.id)
         handleLoadUsers()
-      } else {
+      } else if (confirmDelete.type === 'product') {
         await deleteProduct(token, confirmDelete.id)
         handleLoadProducts()
+      } else if (confirmDelete.type === 'character') {
+        await deleteCharacter(token, confirmDelete.id)
+        handleLoadCharacters()
+      } else if (confirmDelete.type === 'news') {
+        await deleteNewsPost(token, confirmDelete.id)
+        handleLoadNews()
       }
     } catch (err) {
       alert('Error al eliminar: ' + err.message)
@@ -183,6 +244,18 @@ export default function AdminDashboard() {
           onClick={() => { setActiveTab('products'); setError(null); setSearchTerm(''); }}
         >
           Productos
+        </button>
+        <button 
+          className={activeTab === 'characters' ? styles.tabActive : styles.tab} 
+          onClick={() => { setActiveTab('characters'); setError(null); setSearchTerm(''); }}
+        >
+          Personajes
+        </button>
+        <button 
+          className={activeTab === 'news' ? styles.tabActive : styles.tab} 
+          onClick={() => { setActiveTab('news'); setError(null); setSearchTerm(''); }}
+        >
+          Noticias
         </button>
       </div>
 
@@ -324,6 +397,102 @@ export default function AdminDashboard() {
         </section>
       )}
 
+      {/* CONTENIDO PERSONAJES */}
+      {activeTab === 'characters' && (
+        <section className={styles.section}>
+          <div className={styles.headerWithAction}>
+            <h2 className={styles.sectionTitle}>Gestión de Personajes</h2>
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button className={styles.btnSuccess} onClick={() => openCharacterModal()}>+ Añadir Personaje</button>
+            </div>
+          </div>
+          <div className={styles.controls}>
+            <input
+              type="text" placeholder="Buscar personaje..."
+              value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
+              className={styles.searchInput}
+            />
+            <button onClick={handleLoadCharacters} className={styles.btnPrimary} disabled={loading}>
+              Cargar / Refrescar
+            </button>
+          </div>
+          <div className={styles.tableWrapper}>
+            <table className={styles.table}>
+              <thead>
+                <tr><th>Nombre</th><th>Slug</th><th>Activo</th><th>Acciones</th></tr>
+              </thead>
+              <tbody>
+                {(characters || []).filter(c => 
+                  c && (c.name?.toLowerCase() || '').includes(searchTerm.toLowerCase())
+                ).map(c => (
+                  <tr key={c.id}>
+                    <td>{c.name}</td>
+                    <td style={{ color: '#aaa', fontSize: '13px' }}>{c.slug}</td>
+                    <td>{c.active ? '✅' : '🚫'}</td>
+                    <td>
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <button className={styles.btnAction} onClick={() => openCharacterModal(c)}>Editar</button>
+                        <button className={`${styles.btnAction} ${styles.btnDanger}`} onClick={() => askDelete('character', c.id, c.name)}>Eliminar</button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+                {characters.length === 0 && !loading && (
+                  <tr><td colSpan="4" className={styles.textCenter}>Pulsa en cargar para ver los personajes.</td></tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      )}
+
+      {/* CONTENIDO NOTICIAS */}
+      {activeTab === 'news' && (
+        <section className={styles.section}>
+          <div className={styles.headerWithAction}>
+            <h2 className={styles.sectionTitle}>Gestión de Noticias</h2>
+            <button className={styles.btnSuccess} onClick={() => openNewsModal()}>+ Nueva Noticia</button>
+          </div>
+          <div className={styles.controls}>
+            <input
+              type="text" placeholder="Buscar noticia..."
+              value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
+              className={styles.searchInput}
+            />
+            <button onClick={handleLoadNews} className={styles.btnPrimary} disabled={loading}>
+              Cargar / Refrescar
+            </button>
+          </div>
+          <div className={styles.tableWrapper}>
+            <table className={styles.table}>
+              <thead>
+                <tr><th>Título</th><th>Slug</th><th>Publicado</th><th>Acciones</th></tr>
+              </thead>
+              <tbody>
+                {(newsPosts || []).filter(p =>
+                  p && (p.title?.toLowerCase() || '').includes(searchTerm.toLowerCase())
+                ).map(p => (
+                  <tr key={p.id}>
+                    <td>{p.title}</td>
+                    <td style={{ color: '#aaa', fontSize: '13px' }}>{p.slug}</td>
+                    <td>{p.active ? '✅' : '🚫'}</td>
+                    <td>
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <button className={styles.btnAction} onClick={() => openNewsModal(p)}>Editar</button>
+                        <button className={`${styles.btnAction} ${styles.btnDanger}`} onClick={() => askDelete('news', p.id, p.title)}>Eliminar</button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+                {newsPosts.length === 0 && !loading && (
+                  <tr><td colSpan="4" className={styles.textCenter}>Pulsa en cargar para ver las noticias.</td></tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      )}
+
       {/* MODALES */}
       <UserEditModal 
         isOpen={isUserModalOpen} 
@@ -342,6 +511,20 @@ export default function AdminDashboard() {
       <CategoryManagementModal 
         isOpen={isCategoryModalOpen} 
         onClose={() => setIsCategoryModalOpen(false)} 
+      />
+
+      <CharacterEditModal
+        isOpen={isCharacterModalOpen}
+        character={selectedCharacter}
+        onClose={() => setIsCharacterModalOpen(false)}
+        onSave={handleSaveCharacter}
+      />
+
+      <NewsPostEditModal
+        isOpen={isNewsModalOpen}
+        post={selectedNews}
+        onClose={() => setIsNewsModalOpen(false)}
+        onSave={handleSaveNews}
       />
 
       <DialogModal 

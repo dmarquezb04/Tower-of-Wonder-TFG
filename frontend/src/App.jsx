@@ -9,6 +9,9 @@ import ContactPage from './components/pages/ContactPage'
 import UserDashboard from './components/pages/UserDashboard'
 import AdminDashboard from './components/pages/AdminDashboard'
 import ShopPage from './components/pages/ShopPage'
+import CharactersPage from './components/pages/CharactersPage'
+import NewsListPage from './components/pages/NewsListPage'
+import NewsPostPage from './components/pages/NewsPostPage'
 import ReactivateAccount from './components/pages/ReactivateAccount'
 import NewsletterConfirmPage from './components/pages/NewsletterConfirmPage'
 import ProtectedRoute from './components/ProtectedRoute'
@@ -66,6 +69,9 @@ function App() {
             <Route path="/"         element={<HomePage />} />
             <Route path="/contacto" element={<ContactPage />} />
             <Route path="/shop"     element={<ShopPage />} />
+            <Route path="/personajes" element={<CharactersPage />} />
+            <Route path="/noticias"   element={<NewsListPage />} />
+            <Route path="/noticias/:slug" element={<NewsPostPage />} />
             
             {/* Rutas de Acciones por Email */}
             <Route path="/reactivate" element={<ReactivateAccount />} />
