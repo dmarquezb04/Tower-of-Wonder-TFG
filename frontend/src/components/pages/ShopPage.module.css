@@ -1,7 +1,8 @@
 .container {
-  max-width: 1400px;
+  width: 80%;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 40px 5%;
+  padding: 40px 0;
 }
 
 .shopHeader {
@@ -32,6 +33,8 @@
   scrollbar-width: none; /* Firefox */
   -ms-overflow-style: none;  /* IE and Edge */
   padding: 2px 0;
+  flex: 1;
+  min-width: 0;
 }
 
 .filters::-webkit-scrollbar {
@@ -167,22 +170,57 @@
 }
 
 @media (max-width: 768px) {
+  .container {
+    padding: 20px 10px;
+    width: 100%;
+    margin: 0;
+    box-sizing: border-box;
+  }
+
   .shopHeader {
     flex-direction: column;
     align-items: stretch;
+    gap: 15px;
+    width: 100%;
+    margin-bottom: 25px;
+  }
+
+  .categoriesWrapper {
+    max-width: 100%;
+    width: auto;
+    margin: 0;
+    display: flex;
+  }
+
+  .filters {
+    justify-content: flex-start;
+    padding: 4px 0;
+    flex: 1;
   }
   
   .controls {
     flex-direction: column;
     align-items: stretch;
+    width: 100%;
+    gap: 12px;
+    margin: 0;
   }
   
   .searchWrapper {
     max-width: none;
+    width: 100%;
+  }
+
+  .cartBtn {
+    width: 100%;
+    justify-content: center;
+    padding: 12px;
+    font-size: 15px;
   }
   
   .grid {
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: 20px;
+    grid-template-columns: 1fr;
+    gap: 25px;
+    width: 100%;
   }
 }
