@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import axios from 'axios'
+import { useAuth } from '../../context/AuthContext'
 import styles from './ContactPage.module.css'
 
 const CONTACT_API = '/api/contacto'
@@ -14,9 +15,21 @@ const INITIAL_FORM = { nombre: '', email: '', asunto: '', mensaje: '' }
  * el título se salga del borde del contenedor. Con <div> tenemos control total.
  */
 export default function ContactPage() {
+  const { user, token } = useAuth()
   const [form, setForm]       = useState(INITIAL_FORM)
   const [status, setStatus]   = useState(null) // null | 'sending' | 'success' | 'error'
   const [errorMsg, setErrorMsg] = useState('')
+
+  // Pre-rellenar datos si el usuario está autenticado
+  useEffect(() => {
+    if (user) {
+      setForm(prev => ({
+        ...prev,
+        nombre: prev.nombre || user.username || '',
+        email: prev.email || user.email || ''
+      }))
+    }
+  }, [user])
 
   const handleChange = (e) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }))
@@ -28,7 +41,10 @@ export default function ContactPage() {
     setErrorMsg('')
 
     try {
-      const res = await axios.post(CONTACT_API, form)
+      // Si hay token, lo enviamos para que el backend identifique al usuario
+      const config = token ? { headers: { Authorization: `Bearer ${token}` } } : {}
+      const res = await axios.post(CONTACT_API, form, config)
+      
       if (res.data.ok) {
         setStatus('success')
         setForm(INITIAL_FORM)
@@ -36,9 +52,10 @@ export default function ContactPage() {
         setStatus('error')
         setErrorMsg(res.data.message ?? 'Error al enviar el mensaje. Inténtalo de nuevo.')
       }
-    } catch {
+    } catch (err) {
       setStatus('error')
-      setErrorMsg('Error de conexión. Comprueba tu red e inténtalo de nuevo.')
+      const msg = err.response?.data?.message || 'Error de conexión. Comprueba tu red e inténtalo de nuevo.'
+      setErrorMsg(msg)
     }
   }
 

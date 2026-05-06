@@ -43,28 +43,17 @@ public class SecurityConfig {
             .authenticationProvider(daoAuthProvider())
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
             .authorizeHttpRequests(auth -> auth
-                // 1. ACCESO PÚBLICO
-                .requestMatchers("/health", "/error", "/v3/api-docs/**", "/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/docs/javadoc/**").permitAll()
-                
-                // Autenticación y Registro
-                .requestMatchers(HttpMethod.POST, "/auth/login", "/auth/register", "/auth/verify-2fa", "/auth/reactivate").permitAll()
-                
-                // Lectura pública (Tienda, Categorías, Personajes, Noticias)
-                .requestMatchers(HttpMethod.GET, "/shop/products", "/categories/**",
-                        "/characters", "/characters/*",
-                        "/news", "/news/*").permitAll()
-                
-                // Otros servicios públicos
-                .requestMatchers("/newsletter/**").permitAll()
-                .requestMatchers(HttpMethod.POST, "/metrics/track").permitAll()
-                
-                // 2. ACCESO RESTRINGIDO (ADMIN)
-                .requestMatchers("/admin/**", "/metrics/admin/**", "/categories/**",
-                        "/characters/admin/**", "/news/admin/**").hasRole("ADMIN")
-                // POST/PUT/DELETE en /characters y /news requieren rol ADMIN
+                // 1. ACCESO RESTRINGIDO (ADMIN)
+                .requestMatchers("/admin/**", "/metrics/admin/**", "/categories/**", "/characters/admin/**", "/news/admin/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.POST, "/characters", "/news").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.PUT, "/characters/**", "/news/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.DELETE, "/characters/**", "/news/**").hasRole("ADMIN")
+
+                // 2. ACCESO PÚBLICO
+                .requestMatchers("/health", "/error", "/v3/api-docs/**", "/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/docs/javadoc/**").permitAll()
+                .requestMatchers(HttpMethod.POST, "/auth/login", "/auth/register", "/auth/verify-2fa", "/auth/reactivate", "/contacto", "/metrics/track").permitAll()
+                .requestMatchers(HttpMethod.GET, "/shop/products", "/categories/**", "/characters/**", "/news/**").permitAll()
+                .requestMatchers("/newsletter/**").permitAll()
                 
                 // 3. RESTO DE PETICIONES (Requiere login)
                 .anyRequest().authenticated()
