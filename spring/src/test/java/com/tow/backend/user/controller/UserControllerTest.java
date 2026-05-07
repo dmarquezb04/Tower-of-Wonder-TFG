@@ -41,7 +41,7 @@ class UserControllerTest {
 
         ResponseEntity<UserProfileDTO> response = userController.getProfile(userDetails);
 
-        assertEquals(200, response.getStatusCodeValue());
+        assertEquals(200, response.getStatusCode().value());
         assertEquals(expectedProfile, response.getBody());
     }
 
@@ -52,7 +52,7 @@ class UserControllerTest {
 
         ResponseEntity<TwoFactorSetupDTO> response = userController.setupTwoFactor(userDetails);
 
-        assertEquals(200, response.getStatusCodeValue());
+        assertEquals(200, response.getStatusCode().value());
         assertEquals(expectedSetup, response.getBody());
     }
 
@@ -66,7 +66,7 @@ class UserControllerTest {
 
         ResponseEntity<?> response = userController.enableTwoFactor(userDetails, request);
 
-        assertEquals(200, response.getStatusCodeValue());
+        assertEquals(200, response.getStatusCode().value());
     }
 }
 

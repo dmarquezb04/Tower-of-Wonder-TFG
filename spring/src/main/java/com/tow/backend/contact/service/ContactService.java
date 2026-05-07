@@ -3,19 +3,19 @@ package com.tow.backend.contact.service;
 import com.tow.backend.contact.dto.ContactRequest;
 
 /**
- * Contrato del servicio de gestiÃ³n de contacto.
+ * Contrato del servicio de gestión de contacto.
  *
- * <p>Se encarga de procesar los mensajes enviados a travÃ©s del formulario
- * de contacto, guardÃ¡ndolos en el sistema y notificando a los administradores.
+ * <p>Se encarga de procesar los mensajes enviados a través del formulario
+ * de contacto, guardándolos en el sistema y notificando a los administradores.
  *
- * @author DarÃ­o MÃ¡rquez Bautista
+ * @author Darío Márquez Bautista
  */
 public interface ContactService {
 
     /**
      * Procesa una solicitud de contacto.
      *
-     * <p>Guarda el mensaje en la base de datos y envÃ­a una notificaciÃ³n
+     * <p>Guarda el mensaje en la base de datos y envía una notificación
      * por email al administrador del sistema.
      *
      * @param request DTO con los datos del remitente y el mensaje

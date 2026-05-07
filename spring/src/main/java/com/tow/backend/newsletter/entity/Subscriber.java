@@ -26,6 +26,7 @@ public class Subscriber {
     private String email;
 
     @Column(nullable = false)
+    @Builder.Default
     private Boolean confirmed = false;
 
     @Column(name = "confirmation_token", length = 100)

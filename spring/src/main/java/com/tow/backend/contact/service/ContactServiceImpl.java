@@ -12,10 +12,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Map;
 
 /**
- * ImplementaciÃ³n del servicio de contacto.
+ * Implementación del servicio de contacto.
  *
  * @see ContactService
- * @author DarÃ­o MÃ¡rquez Bautista
+ * @author Darío Márquez Bautista
  */
 @Service
 @RequiredArgsConstructor

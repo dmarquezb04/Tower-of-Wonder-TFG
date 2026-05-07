@@ -22,7 +22,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public class LoginResponse {
 
-    /** Si se requiere verificaciÃ³n de 2FA para completar el login. */
+    /** Si se requiere verificación de 2FA para completar el login. */
     private boolean requiresTwoFactor;
 
     /**

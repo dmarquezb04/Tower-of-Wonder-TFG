@@ -16,10 +16,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * ImplementaciÃ³n del servicio de administraciÃ³n.
+ * Implementación del servicio de administración.
  *
  * @see AdminService
- * @author DarÃ­o MÃ¡rquez Bautista
+ * @author Darío Márquez Bautista
  */
 @Service
 @RequiredArgsConstructor
@@ -77,7 +77,7 @@ public class AdminServiceImpl implements AdminService {
             throw new NotFoundException("Usuario no encontrado con ID: " + id);
         }
         userRepository.deleteById(id);
-        log.info("Usuario ID {} eliminado con Ã©xito", id);
+        log.info("Usuario ID {} eliminado con éxito", id);
     }
 
     private UserAdminDTO mapToDTO(User user) {

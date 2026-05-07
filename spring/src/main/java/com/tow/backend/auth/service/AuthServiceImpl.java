@@ -4,7 +4,7 @@ import com.tow.backend.auth.dto.LoginRequest;
 import com.tow.backend.auth.dto.LoginResponse;
 import com.tow.backend.auth.dto.RegisterRequest;
 import com.tow.backend.auth.dto.TwoFactorRequest;
-import com.tow.backend.exception.BadRequestException;
+
 import com.tow.backend.exception.ConflictException;
 import com.tow.backend.exception.NotFoundException;
 import com.tow.backend.exception.UnauthorizedException;
@@ -25,10 +25,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * ImplementaciÃ³n del servicio de autenticaciÃ³n.
+ * Implementación del servicio de autenticación.
  *
  * @see AuthService
- * @author DarÃ­o MÃ¡rquez Bautista
+ * @author Darío Márquez Bautista
  */
 @Slf4j
 @Service
@@ -48,7 +48,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public LoginResponse login(LoginRequest request) {
-        // Mensaje genÃ©rico por seguridad â€” no revelar si el email existe en el sistema
+        // Mensaje genérico por seguridad — no revelar si el email existe en el sistema
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new BadCredentialsException("Credenciales incorrectas"));
 
@@ -58,12 +58,12 @@ public class AuthServiceImpl implements AuthService {
         }
 
         if (!Boolean.TRUE.equals(user.getActivo())) {
-            throw new BadCredentialsException("La cuenta estÃ¡ desactivada");
+            throw new BadCredentialsException("La cuenta está desactivada");
         }
 
         List<String> roles = List.of(user.getRole().getNombreRol());
 
-        // Con 2FA activo â†’ token temporal (5 min), el cliente debe completar el flujo
+        // Con 2FA activo → token temporal (5 min), el cliente debe completar el flujo
         if (Boolean.TRUE.equals(user.getTwoFaEnabled())) {
             String tempToken = tokenProvider.generateTwoFactorPendingToken(
                     user.getIdUsuario(), user.getEmail()
@@ -74,11 +74,11 @@ public class AuthServiceImpl implements AuthService {
                     .token(tempToken)
                     .email(user.getEmail())
                     .username(user.getUsername())
-                    .message("Introduce el cÃ³digo de Google Authenticator")
+                    .message("Introduce el código de Google Authenticator")
                     .build();
         }
 
-        // Sin 2FA â†’ token completo (24h)
+        // Sin 2FA → token completo (24h)
         String token = tokenProvider.generateToken(user.getIdUsuario(), user.getEmail(), roles);
         actualizarUltimoLogin(user);
 
@@ -101,23 +101,18 @@ public class AuthServiceImpl implements AuthService {
     public LoginResponse verifyTwoFactor(String tokenTemporal, TwoFactorRequest request) {
         if (!tokenProvider.validateToken(tokenTemporal)
                 || !tokenProvider.isTwoFactorPending(tokenTemporal)) {
-            throw new UnauthorizedException("Token de verificaciÃ³n invÃ¡lido o expirado");
+            throw new UnauthorizedException("Token de verificación inválido o expirado");
         }
 
         String email = tokenProvider.getEmailFromToken(tokenTemporal);
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new NotFoundException("Usuario no encontrado"));
 
-        int code;
-        try {
-            code = Integer.parseInt(request.getCode());
-        } catch (NumberFormatException e) {
-            throw new BadRequestException("El cÃ³digo de verificaciÃ³n debe ser numÃ©rico");
-        }
+        int code = Integer.parseInt(request.getCode());
 
         if (!googleAuthenticator.authorize(user.getTwofaSecret(), code)) {
-            log.warn("CÃ³digo 2FA incorrecto para: {}", email);
-            throw new UnauthorizedException("CÃ³digo de verificaciÃ³n incorrecto");
+            log.warn("Código 2FA incorrecto para: {}", email);
+            throw new UnauthorizedException("Código de verificación incorrecto");
         }
 
         tokenProvider.revokeToken(tokenTemporal);
@@ -132,7 +127,7 @@ public class AuthServiceImpl implements AuthService {
                 .token(token)
                 .email(user.getEmail())
                 .username(user.getUsername())
-                .message("AutenticaciÃ³n completada")
+                .message("Autenticación completada")
                 .build();
     }
 
@@ -144,10 +139,10 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
     public void register(RegisterRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new ConflictException("El email ya estÃ¡ registrado");
+            throw new ConflictException("El email ya está registrado");
         }
         if (userRepository.existsByUsername(request.getUsername())) {
-            throw new ConflictException("El nombre de usuario ya estÃ¡ en uso");
+            throw new ConflictException("El nombre de usuario ya está en uso");
         }
 
         Role defaultRole = roleRepository.findByNombreRol("user")
@@ -178,7 +173,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     // ============================================================
-    // MÃ©todos privados
+    // Métodos privados
     // ============================================================
 
     private void actualizarUltimoLogin(User user) {

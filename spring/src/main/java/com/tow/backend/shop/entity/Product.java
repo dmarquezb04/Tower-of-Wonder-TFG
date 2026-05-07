@@ -32,6 +32,7 @@ public class Product {
     private BigDecimal price;
 
     @Column(nullable = false)
+    @Builder.Default
     private Integer stock = 0;
 
     @Column(name = "image_url")
@@ -42,6 +43,7 @@ public class Product {
     private Category category;
 
     @Column(nullable = false)
+    @Builder.Default
     private Boolean active = true;
 }
 

@@ -8,13 +8,13 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * DTO para la actualizaciÃ³n del perfil del usuario autenticado.
+ * DTO para la actualización del perfil del usuario autenticado.
  * Recibido en {@code PUT /user/profile}.
  *
- * <p>Todos los campos son opcionales. Solo se actualizarÃ¡n los campos
- * que se envÃ­en con valor no nulo y no vacÃ­o.
+ * <p>Todos los campos son opcionales. Solo se actualizarán los campos
+ * que se envíen con valor no nulo y no vacío.
  *
- * @author DarÃ­o MÃ¡rquez Bautista
+ * @author Darío Márquez Bautista
  */
 @Data
 @Builder
@@ -22,19 +22,19 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class UpdateProfileRequest {
 
-    /** Nuevo nombre de usuario. Entre 3 y 50 caracteres alfanumÃ©ricos. */
+    /** Nuevo nombre de usuario. Entre 3 y 50 caracteres alfanuméricos. */
     @Size(min = 3, max = 50, message = "El nombre de usuario debe tener entre 3 y 50 caracteres")
     @Pattern(
             regexp = "^[a-zA-Z0-9_]*$",
-            message = "El nombre de usuario solo puede contener letras, nÃºmeros y guiones bajos"
+            message = "El nombre de usuario solo puede contener letras, números y guiones bajos"
     )
     private String username;
 
-    /** ContraseÃ±a actual del usuario, requerida para cambiar la contraseÃ±a. */
+    /** Contraseña actual del usuario, requerida para cambiar la contraseña. */
     private String currentPassword;
 
-    /** Nueva contraseÃ±a. MÃ­nimo 8 caracteres si se proporciona. */
-    @Size(min = 8, max = 100, message = "La contraseÃ±a debe tener entre 8 y 100 caracteres")
+    /** Nueva contraseña. Mínimo 8 caracteres si se proporciona. */
+    @Size(min = 8, max = 100, message = "La contraseña debe tener entre 8 y 100 caracteres")
     private String newPassword;
 }
 

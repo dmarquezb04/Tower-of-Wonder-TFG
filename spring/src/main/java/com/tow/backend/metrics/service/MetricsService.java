@@ -4,32 +4,37 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.util.Map;
 
 /**
- * Contrato del servicio de mÃ©tricas y analÃ­tica.
+ * Contrato del servicio de métricas y analítica.
  *
- * <p>Permite registrar visitas a las distintas URLs de la aplicaciÃ³n
- * y obtener estadÃ­sticas agregadas para el panel de administraciÃ³n.
+ * <p>Permite registrar visitas a las distintas URLs de la aplicación
+ * y obtener estadísticas agregadas para el panel de administración.
  *
- * @author DarÃ­o MÃ¡rquez Bautista
+ * @author Darío Márquez Bautista
  */
 public interface MetricsService {
 
     /**
-     * Registra una visita a una URL especÃ­fica.
+     * Registra una visita a una URL específica.
      *
-     * <p>Extrae la IP y el User-Agent de la peticiÃ³n para enriquecer
-     * los datos de la mÃ©trica.
+     * <p>Extrae la IP y el User-Agent de la petición para enriquecer
+     * los datos de la métrica.
      *
-     * @param url     ruta de la pÃ¡gina visitada
-     * @param request peticiÃ³n HTTP actual
+     * @param url     ruta de la página visitada
+     * @param request petición HTTP actual
      */
     void trackVisit(String url, HttpServletRequest request);
 
     /**
-     * Obtiene estadÃ­sticas generales del sistema.
+     * Obtiene estadísticas generales del sistema.
      *
-     * @return mapa con contadores por URL, por zona geogrÃ¡fica y total
+     * @return mapa con contadores por URL, por zona geográfica y total
      */
     Map<String, Object> getStats();
+
+    /**
+     * Genera un archivo Excel (.xlsx) con el listado completo de visitas.
+     *
+     * @return array de bytes con el contenido del archivo Excel
+     */
+    byte[] exportToExcel();
 }
-
-

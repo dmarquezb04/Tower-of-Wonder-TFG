@@ -24,6 +24,10 @@ export default function LoginModal({ isOpen, onClose, initialMode }) {
   // Estado 2FA
   const [tempToken, setTempToken] = useState(null)
   const [twoFaCode, setTwoFaCode] = useState('')
+  const [email, setEmail]         = useState('')
+  const [password, setPassword]   = useState('')
+  const [username, setUsername]   = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
 
   const overlayRef = useRef(null)
 
@@ -34,6 +38,8 @@ export default function LoginModal({ isOpen, onClose, initialMode }) {
     setSuccess(null)
     setTempToken(null)
     setTwoFaCode('')
+    setPassword('')
+    setConfirmPassword('')
   }, [initialMode, isOpen])
 
   // Cerrar con ESC
@@ -77,8 +83,7 @@ export default function LoginModal({ isOpen, onClose, initialMode }) {
     setError(null)
     setLoading(true)
 
-    const email    = e.target.email.value.trim()
-    const password = e.target.password.value
+    // Los valores se obtienen del estado (email, password)
 
     try {
       const res = await login(email, password)
@@ -128,12 +133,9 @@ export default function LoginModal({ isOpen, onClose, initialMode }) {
     setError(null)
     setLoading(true)
 
-    const email    = e.target.email.value.trim()
-    const username = e.target.username.value.trim()
-    const password = e.target.password.value
-    const confirm  = e.target.confirmPassword.value
+    // Los valores se obtienen del estado (email, username, password, confirmPassword)
 
-    if (password !== confirm) {
+    if (password !== confirmPassword) {
       setError('Las contraseñas no coinciden')
       setLoading(false)
       return
@@ -199,6 +201,8 @@ export default function LoginModal({ isOpen, onClose, initialMode }) {
                     type="email"
                     id="modal-email"
                     name="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     required
                     autoComplete="email"
                     disabled={loading}
@@ -213,6 +217,8 @@ export default function LoginModal({ isOpen, onClose, initialMode }) {
                     type="password"
                     id="modal-password"
                     name="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                     required
                     autoComplete="current-password"
                     disabled={loading}
@@ -281,6 +287,8 @@ export default function LoginModal({ isOpen, onClose, initialMode }) {
                     type="email"
                     id="modal-reg-email"
                     name="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     required
                     autoComplete="email"
                     disabled={loading}
@@ -295,6 +303,8 @@ export default function LoginModal({ isOpen, onClose, initialMode }) {
                     type="text"
                     id="modal-reg-username"
                     name="username"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
                     required
                     minLength={3}
                     maxLength={30}
@@ -311,6 +321,8 @@ export default function LoginModal({ isOpen, onClose, initialMode }) {
                     type="password"
                     id="modal-reg-password"
                     name="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                     required
                     minLength={8}
                     autoComplete="new-password"
@@ -326,6 +338,8 @@ export default function LoginModal({ isOpen, onClose, initialMode }) {
                     type="password"
                     id="modal-reg-confirm"
                     name="confirmPassword"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
                     required
                     autoComplete="new-password"
                     disabled={loading}

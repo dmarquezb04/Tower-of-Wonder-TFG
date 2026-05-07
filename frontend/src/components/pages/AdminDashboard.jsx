@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { getAdminUsers, updateUser, deleteUser } from '../../api/authApi'
-import { getAdminMetricsStats } from '../../api/metricsApi'
+import { getAdminMetricsStats, exportAdminMetricsExcel } from '../../api/metricsApi'
 import { getAdminProducts, createProduct, updateProduct, deleteProduct } from '../../api/adminShopApi'
 import { getAdminCharacters, createCharacter, updateCharacter, deleteCharacter } from '../../api/characterApi'
 import { getAdminNewsPosts, createNewsPost, updateNewsPost, deleteNewsPost } from '../../api/newsApi'
@@ -17,6 +17,30 @@ import DialogModal from '../DialogModal/DialogModal'
 
 export default function AdminDashboard() {
   const { token } = useAuth()
+  
+  // ... (otros estados)
+
+  const [exporting, setExporting] = useState(false)
+
+  const handleExportExcel = async () => {
+    try {
+      setExporting(true)
+      const blob = await exportAdminMetricsExcel(token)
+      
+      // Crear link de descarga
+      const url = window.URL.createObjectURL(new Blob([blob]))
+      const link = document.createElement('a')
+      link.href = url
+      link.setAttribute('download', `metricas_visitas_${new Date().toISOString().split('T')[0]}.xlsx`)
+      document.body.appendChild(link)
+      link.click()
+      link.remove()
+    } catch (err) {
+      alert('Error al exportar a Excel: ' + err.message)
+    } finally {
+      setExporting(false)
+    }
+  }
   
   // Estados para datos
   const [metrics, setMetrics] = useState(null)
@@ -264,7 +288,16 @@ export default function AdminDashboard() {
       {/* CONTENIDO MÉTRICAS */}
       {activeTab === 'metrics' && (
         <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>Métricas de Visitas</h2>
+          <div className={styles.headerWithAction}>
+            <h2 className={styles.sectionTitle}>Métricas de Visitas</h2>
+            <button 
+              className={styles.btnAction} 
+              onClick={handleExportExcel} 
+              disabled={exporting}
+            >
+              {exporting ? 'Generando...' : '📊 Exportar a Excel'}
+            </button>
+          </div>
           <div className={styles.metricsGrid}>
             <div className={styles.metricCard}>
               <h3>Visitas Totales</h3>

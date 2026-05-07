@@ -1,6 +1,6 @@
 package com.tow.backend.shop.controller;
 
-import com.tow.backend.common.dto.ApiResponse;
+
 import com.tow.backend.email.service.MailService;
 import com.tow.backend.exception.BadRequestException;
 import com.tow.backend.exception.NotFoundException;
@@ -31,19 +31,19 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * Controlador REST para la tienda: catÃ¡logo de productos y checkout.
+ * Controlador REST para la tienda: catálogo de productos y checkout.
  *
- * <p>El endpoint de productos ({@code GET /shop/products}) es pÃºblico.
- * El endpoint de checkout ({@code POST /shop/checkout}) requiere autenticaciÃ³n JWT.
+ * <p>El endpoint de productos ({@code GET /shop/products}) es público.
+ * El endpoint de checkout ({@code POST /shop/checkout}) requiere autenticación JWT.
  * Los errores de negocio son gestionados por {@link com.tow.backend.exception.GlobalExceptionHandler}.
  *
- * @author DarÃ­o MÃ¡rquez Bautista
+ * @author Darío Márquez Bautista
  */
 @RestController
 @RequestMapping("/shop")
 @RequiredArgsConstructor
 @Slf4j
-@Tag(name = "Tienda", description = "CatÃ¡logo de productos y checkout simulado")
+@Tag(name = "Tienda", description = "Catálogo de productos y checkout simulado")
 public class ShopController {
 
     private final ProductRepository productRepository;
@@ -55,15 +55,15 @@ public class ShopController {
     private String frontendUrl;
 
     /**
-     * Devuelve el catÃ¡logo de productos activos, con filtrado opcional por categorÃ­a.
+     * Devuelve el catálogo de productos activos, con filtrado opcional por categoría.
      *
-     * @param category nombre de la categorÃ­a para filtrar (opcional)
+     * @param category nombre de la categoría para filtrar (opcional)
      * @return 200 OK con lista de productos
      */
     @GetMapping("/products")
-    @Operation(summary = "Obtener catÃ¡logo de productos activos")
+    @Operation(summary = "Obtener catálogo de productos activos")
     @ApiResponses({
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "CatÃ¡logo devuelto correctamente")
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Catálogo devuelto correctamente")
     })
     public ResponseEntity<List<Product>> getProducts(@RequestParam(required = false) String category) {
         if (category != null && !category.isEmpty()) {
@@ -77,21 +77,21 @@ public class ShopController {
      *
      * <p>Proceso:
      * <ol>
-     *   <li>Valida que el usuario estÃ© autenticado</li>
-     *   <li>Verifica que el carrito no estÃ© vacÃ­o</li>
+     *   <li>Valida que el usuario esté autenticado</li>
+     *   <li>Verifica que el carrito no esté vacío</li>
      *   <li>Comprueba el stock de cada producto</li>
      *   <li>Crea el pedido y reduce el stock</li>
-     *   <li>EnvÃ­a un recibo por email (fallo no crÃ­tico)</li>
+     *   <li>Envía un recibo por email (fallo no crítico)</li>
      * </ol>
      *
      * @param cartItems lista de productos con su cantidad ({@code id} y {@code quantity})
      * @return 200 OK con el ID del pedido y el total
      */
     @PostMapping("/checkout")
-    @Operation(summary = "Simular compra del carrito (requiere autenticaciÃ³n)")
+    @Operation(summary = "Simular compra del carrito (requiere autenticación)")
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Compra realizada correctamente"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Carrito vacÃ­o o stock insuficiente"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Carrito vacío o stock insuficiente"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "No autenticado"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Producto no encontrado")
     })
@@ -99,11 +99,11 @@ public class ShopController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated()
                 || "anonymousUser".equals(authentication.getPrincipal())) {
-            throw new UnauthorizedException("Debes iniciar sesiÃ³n para realizar una compra");
+            throw new UnauthorizedException("Debes iniciar sesión para realizar una compra");
         }
 
         if (cartItems == null || cartItems.isEmpty()) {
-            throw new BadRequestException("El carrito estÃ¡ vacÃ­o");
+            throw new BadRequestException("El carrito está vacío");
         }
 
         String email = authentication.getName();
@@ -141,7 +141,7 @@ public class ShopController {
         Order savedOrder = orderRepository.save(order);
         log.info("Compra realizada. Pedido ID: {}, Usuario: {}, Total: {}", savedOrder.getId(), email, total);
 
-        // Enviar recibo por email â€” el fallo es no crÃ­tico (no interrumpe la respuesta)
+        // Enviar recibo por email — el fallo es no crítico (no interrumpe la respuesta)
         try {
             Map<String, Object> emailVars = new HashMap<>();
             emailVars.put("username", user.getUsername() != null ? user.getUsername() : user.getEmail());
@@ -165,7 +165,7 @@ public class ShopController {
         }
 
         return ResponseEntity.ok(Map.of(
-                "message", "Compra simulada con Ã©xito. Se ha enviado un recibo a tu correo.",
+                "message", "Compra simulada con éxito. Se ha enviado un recibo a tu correo.",
                 "orderId", savedOrder.getId(),
                 "total", total
         ));

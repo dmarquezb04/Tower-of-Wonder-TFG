@@ -44,7 +44,7 @@ public class DataInitializer implements CommandLineRunner {
             User admin = User.builder()
                     .email("admin@tow.com")
                     .username("admin")
-                    .passwordHash(passwordEncoder.encode("admin123")) // Cambiar en producciÃ³n
+                    .passwordHash(passwordEncoder.encode("admin123")) // Cambiar en producción
                     .activo(true)
                     .twoFaEnabled(false)
                     .role(adminRole)
@@ -53,7 +53,7 @@ public class DataInitializer implements CommandLineRunner {
             log.info("Usuario administrador creado: admin@tow.com / admin123");
         }
 
-        // 3. Corregir roles nulos en usuarios existentes (migraciÃ³n)
+        // 3. Corregir roles nulos en usuarios existentes (migración)
         Role defaultRole = roleRepository.findByNombreRol("user").orElse(null);
         if (defaultRole != null) {
             List<User> usersWithoutRole = userRepository.findAll().stream()

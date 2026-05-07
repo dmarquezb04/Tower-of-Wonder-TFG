@@ -27,3 +27,15 @@ export const getAdminMetricsStats = async (token) => {
     const response = await apiClient.get(`${API_URL}/admin/stats`, getAuthHeader(token));
     return response.data;
 };
+
+/**
+ * Descarga el archivo Excel de métricas (solo Admin).
+ * @param {string} token - Token JWT del admin
+ */
+export const exportAdminMetricsExcel = async (token) => {
+    const response = await apiClient.get(`${API_URL}/admin/export`, {
+        ...getAuthHeader(token),
+        responseType: 'blob'
+    });
+    return response.data;
+};

@@ -7,19 +7,19 @@ import com.tow.backend.exception.NotFoundException;
 import java.util.List;
 
 /**
- * Contrato del servicio de administraciÃ³n del panel de control.
+ * Contrato del servicio de administración del panel de control.
  *
- * <p>Proporciona operaciones de gestiÃ³n de usuarios y mÃ©tricas del sistema,
- * accesibles Ãºnicamente por usuarios con rol ADMIN.
+ * <p>Proporciona operaciones de gestión de usuarios y métricas del sistema,
+ * accesibles únicamente por usuarios con rol ADMIN.
  *
- * @author DarÃ­o MÃ¡rquez Bautista
+ * @author Darío Márquez Bautista
  */
 public interface AdminService {
 
     /**
-     * Devuelve mÃ©tricas generales del sistema: total de usuarios, activos y con 2FA.
+     * Devuelve métricas generales del sistema: total de usuarios, activos y con 2FA.
      *
-     * @return DTO con las mÃ©tricas del sistema
+     * @return DTO con las métricas del sistema
      */
     AdminMetricsDTO getMetrics();
 
@@ -37,7 +37,7 @@ public interface AdminService {
      * @param username nuevo nombre de usuario
      * @param roleName nombre del nuevo rol (ej. "user", "admin")
      * @param activo   nuevo estado de la cuenta
-     * @throws NotFoundException si no existe ningÃºn usuario con ese ID
+     * @throws NotFoundException si no existe ningún usuario con ese ID
      * @throws NotFoundException si el rol especificado no existe
      */
     void updateUser(Long id, String username, String roleName, boolean activo);
@@ -46,7 +46,7 @@ public interface AdminService {
      * Elimina permanentemente un usuario del sistema (hard delete).
      *
      * @param id ID del usuario a eliminar
-     * @throws NotFoundException si no existe ningÃºn usuario con ese ID
+     * @throws NotFoundException si no existe ningún usuario con ese ID
      */
     void deleteUser(Long id);
 }

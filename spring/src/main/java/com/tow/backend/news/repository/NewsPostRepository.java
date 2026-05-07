@@ -8,7 +8,7 @@ import java.util.Optional;
 
 public interface NewsPostRepository extends JpaRepository<NewsPost, Long> {
 
-    /** Todas las noticias activas, ordenadas de mÃ¡s reciente a mÃ¡s antigua */
+    /** Todas las noticias activas, ordenadas de más reciente a más antigua */
     List<NewsPost> findByActiveTrueOrderByPublishedAtDesc();
 
     /** Busca por slug para la vista de detalle */

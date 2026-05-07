@@ -9,7 +9,7 @@ import java.util.Optional;
 /**
  * Repositorio JPA para la entidad {@link Role}.
  *
- * @author DarÃ­o MÃ¡rquez Bautista
+ * @author Darío Márquez Bautista
  */
 @Repository
 public interface RoleRepository extends JpaRepository<Role, Long> {

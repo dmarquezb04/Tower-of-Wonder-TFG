@@ -9,45 +9,45 @@ import com.tow.backend.exception.ConflictException;
 import com.tow.backend.exception.UnauthorizedException;
 
 /**
- * Contrato del servicio de autenticaciÃ³n.
+ * Contrato del servicio de autenticación.
  *
- * <p>Define las operaciones de login, verificaciÃ³n de 2FA, registro y logout.
+ * <p>Define las operaciones de login, verificación de 2FA, registro y logout.
  *
- * @author DarÃ­o MÃ¡rquez Bautista
+ * @author Darío Márquez Bautista
  */
 public interface AuthService {
 
     /**
-     * Procesa el intento de login con email y contraseÃ±a.
+     * Procesa el intento de login con email y contraseña.
      *
      * <p>Si el usuario tiene 2FA activo, devuelve un token temporal y
      * {@code requiresTwoFactor = true}; el cliente debe llamar a {@link #verifyTwoFactor}.
      * Si no tiene 2FA, devuelve directamente el token completo.
      *
-     * @param request DTO con email y contraseÃ±a
+     * @param request DTO con email y contraseña
      * @return respuesta con el token JWT y el estado del 2FA
-     * @throws org.springframework.security.authentication.BadCredentialsException si las credenciales son incorrectas o la cuenta estÃ¡ desactivada
+     * @throws org.springframework.security.authentication.BadCredentialsException si las credenciales son incorrectas o la cuenta está desactivada
      */
     LoginResponse login(LoginRequest request);
 
     /**
-     * Verifica el cÃ³digo TOTP y completa el login cuando el usuario tiene 2FA activo.
+     * Verifica el código TOTP y completa el login cuando el usuario tiene 2FA activo.
      *
      * <p>Requiere el token temporal generado en {@link #login} en el header Authorization.
      *
      * @param tokenTemporal token temporal de 2FA (obtenido en login)
-     * @param request       DTO con el cÃ³digo TOTP de 6 dÃ­gitos
-     * @return token completo si el cÃ³digo es vÃ¡lido
-     * @throws UnauthorizedException si el token temporal es invÃ¡lido, expirado o el cÃ³digo es incorrecto
-     * @throws BadRequestException   si el cÃ³digo TOTP no tiene el formato correcto
+     * @param request       DTO con el código TOTP de 6 dígitos
+     * @return token completo si el código es válido
+     * @throws UnauthorizedException si el token temporal es inválido, expirado o el código es incorrecto
+     * @throws BadRequestException   si el código TOTP no tiene el formato correcto
      */
     LoginResponse verifyTwoFactor(String tokenTemporal, TwoFactorRequest request);
 
     /**
      * Registra un nuevo usuario en el sistema.
      *
-     * @param request DTO con email, username y contraseÃ±a
-     * @throws ConflictException si el email o el nombre de usuario ya estÃ¡n en uso
+     * @param request DTO con email, username y contraseña
+     * @throws ConflictException si el email o el nombre de usuario ya están en uso
      */
     void register(RegisterRequest request);
 

@@ -19,46 +19,46 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 /**
- * Controlador REST para autenticaciÃ³n y registro.
+ * Controlador REST para autenticación y registro.
  *
  * <p>Endpoints:
  * <ul>
- *   <li>{@code POST /auth/login}      â€” iniciar sesiÃ³n</li>
- *   <li>{@code POST /auth/verify-2fa} â€” completar 2FA</li>
- *   <li>{@code POST /auth/register}   â€” registrar nuevo usuario</li>
- *   <li>{@code POST /auth/logout}     â€” cerrar sesiÃ³n (revocar token)</li>
- *   <li>{@code POST /auth/reactivate} â€” reactivar cuenta con borrado lÃ³gico</li>
+ *   <li>{@code POST /auth/login}      — iniciar sesión</li>
+ *   <li>{@code POST /auth/verify-2fa} — completar 2FA</li>
+ *   <li>{@code POST /auth/register}   — registrar nuevo usuario</li>
+ *   <li>{@code POST /auth/logout}     — cerrar sesión (revocar token)</li>
+ *   <li>{@code POST /auth/reactivate} — reactivar cuenta con borrado lógico</li>
  * </ul>
  *
- * <p>Todos los endpoints son pÃºblicos excepto {@code /logout}, que requiere un token vÃ¡lido.
+ * <p>Todos los endpoints son públicos excepto {@code /logout}, que requiere un token válido.
  * Los errores de negocio son gestionados por {@link com.tow.backend.exception.GlobalExceptionHandler}.
  *
- * @author DarÃ­o MÃ¡rquez Bautista
+ * @author Darío Márquez Bautista
  */
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
-@Tag(name = "AutenticaciÃ³n", description = "Login, registro, 2FA y logout")
+@Tag(name = "Autenticación", description = "Login, registro, 2FA y logout")
 public class AuthController {
 
     private final AuthService authService;
     private final UserService userService;
 
     /**
-     * Inicia sesiÃ³n con email y contraseÃ±a.
+     * Inicia sesión con email y contraseña.
      *
      * <p>Si el usuario tiene 2FA activo, el token devuelto es temporal (5 min) y
      * {@code requiresTwoFactor} es {@code true}. En ese caso, el cliente debe
-     * llamar a {@code /verify-2fa} con el cÃ³digo TOTP.
+     * llamar a {@code /verify-2fa} con el código TOTP.
      *
      * @param request body con email y password
      * @return 200 OK con {@link LoginResponse}
      */
     @PostMapping("/login")
-    @Operation(summary = "Iniciar sesiÃ³n")
+    @Operation(summary = "Iniciar sesión")
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Login correcto"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Campos invÃ¡lidos"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Campos inválidos"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Credenciales incorrectas o cuenta desactivada")
     })
     public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
@@ -66,20 +66,20 @@ public class AuthController {
     }
 
     /**
-     * Verifica el cÃ³digo TOTP de Google Authenticator para completar el login 2FA.
+     * Verifica el código TOTP de Google Authenticator para completar el login 2FA.
      *
      * <p>Requiere el token temporal de 2FA en el header {@code Authorization}.
      *
      * @param authHeader header Authorization con el token temporal
-     * @param request    body con el cÃ³digo TOTP de 6 dÃ­gitos
+     * @param request    body con el código TOTP de 6 dígitos
      * @return 200 OK con el token completo
      */
     @PostMapping("/verify-2fa")
-    @Operation(summary = "Verificar cÃ³digo 2FA (Google Authenticator)")
+    @Operation(summary = "Verificar código 2FA (Google Authenticator)")
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "2FA verificado correctamente"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "CÃ³digo con formato invÃ¡lido"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Token temporal invÃ¡lido o cÃ³digo incorrecto")
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Código con formato inválido"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Token temporal inválido o código incorrecto")
     })
     public ResponseEntity<LoginResponse> verifyTwoFactor(
             @RequestHeader("Authorization") String authHeader,
@@ -93,14 +93,14 @@ public class AuthController {
      * Registra un nuevo usuario en el sistema.
      *
      * @param request body con email, username y password
-     * @return 201 Created con mensaje de confirmaciÃ³n
+     * @return 201 Created con mensaje de confirmación
      */
     @PostMapping("/register")
     @Operation(summary = "Registrar nuevo usuario")
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "Usuario registrado correctamente"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Campos invÃ¡lidos"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "409", description = "El email o nombre de usuario ya estÃ¡n en uso")
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Campos inválidos"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "409", description = "El email o nombre de usuario ya están en uso")
     })
     public ResponseEntity<ApiResponse> register(@Valid @RequestBody RegisterRequest request) {
         authService.register(request);
@@ -109,56 +109,56 @@ public class AuthController {
     }
 
     /**
-     * Cierra la sesiÃ³n revocando el token JWT.
+     * Cierra la sesión revocando el token JWT.
      *
      * <p>Tras el logout, el token queda en la blacklist y ya no puede usarse,
-     * aunque no haya expirado aÃºn.
+     * aunque no haya expirado aún.
      *
      * @param authHeader header Authorization con el token a revocar
-     * @return 200 OK con mensaje de confirmaciÃ³n
+     * @return 200 OK con mensaje de confirmación
      */
     @PostMapping("/logout")
-    @Operation(summary = "Cerrar sesiÃ³n (revocar token JWT)")
+    @Operation(summary = "Cerrar sesión (revocar token JWT)")
     @ApiResponses({
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "SesiÃ³n cerrada correctamente"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Header Authorization ausente o invÃ¡lido")
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Sesión cerrada correctamente"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Header Authorization ausente o inválido")
     })
     public ResponseEntity<ApiResponse> logout(@RequestHeader("Authorization") String authHeader) {
         String token = extractBearerToken(authHeader);
         authService.logout(token);
-        return ResponseEntity.ok(new ApiResponse("SesiÃ³n cerrada correctamente"));
+        return ResponseEntity.ok(new ApiResponse("Sesión cerrada correctamente"));
     }
 
     /**
-     * Reactiva una cuenta que fue desactivada mediante borrado lÃ³gico.
+     * Reactiva una cuenta que fue desactivada mediante borrado lógico.
      *
-     * @param token token de recuperaciÃ³n recibido por email
-     * @return 200 OK con mensaje de confirmaciÃ³n
+     * @param token token de recuperación recibido por email
+     * @return 200 OK con mensaje de confirmación
      */
     @PostMapping("/reactivate")
     @Operation(summary = "Reactivar cuenta desactivada")
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Cuenta reactivada correctamente"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Token ausente, invÃ¡lido o caducado"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Token ausente, inválido o caducado"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Token no corresponde a ninguna cuenta")
     })
     public ResponseEntity<ApiResponse> reactivateAccount(@RequestParam String token) {
         if (!StringUtils.hasText(token)) {
-            throw new BadRequestException("Falta el token de recuperaciÃ³n");
+            throw new BadRequestException("Falta el token de recuperación");
         }
         userService.reactivateAccount(token);
-        return ResponseEntity.ok(new ApiResponse("Cuenta reactivada correctamente. Ya puedes iniciar sesiÃ³n."));
+        return ResponseEntity.ok(new ApiResponse("Cuenta reactivada correctamente. Ya puedes iniciar sesión."));
     }
 
     // ============================================================
-    // MÃ©todos privados
+    // Métodos privados
     // ============================================================
 
     private String extractBearerToken(String authHeader) {
         if (StringUtils.hasText(authHeader) && authHeader.startsWith("Bearer ")) {
             return authHeader.substring(7);
         }
-        throw new BadRequestException("Token de autorizaciÃ³n no vÃ¡lido o ausente");
+        throw new BadRequestException("Token de autorización no válido o ausente");
     }
 }
 

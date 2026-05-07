@@ -18,20 +18,20 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Componente que gestiona la creaciÃ³n y validaciÃ³n de tokens JWT.
+ * Componente que gestiona la creación y validación de tokens JWT.
  *
- * <p>Usa la librerÃ­a {@code io.jsonwebtoken:jjwt} (versiÃ³n 0.12.x).
+ * <p>Usa la librería {@code io.jsonwebtoken:jjwt} (versión 0.12.x).
  *
  * <p>Estructura del token:
  * <ul>
- *   <li>{@code sub} â€” email del usuario (subject)</li>
- *   <li>{@code userId} â€” ID numÃ©rico del usuario</li>
- *   <li>{@code roles} â€” lista de roles del usuario</li>
- *   <li>{@code twoFactorPending} â€” true si el token es temporal (2FA pendiente)</li>
- *   <li>{@code jti} â€” ID Ãºnico del token (usado para la blacklist)</li>
+ *   <li>{@code sub} — email del usuario (subject)</li>
+ *   <li>{@code userId} — ID numérico del usuario</li>
+ *   <li>{@code roles} — lista de roles del usuario</li>
+ *   <li>{@code twoFactorPending} — true si el token es temporal (2FA pendiente)</li>
+ *   <li>{@code jti} — ID único del token (usado para la blacklist)</li>
  * </ul>
  *
- * @author DarÃ­o MÃ¡rquez Bautista
+ * @author Darío Márquez Bautista
  * @see JwtAuthenticationFilter
  */
 @Slf4j
@@ -47,7 +47,7 @@ public class JwtTokenProvider {
 
     private final JwtBlacklistRepository blacklistRepository;
 
-    /** ExpiraciÃ³n del token temporal de 2FA: 5 minutos. */
+    /** Expiración del token temporal de 2FA: 5 minutos. */
     private static final long TWO_FACTOR_EXPIRATION_MS = 5 * 60 * 1000L;
 
     /**
@@ -63,8 +63,8 @@ public class JwtTokenProvider {
         Date expiration = new Date(now.getTime() + expirationMs);
 
         return Jwts.builder()
-                .id(UUID.randomUUID().toString())       // jti â€” ID Ãºnico del token
-                .subject(email)                         // sub â€” email del usuario
+                .id(UUID.randomUUID().toString())       // jti — ID único del token
+                .subject(email)                         // sub — email del usuario
                 .claim("userId", userId)
                 .claim("roles", roles)
                 .claim("twoFactorPending", false)
@@ -81,7 +81,7 @@ public class JwtTokenProvider {
      * {@code POST /api/auth/verify-2fa}. Contiene el claim
      * {@code twoFactorPending: true} para distinguirlo de un token completo.
      *
-     * @param userId ID del usuario que ha superado la validaciÃ³n de contraseÃ±a
+     * @param userId ID del usuario que ha superado la validación de contraseña
      * @param email  email del usuario
      * @return token JWT temporal de 2FA
      */
@@ -122,7 +122,7 @@ public class JwtTokenProvider {
 
     /**
      * Extrae el JTI (JWT ID) del token.
-     * Se usa para aÃ±adir el token a la blacklist al hacer logout.
+     * Se usa para añadir el token a la blacklist al hacer logout.
      *
      * @param token token JWT
      * @return JTI del token
@@ -132,10 +132,10 @@ public class JwtTokenProvider {
     }
 
     /**
-     * Obtiene la fecha de expiraciÃ³n del token.
+     * Obtiene la fecha de expiración del token.
      *
      * @param token token JWT
-     * @return fecha de expiraciÃ³n
+     * @return fecha de expiración
      */
     public LocalDateTime getExpirationFromToken(String token) {
         Date expiration = parseClaims(token).getExpiration();
@@ -154,16 +154,16 @@ public class JwtTokenProvider {
     }
 
     /**
-     * Valida un token JWT verificando firma, expiraciÃ³n y blacklist.
+     * Valida un token JWT verificando firma, expiración y blacklist.
      *
      * @param token token JWT a validar
-     * @return true si el token es vÃ¡lido y no estÃ¡ revocado
+     * @return true si el token es válido y no está revocado
      */
     public boolean validateToken(String token) {
         try {
             Claims claims = parseClaims(token);
 
-            // Comprobar si el token estÃ¡ en la blacklist (logout)
+            // Comprobar si el token está en la blacklist (logout)
             String jti = claims.getId();
             if (jti != null && blacklistRepository.existsByTokenJti(jti)) {
                 log.debug("Token revocado (en blacklist): {}", jti);
@@ -174,13 +174,13 @@ public class JwtTokenProvider {
         } catch (ExpiredJwtException e) {
             log.debug("Token expirado: {}", e.getMessage());
         } catch (JwtException | IllegalArgumentException e) {
-            log.debug("Token invÃ¡lido: {}", e.getMessage());
+            log.debug("Token inválido: {}", e.getMessage());
         }
         return false;
     }
 
     /**
-     * Revoca un token aÃ±adiÃ©ndolo a la blacklist.
+     * Revoca un token añadiéndolo a la blacklist.
      * Se llama al hacer logout.
      *
      * @param token token JWT a revocar
@@ -203,7 +203,7 @@ public class JwtTokenProvider {
     }
 
     // ============================================================
-    // MÃ©todos privados
+    // Métodos privados
     // ============================================================
 
     private Claims parseClaims(String token) {

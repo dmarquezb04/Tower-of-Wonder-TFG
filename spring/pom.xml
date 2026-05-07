@@ -101,6 +101,16 @@
         </dependency>
 
         <!-- ============================================================
+             SPRING CACHE
+             Permite usar @Cacheable para evitar peticiones repetitivas.
+             En este proyecto se usa para cachear la geolocalización de IPs.
+             ============================================================ -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-cache</artifactId>
+        </dependency>
+
+        <!-- ============================================================
              MARIADB CONNECTOR
              Driver JDBC para conectarse a MariaDB desde Spring Boot.
              Compatible con la BD existente en Docker.

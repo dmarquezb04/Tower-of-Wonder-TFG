@@ -20,11 +20,11 @@ import java.util.List;
 /**
  * Controlador REST para el blog de noticias de Tower of Wonder.
  *
- * <p>Los endpoints de lectura son pÃºblicos. Las operaciones de escritura
+ * <p>Los endpoints de lectura son públicos. Las operaciones de escritura
  * (crear, actualizar, eliminar) requieren el rol ADMIN.
  * Los errores de negocio son gestionados por {@link com.tow.backend.exception.GlobalExceptionHandler}.
  *
- * @author DarÃ­o MÃ¡rquez Bautista
+ * @author Darío Márquez Bautista
  */
 @RestController
 @RequestMapping("/news")
@@ -35,10 +35,10 @@ public class NewsController {
 
     private final NewsPostRepository newsPostRepository;
 
-    // â”€â”€â”€ PÃšBLICO â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ─── PÃšBLICO ─────────────────────────────────────────────────────────────
 
     /**
-     * Devuelve la lista de noticias marcadas como activas, ordenadas por fecha (mÃ¡s reciente primero).
+     * Devuelve la lista de noticias marcadas como activas, ordenadas por fecha (más reciente primero).
      *
      * @return 200 OK con lista de noticias
      */
@@ -68,10 +68,10 @@ public class NewsController {
                 .orElseThrow(() -> new NotFoundException("Noticia no encontrada con slug: " + slug));
     }
 
-    // â”€â”€â”€ ADMIN â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ─── ADMIN ────────────────────────────────────────────────────────────────
 
     /**
-     * Devuelve la lista completa de noticias para administraciÃ³n.
+     * Devuelve la lista completa de noticias para administración.
      *
      * @return 200 OK con lista de todas las noticias
      */
@@ -139,7 +139,7 @@ public class NewsController {
      * Elimina una noticia del sistema.
      *
      * @param id ID de la noticia a eliminar
-     * @return 200 OK con mensaje de confirmaciÃ³n
+     * @return 200 OK con mensaje de confirmación
      * @throws NotFoundException si el ID no existe
      */
     @DeleteMapping("/{id}")
@@ -158,14 +158,14 @@ public class NewsController {
         return ResponseEntity.ok(new ApiResponse("Noticia eliminada correctamente"));
     }
 
-    // â”€â”€â”€ UTILIDAD â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ─── UTILIDAD ─────────────────────────────────────────────────────────────
 
     private String toSlug(String title) {
         if (title == null) return "";
         return title.toLowerCase()
-                .replaceAll("[Ã¡Ã Ã¤]", "a").replaceAll("[Ã©Ã¨Ã«]", "e")
-                .replaceAll("[Ã­Ã¬Ã¯]", "i").replaceAll("[Ã³Ã²Ã¶]", "o")
-                .replaceAll("[ÃºÃ¹Ã¼]", "u").replaceAll("Ã±", "n")
+                .replaceAll("[áàä]", "a").replaceAll("[éèë]", "e")
+                .replaceAll("[íìï]", "i").replaceAll("[óòö]", "o")
+                .replaceAll("[úùü]", "u").replaceAll("ñ", "n")
                 .replaceAll("[^a-z0-9]+", "-")
                 .replaceAll("(^-|-$)", "");
     }

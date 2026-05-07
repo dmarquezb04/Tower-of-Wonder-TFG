@@ -15,8 +15,11 @@ public interface PageViewRepository extends JpaRepository<PageView, Long> {
     @Query("SELECT p.url as url, COUNT(p) as visitas FROM PageView p GROUP BY p.url ORDER BY visitas DESC")
     List<Map<String, Object>> countVisitsByUrl();
 
-    // Contar visitas por zona/paÃ­s
+    // Contar visitas por zona/país
     @Query("SELECT p.zona as zona, COUNT(p) as visitas FROM PageView p GROUP BY p.zona ORDER BY visitas DESC")
     List<Map<String, Object>> countVisitsByZona();
+
+    // Obtener todas las visitas ordenadas por fecha (para exportación)
+    List<PageView> findAllByOrderByFechaDesc();
 }
 

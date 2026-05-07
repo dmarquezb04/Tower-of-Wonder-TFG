@@ -36,7 +36,7 @@ class AdminControllerTest {
 
         ResponseEntity<List<UserAdminDTO>> response = adminController.getAllUsers();
 
-        assertEquals(200, response.getStatusCodeValue());
+        assertEquals(200, response.getStatusCode().value());
         assertEquals(expectedList, response.getBody());
     }
 
@@ -47,7 +47,7 @@ class AdminControllerTest {
 
         ResponseEntity<AdminMetricsDTO> response = adminController.getMetrics();
 
-        assertEquals(200, response.getStatusCodeValue());
+        assertEquals(200, response.getStatusCode().value());
         assertEquals(expectedMetrics, response.getBody());
     }
 }

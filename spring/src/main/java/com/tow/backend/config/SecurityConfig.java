@@ -20,9 +20,9 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 /**
- * ConfiguraciÃ³n de seguridad Spring Security â€” Fase 1 (JWT Auth).
+ * Configuración de seguridad Spring Security — Fase 1 (JWT Auth).
  *
- * @author DarÃ­o MÃ¡rquez Bautista
+ * @author Darío Márquez Bautista
  */
 @Configuration
 @EnableWebSecurity
@@ -44,12 +44,12 @@ public class SecurityConfig {
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
             .authorizeHttpRequests(auth -> auth
                 // 1. ACCESO RESTRINGIDO (ADMIN)
-                .requestMatchers("/admin/**", "/metrics/admin/**", "/categories/**", "/characters/admin/**", "/news/admin/**").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.POST, "/characters", "/news").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.PUT, "/characters/**", "/news/**").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.DELETE, "/characters/**", "/news/**").hasRole("ADMIN")
+                .requestMatchers("/admin/**", "/metrics/admin/**", "/characters/admin/**", "/news/admin/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.POST, "/characters", "/news", "/categories").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PUT, "/characters/**", "/news/**", "/categories/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/characters/**", "/news/**", "/categories/**").hasRole("ADMIN")
 
-                // 2. ACCESO PÃšBLICO
+                // 2. ACCESO PÚBLICO
                 .requestMatchers("/health", "/error", "/v3/api-docs/**", "/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/docs/javadoc/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/auth/login", "/auth/register", "/auth/verify-2fa", "/auth/reactivate", "/contacto", "/metrics/track").permitAll()
                 .requestMatchers(HttpMethod.GET, "/shop/products", "/categories/**", "/characters/**", "/news/**").permitAll()

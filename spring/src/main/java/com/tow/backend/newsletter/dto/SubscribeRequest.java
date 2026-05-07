@@ -5,16 +5,16 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 /**
- * DTO para la peticiÃ³n de suscripciÃ³n a la newsletter.
+ * DTO para la petición de suscripción a la newsletter.
  * Recibido en {@code POST /newsletter/subscribe}.
  *
- * @author DarÃ­o MÃ¡rquez Bautista
+ * @author Darío Márquez Bautista
  */
 @Data
 public class SubscribeRequest {
 
     @NotBlank(message = "El email es obligatorio")
-    @Email(message = "El email no tiene un formato vÃ¡lido")
+    @Email(message = "El email no tiene un formato válido")
     private String email;
 }
 

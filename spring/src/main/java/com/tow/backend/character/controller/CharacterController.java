@@ -18,42 +18,42 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * Controlador REST para la gestiÃ³n de los personajes del juego.
+ * Controlador REST para la gestión de los personajes del juego.
  *
- * <p>Los endpoints de lectura son pÃºblicos. Las operaciones de escritura
+ * <p>Los endpoints de lectura son públicos. Las operaciones de escritura
  * (crear, actualizar, eliminar) requieren el rol ADMIN.
  * Los errores de negocio son gestionados por {@link com.tow.backend.exception.GlobalExceptionHandler}.
  *
- * @author DarÃ­o MÃ¡rquez Bautista
+ * @author Darío Márquez Bautista
  */
 @RestController
 @RequestMapping("/characters")
 @RequiredArgsConstructor
 @Slf4j
-@Tag(name = "Personajes", description = "CatÃ¡logo de personajes y gestiÃ³n (Admin)")
+@Tag(name = "Personajes", description = "Catálogo de personajes y gestión (Admin)")
 public class CharacterController {
 
     private final GameCharacterRepository characterRepository;
 
-    // â”€â”€â”€ PÃšBLICO â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ─── PÃšBLICO ─────────────────────────────────────────────────────────────
 
     /**
-     * Devuelve la lista de todos los personajes que estÃ¡n marcados como activos.
+     * Devuelve la lista de todos los personajes que están marcados como activos.
      *
      * @return 200 OK con lista de personajes
      */
     @GetMapping
     @Operation(summary = "Obtener todos los personajes activos")
     public ResponseEntity<List<GameCharacter>> getAll() {
-        return ResponseEntity.ok(characterRepository.findByActiveTrueOrderByNameAsc());
+        return ResponseEntity.ok(characterRepository.findByActiveTrueOrderByIdAsc());
     }
 
     /**
-     * Devuelve el detalle de un personaje especÃ­fico a partir de su slug.
+     * Devuelve el detalle de un personaje específico a partir de su slug.
      *
      * @param slug identificador amigable del personaje (ej. "kyra-la-valiente")
      * @return 200 OK con el detalle del personaje
-     * @throws NotFoundException si el slug no corresponde a ningÃºn personaje activo
+     * @throws NotFoundException si el slug no corresponde a ningún personaje activo
      */
     @GetMapping("/{slug}")
     @Operation(summary = "Obtener un personaje por su slug")
@@ -67,7 +67,7 @@ public class CharacterController {
                 .orElseThrow(() -> new NotFoundException("Personaje no encontrado con slug: " + slug));
     }
 
-    // â”€â”€â”€ ADMIN â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ─── ADMIN ────────────────────────────────────────────────────────────────
 
     /**
      * Devuelve la lista completa de personajes, incluyendo los inactivos.
@@ -83,7 +83,7 @@ public class CharacterController {
     }
 
     /**
-     * Crea un nuevo personaje con su galerÃ­a de imÃ¡genes.
+     * Crea un nuevo personaje con su galería de imágenes.
      *
      * @param data datos del nuevo personaje
      * @return 201 Created con el personaje guardado
@@ -107,7 +107,7 @@ public class CharacterController {
     }
 
     /**
-     * Actualiza los datos y la galerÃ­a de un personaje existente.
+     * Actualiza los datos y la galería de un personaje existente.
      *
      * @param id   ID del personaje a actualizar
      * @param data nuevos datos
@@ -142,7 +142,7 @@ public class CharacterController {
      * Elimina permanentemente un personaje del sistema.
      *
      * @param id ID del personaje a eliminar
-     * @return 200 OK con mensaje de confirmaciÃ³n
+     * @return 200 OK con mensaje de confirmación
      * @throws NotFoundException si el ID no existe
      */
     @DeleteMapping("/{id}")
@@ -161,7 +161,7 @@ public class CharacterController {
         return ResponseEntity.ok(new ApiResponse("Personaje eliminado correctamente"));
     }
 
-    // â”€â”€â”€ UTILIDAD â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ─── UTILIDAD ─────────────────────────────────────────────────────────────
 
     private void applyImages(GameCharacter character, List<CharacterImage> incoming) {
         if (incoming == null || incoming.isEmpty()) return;
@@ -177,9 +177,9 @@ public class CharacterController {
     private String toSlug(String name) {
         if (name == null) return "";
         return name.toLowerCase()
-                .replaceAll("[Ã¡Ã Ã¤]", "a").replaceAll("[Ã©Ã¨Ã«]", "e")
-                .replaceAll("[Ã­Ã¬Ã¯]", "i").replaceAll("[Ã³Ã²Ã¶]", "o")
-                .replaceAll("[ÃºÃ¹Ã¼]", "u").replaceAll("Ã±", "n")
+                .replaceAll("[áàä]", "a").replaceAll("[éèë]", "e")
+                .replaceAll("[íìï]", "i").replaceAll("[óòö]", "o")
+                .replaceAll("[úùü]", "u").replaceAll("ñ", "n")
                 .replaceAll("[^a-z0-9]+", "-")
                 .replaceAll("(^-|-$)", "");
     }

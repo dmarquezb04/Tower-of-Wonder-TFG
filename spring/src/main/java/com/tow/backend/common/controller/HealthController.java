@@ -9,19 +9,19 @@ import java.time.LocalDateTime;
 import java.util.Map;
 
 /**
- * Controlador de verificaciÃ³n de estado del sistema (health check).
+ * Controlador de verificación de estado del sistema (health check).
  *
- * <p>Expone un endpoint pÃºblico {@code GET /api/health} que permite verificar
- * que el servidor Spring Boot estÃ¡ activo y puede responder peticiones HTTP.
+ * <p>Expone un endpoint público {@code GET /api/health} que permite verificar
+ * que el servidor Spring Boot está activo y puede responder peticiones HTTP.
  *
- * <p>No requiere autenticaciÃ³n. Ãštil para:
+ * <p>No requiere autenticación. Ãštil para:
  * <ul>
  *   <li>Verificar el despliegue en Docker</li>
- *   <li>Comprobaciones de monitorizaciÃ³n</li>
- *   <li>Validar la configuraciÃ³n de nginx</li>
+ *   <li>Comprobaciones de monitorización</li>
+ *   <li>Validar la configuración de nginx</li>
  * </ul>
  *
- * @author DarÃ­o MÃ¡rquez Bautista
+ * @author Darío Márquez Bautista
  */
 @RestController
 @RequestMapping("/health")

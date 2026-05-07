@@ -12,39 +12,39 @@ import java.util.Arrays;
 import java.util.Set;
 
 /**
- * Aspecto AOP que intercepta todos los mÃ©todos de la capa de servicio
- * y genera trazas de log automÃ¡ticamente sin modificar el cÃ³digo de negocio.
+ * Aspecto AOP que intercepta todos los métodos de la capa de servicio
+ * y genera trazas de log automáticamente sin modificar el código de negocio.
  *
- * <p>Â¿QuÃ© es AOP (ProgramaciÃ³n Orientada a Aspectos)?
- * Es una tÃ©cnica que permite aÃ±adir comportamiento transversal (cross-cutting concerns)
- * como logging, mÃ©tricas o transacciones, sin mezclar ese cÃ³digo con la lÃ³gica de negocio.
- * En lugar de aÃ±adir {@code log.info()} en cada mÃ©todo, el aspecto lo hace automÃ¡ticamente.
+ * <p>¿Qué es AOP (Programación Orientada a Aspectos)?
+ * Es una técnica que permite añadir comportamiento transversal (cross-cutting concerns)
+ * como logging, métricas o transacciones, sin mezclar ese código con la lógica de negocio.
+ * En lugar de añadir {@code log.info()} en cada método, el aspecto lo hace automáticamente.
  *
- * <p>Este aspecto intercepta todos los mÃ©todos de los paquetes {@code service} y {@code controller},
+ * <p>Este aspecto intercepta todos los métodos de los paquetes {@code service} y {@code controller},
  * registrando:
  * <ul>
- *   <li>Entrada al mÃ©todo con sus parÃ¡metros (excepto campos sensibles como contraseÃ±as)</li>
- *   <li>Salida del mÃ©todo con el tiempo de ejecuciÃ³n en milisegundos</li>
+ *   <li>Entrada al método con sus parámetros (excepto campos sensibles como contraseñas)</li>
+ *   <li>Salida del método con el tiempo de ejecución en milisegundos</li>
  *   <li>Excepciones con el mensaje de error</li>
  * </ul>
  *
  * <p>Los logs se escriben en:
  * <ul>
  *   <li>Consola (en desarrollo)</li>
- *   <li>{@code logs/tow-app.log} â€” todos los eventos</li>
- *   <li>{@code logs/tow-error.log} â€” solo errores</li>
+ *   <li>{@code logs/tow-app.log} — todos los eventos</li>
+ *   <li>{@code logs/tow-error.log} — solo errores</li>
  * </ul>
- * Ver {@code logback-spring.xml} para la configuraciÃ³n completa.
+ * Ver {@code logback-spring.xml} para la configuración completa.
  *
- * @author DarÃ­o MÃ¡rquez Bautista
+ * @author Darío Márquez Bautista
  */
 @Aspect
 @Component
 public class LoggingAspect {
 
     /**
-     * Nombres de parÃ¡metros que NUNCA se deben loggear por seguridad.
-     * Los parÃ¡metros cuyo nombre coincida con alguno de estos valores
+     * Nombres de parámetros que NUNCA se deben loggear por seguridad.
+     * Los parámetros cuyo nombre coincida con alguno de estos valores
      * se sustituyen por {@code [PROTECTED]} en el log.
      */
     private static final Set<String> SENSITIVE_PARAMS = Set.of(
@@ -52,14 +52,14 @@ public class LoggingAspect {
     );
 
     /**
-     * Pointcut: intercepta todos los mÃ©todos de los services y controllers
+     * Pointcut: intercepta todos los métodos de los services y controllers
      * del paquete {@code com.tow.backend}.
      *
      * <p>Sintaxis del pointcut:
      * <ul>
-     *   <li>{@code execution(*)} â€” cualquier tipo de retorno</li>
-     *   <li>{@code com.tow.backend..service.*.*} â€” cualquier clase en un subpaquete {@code service}</li>
-     *   <li>{@code (..)} â€” cualquier nÃºmero y tipo de parÃ¡metros</li>
+     *   <li>{@code execution(*)} — cualquier tipo de retorno</li>
+     *   <li>{@code com.tow.backend..service.*.*} — cualquier clase en un subpaquete {@code service}</li>
+     *   <li>{@code (..)} — cualquier número y tipo de parámetros</li>
      * </ul>
      */
     @Around(
@@ -71,26 +71,26 @@ public class LoggingAspect {
         String className  = signature.getDeclaringType().getSimpleName();
         String methodName = signature.getName();
 
-        // Logger especÃ­fico de la clase que se estÃ¡ interceptando
+        // Logger específico de la clase que se está interceptando
         Logger log = LoggerFactory.getLogger(signature.getDeclaringType());
 
-        // Sanitizar parÃ¡metros antes de loggear (ocultar datos sensibles)
+        // Sanitizar parámetros antes de loggear (ocultar datos sensibles)
         String params = buildSafeParamsString(signature, joinPoint.getArgs());
 
-        log.debug("â†’ {}.{}({})", className, methodName, params);
+        log.debug("→ {}.{}({})", className, methodName, params);
         long startTime = System.currentTimeMillis();
 
         try {
             Object result = joinPoint.proceed();
 
             long elapsed = System.currentTimeMillis() - startTime;
-            log.debug("â† {}.{}() completado en {} ms", className, methodName, elapsed);
+            log.debug("← {}.{}() completado en {} ms", className, methodName, elapsed);
 
             return result;
 
         } catch (Exception e) {
             long elapsed = System.currentTimeMillis() - startTime;
-            log.error("âœ— {}.{}() fallÃ³ tras {} ms â€” {}: {}",
+            log.error("✘ {}.{}() falló tras {} ms — {}: {}",
                     className, methodName, elapsed,
                     e.getClass().getSimpleName(), e.getMessage());
             throw e;
@@ -98,11 +98,11 @@ public class LoggingAspect {
     }
 
     /**
-     * Construye un string legible con los parÃ¡metros del mÃ©todo,
+     * Construye un string legible con los parámetros del método,
      * sustituyendo los campos sensibles por {@code [PROTECTED]}.
      *
-     * @param signature firma del mÃ©todo interceptado
-     * @param args      valores reales de los parÃ¡metros
+     * @param signature firma del método interceptado
+     * @param args      valores reales de los parámetros
      * @return string para incluir en el log
      */
     private String buildSafeParamsString(MethodSignature signature, Object[] args) {
@@ -130,18 +130,18 @@ public class LoggingAspect {
     }
 
     /**
-     * Determina si un parÃ¡metro es sensible y no debe aparecer en los logs.
+     * Determina si un parámetro es sensible y no debe aparecer en los logs.
      *
-     * @param paramName nombre del parÃ¡metro
-     * @param arg       valor del parÃ¡metro
-     * @return true si el parÃ¡metro no debe loggarse
+     * @param paramName nombre del parámetro
+     * @param arg       valor del parámetro
+     * @return true si el parámetro no debe loggarse
      */
     private boolean isSensitive(String paramName, Object arg) {
-        // Si el nombre del parÃ¡metro es sensible
+        // Si el nombre del parámetro es sensible
         if (SENSITIVE_PARAMS.contains(paramName)) {
             return true;
         }
-        // Si el objeto tiene campos tÃ­picamente sensibles (DTOs de login)
+        // Si el objeto tiene campos típicamente sensibles (DTOs de login)
         if (arg != null) {
             String className = arg.getClass().getSimpleName().toLowerCase();
             return className.contains("request") && (
@@ -157,7 +157,7 @@ public class LoggingAspect {
      * Formatea un argumento para el log, limitando colecciones largas.
      *
      * @param arg valor a formatear
-     * @return representaciÃ³n en texto
+     * @return representación en texto
      */
     private String formatArg(Object arg) {
         if (arg == null) return "null";

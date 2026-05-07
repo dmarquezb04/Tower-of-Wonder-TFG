@@ -15,10 +15,10 @@ import org.thymeleaf.context.Context;
 import java.util.Map;
 
 /**
- * ImplementaciÃ³n del servicio de mensajerÃ­a por email.
+ * Implementación del servicio de mensajería por email.
  *
  * @see MailService
- * @author DarÃ­o MÃ¡rquez Bautista
+ * @author Darío Márquez Bautista
  */
 @Service
 @RequiredArgsConstructor
@@ -58,7 +58,7 @@ public class MailServiceImpl implements MailService {
 
         } catch (MessagingException e) {
             log.error("Error al enviar email a {}: {}", to, e.getMessage());
-            // Nota: Al ser @Async, esta excepciÃ³n no se propagarÃ¡ al hilo principal,
+            // Nota: Al ser @Async, esta excepción no se propagará al hilo principal,
             // pero se queda registrada en el log.
         }
     }

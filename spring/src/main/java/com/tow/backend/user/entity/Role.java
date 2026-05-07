@@ -11,12 +11,12 @@ import lombok.NoArgsConstructor;
  *
  * <p>Los tres roles predefinidos en la BD son:
  * <ul>
- *   <li>{@code admin} â€” acceso total al panel de administraciÃ³n</li>
- *   <li>{@code moderator} â€” permisos especiales de moderaciÃ³n</li>
- *   <li>{@code user} â€” usuario normal del sistema</li>
+ *   <li>{@code admin} — acceso total al panel de administración</li>
+ *   <li>{@code moderator} — permisos especiales de moderación</li>
+ *   <li>{@code user} — usuario normal del sistema</li>
  * </ul>
  *
- * @author DarÃ­o MÃ¡rquez Bautista
+ * @author Darío Márquez Bautista
  */
 @Entity
 @Table(name = "roles")
@@ -32,9 +32,9 @@ public class Role {
     private Long idRol;
 
     /**
-     * Nombre del rol. Spring Security lo leerÃ¡ como autoridad.
+     * Nombre del rol. Spring Security lo leerá como autoridad.
      * Formato en BD: {@code admin}, {@code user}, {@code moderator}.
-     * Spring Security prefiere el prefijo {@code ROLE_}, que se aÃ±ade
+     * Spring Security prefiere el prefijo {@code ROLE_}, que se añade
      * en {@link com.tow.backend.security.UserDetailsServiceImpl}.
      */
     @Column(name = "nombre_rol", nullable = false, unique = true, length = 50)

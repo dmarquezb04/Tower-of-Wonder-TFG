@@ -4,17 +4,17 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import java.io.File;
+import org.springframework.lang.NonNull;
 import java.nio.file.Paths;
 
 /**
- * ConfiguraciÃ³n Web para servir recursos adicionales como el Javadoc.
+ * Configuración Web para servir recursos adicionales como el Javadoc.
  */
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
     @Override
-    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+    public void addResourceHandlers(@NonNull ResourceHandlerRegistry registry) {
         // Obtenemos la ruta absoluta de la carpeta donde Maven genera el Javadoc
         String javadocPath = Paths.get("target/reports/apidocs").toAbsolutePath().toUri().toString();
         
@@ -22,7 +22,7 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addResourceHandler("/docs/javadoc/**")
                 .addResourceLocations(javadocPath);
                 
-        // TambiÃ©n permitimos servir el frontend si estuviera en static (opcional)
+        // También permitimos servir el frontend si estuviera en static (opcional)
         registry.addResourceHandler("/**")
                 .addResourceLocations("classpath:/static/");
     }

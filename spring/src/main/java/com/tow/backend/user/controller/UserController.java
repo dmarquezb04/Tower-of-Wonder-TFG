@@ -17,17 +17,17 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 /**
- * Controlador REST para la gestiÃ³n del perfil y cuenta del usuario autenticado.
+ * Controlador REST para la gestión del perfil y cuenta del usuario autenticado.
  *
- * <p>Todos los endpoints requieren autenticaciÃ³n JWT.
+ * <p>Todos los endpoints requieren autenticación JWT.
  * Los errores de negocio son gestionados por {@link com.tow.backend.exception.GlobalExceptionHandler}.
  *
- * @author DarÃ­o MÃ¡rquez Bautista
+ * @author Darío Márquez Bautista
  */
 @RestController
 @RequestMapping("/user")
 @RequiredArgsConstructor
-@Tag(name = "Usuario", description = "Perfil, 2FA y gestiÃ³n de cuenta del usuario autenticado")
+@Tag(name = "Usuario", description = "Perfil, 2FA y gestión de cuenta del usuario autenticado")
 public class UserController {
 
     private final UserService userService;
@@ -50,34 +50,34 @@ public class UserController {
     }
 
     /**
-     * Genera un nuevo secret TOTP y el URI del cÃ³digo QR para configurar Google Authenticator.
+     * Genera un nuevo secret TOTP y el URI del código QR para configurar Google Authenticator.
      *
      * @param userDetails usuario autenticado
      * @return 200 OK con el secret y el URI del QR
      */
     @GetMapping("/2fa/setup")
-    @Operation(summary = "Iniciar configuraciÃ³n de 2FA (genera secret y QR)")
+    @Operation(summary = "Iniciar configuración de 2FA (genera secret y QR)")
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Setup de 2FA generado"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "409", description = "El 2FA ya estÃ¡ activo")
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "409", description = "El 2FA ya está activo")
     })
     public ResponseEntity<TwoFactorSetupDTO> setupTwoFactor(@AuthenticationPrincipal UserDetails userDetails) {
         return ResponseEntity.ok(userService.generateTwoFactorSetup(userDetails.getUsername()));
     }
 
     /**
-     * Activa el 2FA tras verificar que el cÃ³digo TOTP introducido es correcto.
+     * Activa el 2FA tras verificar que el código TOTP introducido es correcto.
      *
      * @param userDetails usuario autenticado
-     * @param request     body con el secret y el cÃ³digo TOTP de confirmaciÃ³n
-     * @return 200 OK con mensaje de confirmaciÃ³n
+     * @param request     body con el secret y el código TOTP de confirmación
+     * @return 200 OK con mensaje de confirmación
      */
     @PostMapping("/2fa/enable")
-    @Operation(summary = "Activar 2FA con el cÃ³digo de confirmaciÃ³n")
+    @Operation(summary = "Activar 2FA con el código de confirmación")
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "2FA activado correctamente"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "CÃ³digo invÃ¡lido o incorrecto"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "409", description = "El 2FA ya estÃ¡ activo")
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Código inválido o incorrecto"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "409", description = "El 2FA ya está activo")
     })
     public ResponseEntity<ApiResponse> enableTwoFactor(
             @AuthenticationPrincipal UserDetails userDetails,
@@ -87,17 +87,17 @@ public class UserController {
     }
 
     /**
-     * Desactiva el 2FA verificando el cÃ³digo TOTP actual del usuario.
+     * Desactiva el 2FA verificando el código TOTP actual del usuario.
      *
      * @param userDetails usuario autenticado
-     * @param request     body con el cÃ³digo TOTP actual
-     * @return 200 OK con mensaje de confirmaciÃ³n
+     * @param request     body con el código TOTP actual
+     * @return 200 OK con mensaje de confirmación
      */
     @PostMapping("/2fa/disable")
-    @Operation(summary = "Desactivar 2FA con el cÃ³digo actual")
+    @Operation(summary = "Desactivar 2FA con el código actual")
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "2FA desactivado correctamente"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "CÃ³digo invÃ¡lido, incorrecto o 2FA no activo")
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Código inválido, incorrecto o 2FA no activo")
     })
     public ResponseEntity<ApiResponse> disableTwoFactor(
             @AuthenticationPrincipal UserDetails userDetails,
@@ -107,16 +107,16 @@ public class UserController {
     }
 
     /**
-     * Realiza el borrado lÃ³gico de la cuenta del usuario autenticado.
+     * Realiza el borrado lógico de la cuenta del usuario autenticado.
      *
-     * <p>La cuenta se desactiva y se envÃ­a un email con un enlace de recuperaciÃ³n
-     * vÃ¡lido durante 7 dÃ­as.
+     * <p>La cuenta se desactiva y se envía un email con un enlace de recuperación
+     * válido durante 7 días.
      *
      * @param userDetails usuario autenticado
-     * @return 200 OK con mensaje de confirmaciÃ³n
+     * @return 200 OK con mensaje de confirmación
      */
     @DeleteMapping("/me")
-    @Operation(summary = "Desactivar cuenta (borrado lÃ³gico con opciÃ³n de recuperaciÃ³n)")
+    @Operation(summary = "Desactivar cuenta (borrado lógico con opción de recuperación)")
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Cuenta desactivada correctamente"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Usuario no encontrado")
@@ -127,17 +127,17 @@ public class UserController {
     }
 
     /**
-     * Actualiza el nombre de usuario y/o contraseÃ±a del usuario autenticado.
+     * Actualiza el nombre de usuario y/o contraseña del usuario autenticado.
      *
      * @param userDetails usuario autenticado
      * @param request     body con los campos a actualizar
-     * @return 200 OK con mensaje de confirmaciÃ³n
+     * @return 200 OK con mensaje de confirmación
      */
     @PutMapping("/profile")
-    @Operation(summary = "Actualizar nombre de usuario y/o contraseÃ±a")
+    @Operation(summary = "Actualizar nombre de usuario y/o contraseña")
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Perfil actualizado correctamente"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "ContraseÃ±a actual incorrecta o campos invÃ¡lidos"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Contraseña actual incorrecta o campos inválidos"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Usuario no encontrado")
     })
     public ResponseEntity<ApiResponse> updateProfile(

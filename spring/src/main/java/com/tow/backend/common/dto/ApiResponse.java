@@ -5,24 +5,24 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * DTO estÃ¡ndar para respuestas de operaciones exitosas que solo devuelven un mensaje.
+ * DTO estándar para respuestas de operaciones exitosas que solo devuelven un mensaje.
  *
- * <p>Se usa cuando la operaciÃ³n se completa correctamente pero no hay un objeto de datos
- * que retornar (ej. logout, eliminaciÃ³n, activaciÃ³n de 2FA).
+ * <p>Se usa cuando la operación se completa correctamente pero no hay un objeto de datos
+ * que retornar (ej. logout, eliminación, activación de 2FA).
  *
  * <p>Ejemplo de respuesta JSON:
  * <pre>
- * { "message": "SesiÃ³n cerrada correctamente" }
+ * { "message": "Sesión cerrada correctamente" }
  * </pre>
  *
- * @author DarÃ­o MÃ¡rquez Bautista
+ * @author Darío Márquez Bautista
  */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class ApiResponse {
 
-    /** Mensaje descriptivo del resultado de la operaciÃ³n. */
+    /** Mensaje descriptivo del resultado de la operación. */
     private String message;
 }
 

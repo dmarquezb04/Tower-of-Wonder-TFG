@@ -9,25 +9,25 @@ import io.swagger.v3.oas.annotations.servers.Server;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * ConfiguraciÃ³n de la documentaciÃ³n OpenAPI 3 (Swagger UI).
+ * Configuración de la documentación OpenAPI 3 (Swagger UI).
  *
  * <p>Define los metadatos generales de la API y el esquema de seguridad JWT,
- * de modo que el botÃ³n "Authorize" en Swagger UI permita enviar el token Bearer
+ * de modo que el botón "Authorize" en Swagger UI permita enviar el token Bearer
  * en las peticiones de prueba a endpoints protegidos.
  *
  * <p>La UI es accesible en: {@code http://localhost:8080/swagger-ui.html}
  *
- * @author DarÃ­o MÃ¡rquez Bautista
+ * @author Darío Márquez Bautista
  */
 @Configuration
 @OpenAPIDefinition(
         info = @Info(
-                title = "Tower of Wonder â€” API REST",
+                title = "Tower of Wonder — API REST",
                 version = "1.0.0",
-                description = "DocumentaciÃ³n completa del backend de Tower of Wonder (TFG). " +
-                        "Los endpoints marcados con el candado requieren autenticaciÃ³n JWT.",
+                description = "Documentación completa del backend de Tower of Wonder (TFG). " +
+                        "Los endpoints marcados con el candado requieren autenticación JWT.",
                 contact = @Contact(
-                        name = "DarÃ­o MÃ¡rquez Bautista",
+                        name = "Darío Márquez Bautista",
                         email = "dario@towerofwonder.com"
                 )
         ),
@@ -43,7 +43,7 @@ import org.springframework.context.annotation.Configuration;
         description = "Introduce el token JWT obtenido en /auth/login (sin el prefijo 'Bearer ')"
 )
 public class OpenApiConfig {
-    // La configuraciÃ³n se realiza mediante anotaciones a nivel de clase.
-    // SpringDoc OpenAPI las procesa automÃ¡ticamente al arrancar la aplicaciÃ³n.
+    // La configuración se realiza mediante anotaciones a nivel de clase.
+    // SpringDoc OpenAPI las procesa automáticamente al arrancar la aplicación.
 }
 

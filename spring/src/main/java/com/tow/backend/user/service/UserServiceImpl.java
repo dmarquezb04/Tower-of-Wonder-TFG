@@ -23,10 +23,10 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * ImplementaciÃ³n del servicio de gestiÃ³n de perfil y cuenta de usuario.
+ * Implementación del servicio de gestión de perfil y cuenta de usuario.
  *
  * @see UserService
- * @author DarÃ­o MÃ¡rquez Bautista
+ * @author Darío Márquez Bautista
  */
 @Service
 @RequiredArgsConstructor
@@ -65,7 +65,7 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new NotFoundException("Usuario no encontrado"));
 
         if (Boolean.TRUE.equals(user.getTwoFaEnabled())) {
-            throw new ConflictException("El 2FA ya estÃ¡ activado para esta cuenta");
+            throw new ConflictException("El 2FA ya está activado para esta cuenta");
         }
 
         GoogleAuthenticatorKey key = googleAuthenticator.createCredentials();
@@ -91,18 +91,13 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new NotFoundException("Usuario no encontrado"));
 
         if (Boolean.TRUE.equals(user.getTwoFaEnabled())) {
-            throw new ConflictException("El 2FA ya estÃ¡ activado para esta cuenta");
+            throw new ConflictException("El 2FA ya está activado para esta cuenta");
         }
 
-        int codeInt;
-        try {
-            codeInt = Integer.parseInt(code);
-        } catch (NumberFormatException e) {
-            throw new BadRequestException("El cÃ³digo de verificaciÃ³n debe ser numÃ©rico");
-        }
+        int codeInt = Integer.parseInt(code);
 
         if (!googleAuthenticator.authorize(secret, codeInt)) {
-            throw new BadRequestException("El cÃ³digo de verificaciÃ³n es incorrecto");
+            throw new BadRequestException("El código de verificación es incorrecto");
         }
 
         user.setTwofaSecret(secret);
@@ -118,18 +113,13 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new NotFoundException("Usuario no encontrado"));
 
         if (!Boolean.TRUE.equals(user.getTwoFaEnabled())) {
-            throw new BadRequestException("El 2FA no estÃ¡ activo en esta cuenta");
+            throw new BadRequestException("El 2FA no está activo en esta cuenta");
         }
 
-        int codeInt;
-        try {
-            codeInt = Integer.parseInt(code);
-        } catch (NumberFormatException e) {
-            throw new BadRequestException("El cÃ³digo de verificaciÃ³n debe ser numÃ©rico");
-        }
+        int codeInt = Integer.parseInt(code);
 
         if (!googleAuthenticator.authorize(user.getTwofaSecret(), codeInt)) {
-            throw new BadRequestException("El cÃ³digo de verificaciÃ³n es incorrecto");
+            throw new BadRequestException("El código de verificación es incorrecto");
         }
 
         user.setTwofaSecret(null);
@@ -149,7 +139,7 @@ public class UserServiceImpl implements UserService {
         user.setRecoveryToken(token);
         user.setRecoveryTokenExpiry(LocalDateTime.now().plusDays(7));
         userRepository.save(user);
-        log.info("Cuenta desactivada (borrado lÃ³gico). Token de recuperaciÃ³n generado para: {}", email);
+        log.info("Cuenta desactivada (borrado lógico). Token de recuperación generado para: {}", email);
 
         String reactivateLink = frontendUrl + "/reactivate?token=" + token;
         mailService.sendHtmlEmail(
@@ -168,18 +158,18 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void reactivateAccount(String token) {
         User user = userRepository.findByRecoveryToken(token)
-                .orElseThrow(() -> new NotFoundException("Enlace de recuperaciÃ³n invÃ¡lido o expirado"));
+                .orElseThrow(() -> new NotFoundException("Enlace de recuperación inválido o expirado"));
 
         if (user.getRecoveryTokenExpiry() != null
                 && user.getRecoveryTokenExpiry().isBefore(LocalDateTime.now())) {
-            throw new BadRequestException("El enlace de recuperaciÃ³n ha caducado. Contacta con soporte.");
+            throw new BadRequestException("El enlace de recuperación ha caducado. Contacta con soporte.");
         }
 
         user.setActivo(true);
         user.setRecoveryToken(null);
         user.setRecoveryTokenExpiry(null);
         userRepository.save(user);
-        log.info("Cuenta reactivada con Ã©xito para el usuario: {}", user.getEmail());
+        log.info("Cuenta reactivada con éxito para el usuario: {}", user.getEmail());
     }
 
     @Override
@@ -199,10 +189,10 @@ public class UserServiceImpl implements UserService {
 
         if (request.getNewPassword() != null && !request.getNewPassword().trim().isEmpty()) {
             if (request.getCurrentPassword() == null || request.getCurrentPassword().isEmpty()) {
-                throw new BadRequestException("Debes introducir tu contraseÃ±a actual para cambiarla");
+                throw new BadRequestException("Debes introducir tu contraseña actual para cambiarla");
             }
             if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPasswordHash())) {
-                throw new BadRequestException("La contraseÃ±a actual es incorrecta");
+                throw new BadRequestException("La contraseña actual es incorrecta");
             }
             user.setPasswordHash(passwordEncoder.encode(request.getNewPassword()));
             passwordChanged = true;
@@ -216,7 +206,7 @@ public class UserServiceImpl implements UserService {
             StringBuilder changes = new StringBuilder();
             if (usernameChanged) changes.append("Nombre de usuario");
             if (usernameChanged && passwordChanged) changes.append(" y ");
-            if (passwordChanged) changes.append("ContraseÃ±a");
+            if (passwordChanged) changes.append("Contraseña");
 
             mailService.sendHtmlEmail(
                     user.getEmail(),

@@ -12,24 +12,24 @@ import java.util.Map;
  * DTO para enviar respuestas de error consistentes al frontend.
  *
  * <p>El campo {@code error} contiene el mensaje principal del error.
- * El campo {@code validationErrors} se rellena solo cuando hay errores de validaciÃ³n
- * de campos (@Valid), indicando quÃ© campo especÃ­fico fallÃ³ y por quÃ©.
+ * El campo {@code validationErrors} se rellena solo cuando hay errores de validación
+ * de campos (@Valid), indicando qué campo específico falló y por qué.
  *
  * <p>Estructura JSON de ejemplo:
  * <pre>
  * {
- *   "error": "Errores de validaciÃ³n en la peticiÃ³n",
+ *   "error": "Errores de validación en la petición",
  *   "status": 400,
  *   "timestamp": "2026-05-07T16:00:00",
  *   "path": "/auth/register",
  *   "validationErrors": {
- *     "email": "El email no tiene un formato vÃ¡lido",
- *     "password": "La contraseÃ±a debe tener al menos 8 caracteres"
+ *     "email": "El email no tiene un formato válido",
+ *     "password": "La contraseña debe tener al menos 8 caracteres"
  *   }
  * }
  * </pre>
  *
- * @author DarÃ­o MÃ¡rquez Bautista
+ * @author Darío Márquez Bautista
  */
 @Data
 @Builder
@@ -40,18 +40,18 @@ public class ErrorResponse {
     /** Mensaje de error principal legible para el usuario. */
     private String error;
 
-    /** CÃ³digo de estado HTTP numÃ©rico (ej. 400, 401, 404). */
+    /** Código de estado HTTP numérico (ej. 400, 401, 404). */
     private int status;
 
     /** Fecha y hora en que se produjo el error. */
     private LocalDateTime timestamp;
 
-    /** Ruta de la peticiÃ³n que generÃ³ el error. */
+    /** Ruta de la petición que generó el error. */
     private String path;
 
     /**
-     * Mapa de errores de validaciÃ³n por campo.
-     * Solo presente en respuestas 400 de validaciÃ³n de formularios.
+     * Mapa de errores de validación por campo.
+     * Solo presente en respuestas 400 de validación de formularios.
      * Clave: nombre del campo; Valor: mensaje de error.
      */
     private Map<String, String> validationErrors;

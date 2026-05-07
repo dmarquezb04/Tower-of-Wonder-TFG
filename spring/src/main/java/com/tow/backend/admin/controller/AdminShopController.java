@@ -14,18 +14,18 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * Controlador REST para la gestiÃ³n administrativa del catÃ¡logo de productos.
+ * Controlador REST para la gestión administrativa del catálogo de productos.
  *
  * <p>Permite crear, actualizar y eliminar productos de la tienda.
  * Todos los endpoints requieren el rol ADMIN.
  * Los errores de negocio son gestionados por {@link com.tow.backend.exception.GlobalExceptionHandler}.
  *
- * @author DarÃ­o MÃ¡rquez Bautista
+ * @author Darío Márquez Bautista
  */
 @RestController
 @RequestMapping("/admin/products")
 @RequiredArgsConstructor
-@Tag(name = "AdministraciÃ³n - Tienda", description = "CRUD de productos (solo ADMIN)")
+@Tag(name = "Administración - Tienda", description = "CRUD de productos (solo ADMIN)")
 public class AdminShopController {
 
     private final ProductRepository productRepository;
@@ -39,14 +39,14 @@ public class AdminShopController {
     @Operation(summary = "Listar todos los productos (incluye inactivos)")
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Lista devuelta correctamente"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Acceso denegado â€” se requiere rol ADMIN")
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Acceso denegado — se requiere rol ADMIN")
     })
     public ResponseEntity<List<Product>> getAllProducts() {
         return ResponseEntity.ok(productRepository.findAll());
     }
 
     /**
-     * Crea un nuevo producto en el catÃ¡logo.
+     * Crea un nuevo producto en el catálogo.
      *
      * @param product datos del nuevo producto
      * @return 200 OK con el producto creado
@@ -55,7 +55,7 @@ public class AdminShopController {
     @Operation(summary = "Crear un nuevo producto")
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Producto creado correctamente"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Acceso denegado â€” se requiere rol ADMIN")
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Acceso denegado — se requiere rol ADMIN")
     })
     public ResponseEntity<Product> createProduct(@RequestBody Product product) {
         return ResponseEntity.ok(productRepository.save(product));
@@ -72,7 +72,7 @@ public class AdminShopController {
     @Operation(summary = "Actualizar un producto existente")
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Producto actualizado correctamente"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Acceso denegado â€” se requiere rol ADMIN"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Acceso denegado — se requiere rol ADMIN"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Producto no encontrado")
     })
     public ResponseEntity<Product> updateProduct(@PathVariable Long id, @RequestBody Product productDetails) {
@@ -91,16 +91,16 @@ public class AdminShopController {
     }
 
     /**
-     * Elimina un producto del catÃ¡logo.
+     * Elimina un producto del catálogo.
      *
      * @param id ID del producto a eliminar
-     * @return 200 OK con mensaje de confirmaciÃ³n
+     * @return 200 OK con mensaje de confirmación
      */
     @DeleteMapping("/{id}")
     @Operation(summary = "Eliminar un producto")
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Producto eliminado correctamente"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Acceso denegado â€” se requiere rol ADMIN")
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Acceso denegado — se requiere rol ADMIN")
     })
     public ResponseEntity<ApiResponse> deleteProduct(@PathVariable Long id) {
         productRepository.deleteById(id);

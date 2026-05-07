@@ -24,7 +24,7 @@ public class NewsPost {
     @Column(nullable = false, length = 255)
     private String title;
 
-    /** Slug Ãºnico para URL amigable, ej: "actualizacion-1-2" */
+    /** Slug único para URL amigable, ej: "actualizacion-1-2" */
     @Column(nullable = false, unique = true, length = 255)
     private String slug;
 
@@ -42,6 +42,7 @@ public class NewsPost {
     private LocalDateTime publishedAt;
 
     @Column(nullable = false)
+    @Builder.Default
     private Boolean active = true;
 
     @PrePersist
