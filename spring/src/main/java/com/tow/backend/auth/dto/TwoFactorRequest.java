@@ -6,10 +6,10 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * DTO para la verificación del código TOTP de 2FA.
+ * DTO para la verificaciÃ³n del cÃ³digo TOTP de 2FA.
  * Recibido en {@code POST /api/auth/verify-2fa}.
  *
- * <p>El cliente debe incluir también el token temporal (obtenido en el login)
+ * <p>El cliente debe incluir tambiÃ©n el token temporal (obtenido en el login)
  * en el header {@code Authorization: Bearer <token-temporal>}.
  */
 @Getter
@@ -17,10 +17,11 @@ import lombok.Setter;
 public class TwoFactorRequest {
 
     /**
-     * Código TOTP de 6 dígitos generado por Google Authenticator.
-     * Válido solo durante ±30 segundos.
+     * CÃ³digo TOTP de 6 dÃ­gitos generado por Google Authenticator.
+     * VÃ¡lido solo durante Â±30 segundos.
      */
-    @NotBlank(message = "El código de verificación es obligatorio")
-    @Pattern(regexp = "^[0-9]{6}$", message = "El código debe tener exactamente 6 dígitos")
+    @NotBlank(message = "El cÃ³digo de verificaciÃ³n es obligatorio")
+    @Pattern(regexp = "^[0-9]{6}$", message = "El cÃ³digo debe tener exactamente 6 dÃ­gitos")
     private String code;
 }
+

@@ -8,7 +8,7 @@ import java.io.File;
 import java.nio.file.Paths;
 
 /**
- * Configuración Web para servir recursos adicionales como el Javadoc.
+ * ConfiguraciÃ³n Web para servir recursos adicionales como el Javadoc.
  */
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
@@ -22,8 +22,9 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addResourceHandler("/docs/javadoc/**")
                 .addResourceLocations(javadocPath);
                 
-        // También permitimos servir el frontend si estuviera en static (opcional)
+        // TambiÃ©n permitimos servir el frontend si estuviera en static (opcional)
         registry.addResourceHandler("/**")
                 .addResourceLocations("classpath:/static/");
     }
 }
+

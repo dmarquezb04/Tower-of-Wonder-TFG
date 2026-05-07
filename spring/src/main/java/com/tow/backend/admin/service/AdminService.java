@@ -2,95 +2,53 @@ package com.tow.backend.admin.service;
 
 import com.tow.backend.admin.dto.AdminMetricsDTO;
 import com.tow.backend.admin.dto.UserAdminDTO;
-import com.tow.backend.user.entity.Role;
-import com.tow.backend.user.entity.User;
-import com.tow.backend.user.repository.UserRepository;
-import com.tow.backend.user.repository.RoleRepository;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import com.tow.backend.exception.NotFoundException;
 
 import java.util.List;
 
-import java.util.stream.Collectors;
+/**
+ * Contrato del servicio de administraciÃ³n del panel de control.
+ *
+ * <p>Proporciona operaciones de gestiÃ³n de usuarios y mÃ©tricas del sistema,
+ * accesibles Ãºnicamente por usuarios con rol ADMIN.
+ *
+ * @author DarÃ­o MÃ¡rquez Bautista
+ */
+public interface AdminService {
 
-@Service
-@RequiredArgsConstructor
-@Slf4j
-public class AdminService {
+    /**
+     * Devuelve mÃ©tricas generales del sistema: total de usuarios, activos y con 2FA.
+     *
+     * @return DTO con las mÃ©tricas del sistema
+     */
+    AdminMetricsDTO getMetrics();
 
-    private final UserRepository userRepository;
-    private final RoleRepository roleRepository;
+    /**
+     * Devuelve la lista completa de usuarios registrados en el sistema.
+     *
+     * @return lista de DTOs de usuarios con sus datos administrativos
+     */
+    List<UserAdminDTO> getAllUsers();
 
-    @Transactional(readOnly = true)
-    public AdminMetricsDTO getMetrics() {
-        List<User> allUsers = userRepository.findAll();
-        long totalUsers = allUsers.size();
-        long activeUsers = allUsers.stream().filter(u -> Boolean.TRUE.equals(u.getActivo())).count();
-        long usersWith2FA = allUsers.stream().filter(u -> Boolean.TRUE.equals(u.getTwoFaEnabled())).count();
+    /**
+     * Actualiza los datos de un usuario (username, rol y estado activo).
+     *
+     * @param id       ID del usuario a actualizar
+     * @param username nuevo nombre de usuario
+     * @param roleName nombre del nuevo rol (ej. "user", "admin")
+     * @param activo   nuevo estado de la cuenta
+     * @throws NotFoundException si no existe ningÃºn usuario con ese ID
+     * @throws NotFoundException si el rol especificado no existe
+     */
+    void updateUser(Long id, String username, String roleName, boolean activo);
 
-        return AdminMetricsDTO.builder()
-                .totalUsers(totalUsers)
-                .activeUsers(activeUsers)
-                .usersWith2FA(usersWith2FA)
-                .build();
-    }
-
-    @Transactional(readOnly = true)
-    public List<UserAdminDTO> getAllUsers() {
-        return userRepository.findAll().stream()
-                .map(this::mapToDTO)
-                .collect(Collectors.toList());
-    }
-
-    @Transactional
-    public void updateUserStatus(Long id, boolean activo) {
-        log.info("Cambiando estado de usuario ID {} a activo={}", id, activo);
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
-        user.setActivo(activo);
-        userRepository.save(user);
-    }
-
-    @Transactional
-    public void updateUser(Long id, String username, String roleName, boolean activo) {
-        log.info("Actualizando datos de usuario ID {}: username={}, role={}, activo={}", id, username, roleName, activo);
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
-        
-        Role newRole = roleRepository.findByNombreRol(roleName)
-                .orElseThrow(() -> new RuntimeException("Rol no encontrado: " + roleName));
-        
-        user.setUsername(username);
-        user.setRole(newRole);
-        user.setActivo(activo);
-        
-        userRepository.save(user);
-        log.info("Usuario ID {} actualizado correctamente", id);
-    }
-
-    @Transactional
-    public void deleteUser(Long id) {
-        log.warn("Solicitud de borrado para usuario ID: {}", id);
-        if (!userRepository.existsById(id)) {
-            log.error("Fallo al borrar: El usuario con ID {} no existe", id);
-            throw new RuntimeException("Usuario no encontrado");
-        }
-        userRepository.deleteById(id);
-        log.info("Usuario ID {} eliminado con éxito", id);
-    }
-
-    private UserAdminDTO mapToDTO(User user) {
-        return UserAdminDTO.builder()
-                .idUsuario(user.getIdUsuario())
-                .email(user.getEmail())
-                .username(user.getUsername())
-                .twoFaEnabled(user.getTwoFaEnabled())
-                .activo(user.getActivo())
-                .fechaCreacion(user.getFechaCreacion())
-                .ultimoLogin(user.getUltimoLogin())
-                .role(user.getRole().getNombreRol())
-                .build();
-    }
+    /**
+     * Elimina permanentemente un usuario del sistema (hard delete).
+     *
+     * @param id ID del usuario a eliminar
+     * @throws NotFoundException si no existe ningÃºn usuario con ese ID
+     */
+    void deleteUser(Long id);
 }
+
+

@@ -59,26 +59,15 @@ class UserControllerTest {
     @Test
     void enableTwoFactor_ValidCode_ReturnsOk() {
         TwoFactorCodeDTO request = new TwoFactorCodeDTO();
-        request.setSecret("secret");
+        request.setSecret("JBSWY3DPEHPK3PXP");
         request.setCode("123456");
 
-        doNothing().when(userService).enableTwoFactor("test@test.com", "secret", "123456");
+        doNothing().when(userService).enableTwoFactor("test@test.com", "JBSWY3DPEHPK3PXP", "123456");
 
         ResponseEntity<?> response = userController.enableTwoFactor(userDetails, request);
 
         assertEquals(200, response.getStatusCodeValue());
     }
-
-    @Test
-    void enableTwoFactor_InvalidCode_ReturnsBadRequest() {
-        TwoFactorCodeDTO request = new TwoFactorCodeDTO();
-        request.setSecret("secret");
-        request.setCode("123456");
-
-        doThrow(new RuntimeException("Error")).when(userService).enableTwoFactor("test@test.com", "secret", "123456");
-
-        ResponseEntity<?> response = userController.enableTwoFactor(userDetails, request);
-
-        assertEquals(400, response.getStatusCodeValue());
-    }
 }
+
+

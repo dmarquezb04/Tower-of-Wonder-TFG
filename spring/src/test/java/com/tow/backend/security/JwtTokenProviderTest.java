@@ -24,12 +24,12 @@ import static org.mockito.Mockito.*;
  * evitando necesitar una base de datos real.
  *
  * <p>Se usa AssertJ ({@code assertThat}) en lugar de los asserts de JUnit
- * porque produce mensajes de error más descriptivos.
+ * porque produce mensajes de error mÃ¡s descriptivos.
  *
- * @author Darío Márquez Bautista
+ * @author DarÃ­o MÃ¡rquez Bautista
  */
 @ExtendWith(MockitoExtension.class)
-@DisplayName("JwtTokenProvider — Tests")
+@DisplayName("JwtTokenProvider â€” Tests")
 class JwtTokenProviderTest {
 
     @Mock
@@ -57,7 +57,7 @@ class JwtTokenProviderTest {
     class GenerateToken {
 
         @Test
-        @DisplayName("Genera un token no vacío")
+        @DisplayName("Genera un token no vacÃ­o")
         void generateToken_returnsNonBlankToken() {
             String token = tokenProvider.generateToken(1L, "user@test.com", List.of("user"));
             assertThat(token).isNotBlank();
@@ -112,7 +112,7 @@ class JwtTokenProviderTest {
     class ValidateToken {
 
         @Test
-        @DisplayName("Un token válido recién generado se valida correctamente")
+        @DisplayName("Un token vÃ¡lido reciÃ©n generado se valida correctamente")
         void validateToken_validToken_returnsTrue() {
             String token = tokenProvider.generateToken(1L, "user@test.com", List.of("user"));
             when(blacklistRepository.existsByTokenJti(any())).thenReturn(false);
@@ -124,7 +124,7 @@ class JwtTokenProviderTest {
         @DisplayName("Un token con firma incorrecta no se valida")
         void validateToken_tamperedToken_returnsFalse() {
             String token = tokenProvider.generateToken(1L, "user@test.com", List.of("user"));
-            // Modificar la firma: reemplazar los últimos 5 chars
+            // Modificar la firma: reemplazar los Ãºltimos 5 chars
             String tampered = token.substring(0, token.length() - 5) + "XXXXX";
 
             assertThat(tokenProvider.validateToken(tampered)).isFalse();
@@ -140,7 +140,7 @@ class JwtTokenProviderTest {
         }
 
         @Test
-        @DisplayName("Un string vacío no se valida")
+        @DisplayName("Un string vacÃ­o no se valida")
         void validateToken_emptyString_returnsFalse() {
             assertThat(tokenProvider.validateToken("")).isFalse();
         }
@@ -188,15 +188,16 @@ class JwtTokenProviderTest {
 
             tokenProvider.revokeToken(token);
 
-            // Verificar que se llamó al repositorio para guardar el JTI
+            // Verificar que se llamÃ³ al repositorio para guardar el JTI
             verify(blacklistRepository, times(1)).save(any());
         }
 
         @Test
-        @DisplayName("Revocar un token inválido no lanza excepción")
+        @DisplayName("Revocar un token invÃ¡lido no lanza excepciÃ³n")
         void revokeToken_invalidToken_doesNotThrow() {
             assertThatNoException()
                     .isThrownBy(() -> tokenProvider.revokeToken("token-invalido"));
         }
     }
 }
+

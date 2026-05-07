@@ -7,7 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * DTO para la petición de login.
+ * DTO para la peticiÃ³n de login.
  * Recibido en {@code POST /api/auth/login}.
  */
 @Getter
@@ -15,10 +15,10 @@ import lombok.Setter;
 public class LoginRequest {
 
     @NotBlank(message = "El email es obligatorio")
-    @Email(message = "El email no tiene un formato válido")
+    @Email(message = "El email no tiene un formato vÃ¡lido")
     private String email;
 
     @NotBlank(message = "La contraseña es obligatoria")
-    @Size(min = 8, message = "La contraseña debe tener al menos 8 caracteres")
     private String password;
 }
+

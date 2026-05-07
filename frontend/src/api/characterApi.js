@@ -1,12 +1,16 @@
-import axios from 'axios';
+import apiClient, { getAuthHeader } from './apiClient';
 
-const API_URL = '/api/characters';
+/**
+ * characterApi.js — Gestión de personajes del juego.
+ */
+
+const BASE_URL = '/characters';
 
 /**
  * Obtiene todos los personajes activos (público).
  */
 export const getCharacters = async () => {
-  const response = await axios.get(API_URL);
+  const response = await apiClient.get(BASE_URL);
   return response.data;
 };
 
@@ -14,30 +18,28 @@ export const getCharacters = async () => {
  * Obtiene un personaje por slug (público).
  */
 export const getCharacterBySlug = async (slug) => {
-  const response = await axios.get(`${API_URL}/${slug}`);
+  const response = await apiClient.get(`${BASE_URL}/${slug}`);
   return response.data;
 };
 
-// ─── Admin ───────────────────────────────────────────────────────────────────
-
-const authHeader = (token) => ({ headers: { Authorization: `Bearer ${token}` } });
+// --- Admin ---
 
 export const getAdminCharacters = async (token) => {
-  const response = await axios.get(`${API_URL}/admin/all`, authHeader(token));
+  const response = await apiClient.get(`${BASE_URL}/admin/all`, getAuthHeader(token));
   return response.data;
 };
 
 export const createCharacter = async (token, data) => {
-  const response = await axios.post(API_URL, data, authHeader(token));
+  const response = await apiClient.post(BASE_URL, data, getAuthHeader(token));
   return response.data;
 };
 
 export const updateCharacter = async (token, id, data) => {
-  const response = await axios.put(`${API_URL}/${id}`, data, authHeader(token));
+  const response = await apiClient.put(`${BASE_URL}/${id}`, data, getAuthHeader(token));
   return response.data;
 };
 
 export const deleteCharacter = async (token, id) => {
-  const response = await axios.delete(`${API_URL}/${id}`, authHeader(token));
+  const response = await apiClient.delete(`${BASE_URL}/${id}`, getAuthHeader(token));
   return response.data;
 };

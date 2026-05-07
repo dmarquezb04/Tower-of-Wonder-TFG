@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
+import { getCategories, updateCategory, deleteCategory } from '../../api/shopApi'
 import { useAuth } from '../../context/AuthContext'
 import styles from './AdminDashboard.module.css'
 
@@ -14,13 +14,11 @@ export default function CategoryManagementModal({ isOpen, onClose }) {
   const fetchCategories = async () => {
     if (!token) return
     try {
-      const res = await axios.get('/api/categories', {
-        headers: { 'Authorization': `Bearer ${token}` }
-      })
-      setCategories(res.data)
+      const data = await getCategories()
+      setCategories(data)
     } catch (err) {
       console.error('Error al cargar categorías:', err)
-      setError('Error al cargar categorías')
+      setError(err.message)
     }
   }
 
@@ -31,26 +29,21 @@ export default function CategoryManagementModal({ isOpen, onClose }) {
   const handleUpdate = async (id) => {
     if (!editName.trim()) return
     try {
-      await axios.put(`/api/categories/${id}`, 
-        { name: editName },
-        { headers: { 'Authorization': `Bearer ${token}` } }
-      )
+      await updateCategory(token, id, { name: editName })
       setEditId(null)
       fetchCategories()
     } catch (err) {
-      setError('Error al actualizar la categoría')
+      setError(err.message)
     }
   }
 
   const handleDelete = async (id) => {
     if (!window.confirm('¿Estás seguro? Los productos en esta categoría se quedarán sin categoría vinculada.')) return
     try {
-      await axios.delete(`/api/categories/${id}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      })
+      await deleteCategory(token, id)
       fetchCategories()
     } catch (err) {
-      setError('Error al eliminar la categoría')
+      setError(err.message)
     }
   }
 

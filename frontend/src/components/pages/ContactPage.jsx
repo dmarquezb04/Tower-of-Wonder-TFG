@@ -1,18 +1,12 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
+import { sendContactMessage } from '../../api/contactApi'
 import { useAuth } from '../../context/AuthContext'
 import styles from './ContactPage.module.css'
-
-const CONTACT_API = '/api/contacto'
 
 const INITIAL_FORM = { nombre: '', email: '', asunto: '', mensaje: '' }
 
 /**
  * ContactPage — Formulario de contacto.
- *
- * FIX Bug 3: reemplazado <fieldset>/<legend> por <div> con <h1> independiente.
- * El <legend> nativo del navegador tiene posicionamiento especial que hace que
- * el título se salga del borde del contenedor. Con <div> tenemos control total.
  */
 export default function ContactPage() {
   const { user, token } = useAuth()
@@ -41,21 +35,12 @@ export default function ContactPage() {
     setErrorMsg('')
 
     try {
-      // Si hay token, lo enviamos para que el backend identifique al usuario
-      const config = token ? { headers: { Authorization: `Bearer ${token}` } } : {}
-      const res = await axios.post(CONTACT_API, form, config)
-      
-      if (res.data.ok) {
-        setStatus('success')
-        setForm(INITIAL_FORM)
-      } else {
-        setStatus('error')
-        setErrorMsg(res.data.message ?? 'Error al enviar el mensaje. Inténtalo de nuevo.')
-      }
+      await sendContactMessage(form, token)
+      setStatus('success')
+      setForm(INITIAL_FORM)
     } catch (err) {
       setStatus('error')
-      const msg = err.response?.data?.message || 'Error de conexión. Comprueba tu red e inténtalo de nuevo.'
-      setErrorMsg(msg)
+      setErrorMsg(err.message)
     }
   }
 

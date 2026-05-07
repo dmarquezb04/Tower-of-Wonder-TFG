@@ -4,8 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 /**
- * Imagen de un personaje. Permite cualquier número de imágenes por personaje.
- * ON DELETE CASCADE: si se elimina el personaje, sus imágenes se eliminan automáticamente.
+ * Imagen de un personaje. Permite cualquier nÃºmero de imÃ¡genes por personaje.
+ * ON DELETE CASCADE: si se elimina el personaje, sus imÃ¡genes se eliminan automÃ¡ticamente.
  */
 @Entity
 @Table(name = "character_images")
@@ -28,7 +28,8 @@ public class CharacterImage {
     @Column(name = "image_url", nullable = false)
     private String imageUrl;
 
-    /** Posición en el carrusel (0 = primera) */
+    /** PosiciÃ³n en el carrusel (0 = primera) */
     @Column(name = "sort_order", nullable = false)
     private Integer sortOrder = 0;
 }
+

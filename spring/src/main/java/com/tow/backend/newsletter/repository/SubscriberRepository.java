@@ -11,3 +11,4 @@ public interface SubscriberRepository extends JpaRepository<Subscriber, Long> {
     Optional<Subscriber> findByEmail(String email);
     Optional<Subscriber> findByConfirmationToken(String confirmationToken);
 }
+

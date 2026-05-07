@@ -3,67 +3,95 @@ package com.tow.backend.character.controller;
 import com.tow.backend.character.entity.CharacterImage;
 import com.tow.backend.character.entity.GameCharacter;
 import com.tow.backend.character.repository.GameCharacterRepository;
+import com.tow.backend.common.dto.ApiResponse;
+import com.tow.backend.exception.NotFoundException;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 /**
- * Controlador de Personajes.
+ * Controlador REST para la gestiÃ³n de los personajes del juego.
  *
- * Endpoints públicos:
- *   GET /api/characters        → lista todos los personajes activos
- *   GET /api/characters/{slug} → detalle de un personaje por slug
+ * <p>Los endpoints de lectura son pÃºblicos. Las operaciones de escritura
+ * (crear, actualizar, eliminar) requieren el rol ADMIN.
+ * Los errores de negocio son gestionados por {@link com.tow.backend.exception.GlobalExceptionHandler}.
  *
- * Endpoints admin (requieren JWT con rol ADMIN):
- *   GET    /api/characters/admin/all → todos (activos e inactivos)
- *   POST   /api/characters           → crear personaje (con su lista de imágenes)
- *   PUT    /api/characters/{id}      → actualizar personaje (reemplaza la lista de imágenes)
- *   DELETE /api/characters/{id}      → eliminar personaje (y sus imágenes por CASCADE)
+ * @author DarÃ­o MÃ¡rquez Bautista
  */
 @RestController
 @RequestMapping("/characters")
 @RequiredArgsConstructor
 @Slf4j
-@Tag(name = "Personajes", description = "Gestión de personajes del juego")
+@Tag(name = "Personajes", description = "CatÃ¡logo de personajes y gestiÃ³n (Admin)")
 public class CharacterController {
 
     private final GameCharacterRepository characterRepository;
 
-    // ─── PÚBLICO ─────────────────────────────────────────────────────────────
+    // â”€â”€â”€ PÃšBLICO â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
+    /**
+     * Devuelve la lista de todos los personajes que estÃ¡n marcados como activos.
+     *
+     * @return 200 OK con lista de personajes
+     */
     @GetMapping
     @Operation(summary = "Obtener todos los personajes activos")
     public ResponseEntity<List<GameCharacter>> getAll() {
         return ResponseEntity.ok(characterRepository.findByActiveTrueOrderByNameAsc());
     }
 
+    /**
+     * Devuelve el detalle de un personaje especÃ­fico a partir de su slug.
+     *
+     * @param slug identificador amigable del personaje (ej. "kyra-la-valiente")
+     * @return 200 OK con el detalle del personaje
+     * @throws NotFoundException si el slug no corresponde a ningÃºn personaje activo
+     */
     @GetMapping("/{slug}")
     @Operation(summary = "Obtener un personaje por su slug")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Personaje encontrado"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Personaje no encontrado")
+    })
     public ResponseEntity<GameCharacter> getBySlug(@PathVariable String slug) {
         return characterRepository.findBySlugAndActiveTrue(slug)
                 .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+                .orElseThrow(() -> new NotFoundException("Personaje no encontrado con slug: " + slug));
     }
 
-    // ─── ADMIN ────────────────────────────────────────────────────────────────
+    // â”€â”€â”€ ADMIN â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
+    /**
+     * Devuelve la lista completa de personajes, incluyendo los inactivos.
+     *
+     * @return 200 OK con lista de personajes
+     */
     @GetMapping("/admin/all")
     @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Obtener todos los personajes (admin, incluye inactivos)")
+    @Operation(summary = "Obtener todos los personajes (incluye inactivos)")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Lista devuelta correctamente")
     public ResponseEntity<List<GameCharacter>> getAllAdmin() {
         return ResponseEntity.ok(characterRepository.findAll());
     }
 
+    /**
+     * Crea un nuevo personaje con su galerÃ­a de imÃ¡genes.
+     *
+     * @param data datos del nuevo personaje
+     * @return 201 Created con el personaje guardado
+     */
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Crear un nuevo personaje con su lista de imágenes")
+    @Operation(summary = "Crear un nuevo personaje")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "Personaje creado correctamente")
     public ResponseEntity<GameCharacter> create(@RequestBody GameCharacter data) {
         GameCharacter character = new GameCharacter();
         character.setName(data.getName());
@@ -75,47 +103,66 @@ public class CharacterController {
 
         GameCharacter saved = characterRepository.save(character);
         log.info("Personaje creado: {} (slug={})", saved.getName(), saved.getSlug());
-        return ResponseEntity.status(201).body(saved);
+        return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 
+    /**
+     * Actualiza los datos y la galerÃ­a de un personaje existente.
+     *
+     * @param id   ID del personaje a actualizar
+     * @param data nuevos datos
+     * @return 200 OK con el personaje actualizado
+     * @throws NotFoundException si el ID no existe
+     */
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Actualizar un personaje: reemplaza completamente su lista de imágenes")
-    public ResponseEntity<GameCharacter> update(@PathVariable Long id,
-                                                @RequestBody GameCharacter data) {
-        return characterRepository.findById(id).map(character -> {
-            character.setName(data.getName());
-            if (data.getSlug() != null && !data.getSlug().isBlank()) {
-                character.setSlug(data.getSlug());
-            }
-            character.setDescription(data.getDescription());
-            if (data.getActive() != null) character.setActive(data.getActive());
+    @Operation(summary = "Actualizar un personaje existente")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Personaje actualizado correctamente"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Personaje no encontrado")
+    })
+    public ResponseEntity<GameCharacter> update(@PathVariable Long id, @RequestBody GameCharacter data) {
+        GameCharacter character = characterRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Personaje no encontrado con ID: " + id));
 
-            // orphanRemoval=true elimina las antiguas automáticamente
-            character.getImages().clear();
-            applyImages(character, data.getImages());
+        character.setName(data.getName());
+        if (data.getSlug() != null && !data.getSlug().isBlank()) {
+            character.setSlug(data.getSlug());
+        }
+        character.setDescription(data.getDescription());
+        if (data.getActive() != null) character.setActive(data.getActive());
 
-            return ResponseEntity.ok(characterRepository.save(character));
-        }).orElse(ResponseEntity.notFound().build());
+        character.getImages().clear();
+        applyImages(character, data.getImages());
+
+        return ResponseEntity.ok(characterRepository.save(character));
     }
 
+    /**
+     * Elimina permanentemente un personaje del sistema.
+     *
+     * @param id ID del personaje a eliminar
+     * @return 200 OK con mensaje de confirmaciÃ³n
+     * @throws NotFoundException si el ID no existe
+     */
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Eliminar un personaje (sus imágenes se eliminan por CASCADE)")
-    public ResponseEntity<Map<String, String>> delete(@PathVariable Long id) {
+    @Operation(summary = "Eliminar un personaje")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Personaje eliminado correctamente"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Personaje no encontrado")
+    })
+    public ResponseEntity<ApiResponse> delete(@PathVariable Long id) {
         if (!characterRepository.existsById(id)) {
-            return ResponseEntity.notFound().build();
+            throw new NotFoundException("Personaje no encontrado con ID: " + id);
         }
         characterRepository.deleteById(id);
         log.info("Personaje eliminado: id={}", id);
-        return ResponseEntity.ok(Map.of("message", "Personaje eliminado correctamente"));
+        return ResponseEntity.ok(new ApiResponse("Personaje eliminado correctamente"));
     }
 
-    // ─── UTILIDAD ─────────────────────────────────────────────────────────────
+    // â”€â”€â”€ UTILIDAD â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-    /**
-     * Asigna la lista de imágenes al personaje con sortOrder automático.
-     */
     private void applyImages(GameCharacter character, List<CharacterImage> incoming) {
         if (incoming == null || incoming.isEmpty()) return;
         for (int i = 0; i < incoming.size(); i++) {
@@ -127,14 +174,14 @@ public class CharacterController {
         }
     }
 
-    /** Genera un slug a partir del nombre: "Kyra la Valiente" → "kyra-la-valiente" */
     private String toSlug(String name) {
         if (name == null) return "";
         return name.toLowerCase()
-                .replaceAll("[áàä]", "a").replaceAll("[éèë]", "e")
-                .replaceAll("[íìï]", "i").replaceAll("[óòö]", "o")
-                .replaceAll("[úùü]", "u").replaceAll("ñ", "n")
+                .replaceAll("[Ã¡Ã Ã¤]", "a").replaceAll("[Ã©Ã¨Ã«]", "e")
+                .replaceAll("[Ã­Ã¬Ã¯]", "i").replaceAll("[Ã³Ã²Ã¶]", "o")
+                .replaceAll("[ÃºÃ¹Ã¼]", "u").replaceAll("Ã±", "n")
                 .replaceAll("[^a-z0-9]+", "-")
                 .replaceAll("(^-|-$)", "");
     }
 }
+

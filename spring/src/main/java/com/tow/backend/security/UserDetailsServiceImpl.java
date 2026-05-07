@@ -15,15 +15,15 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 /**
- * Implementación de {@link UserDetailsService} que carga usuarios desde la BD.
+ * ImplementaciÃ³n de {@link UserDetailsService} que carga usuarios desde la BD.
  *
- * <p>Spring Security llama a este servicio durante el proceso de autenticación
- * para obtener los datos del usuario (contraseña y roles) y verificar las credenciales.
+ * <p>Spring Security llama a este servicio durante el proceso de autenticaciÃ³n
+ * para obtener los datos del usuario (contraseÃ±a y roles) y verificar las credenciales.
  *
  * <p>El "username" en Spring Security es el email del usuario (campo {@code email}
  * en la tabla {@code usuarios}).
  *
- * @author Darío Márquez Bautista
+ * @author DarÃ­o MÃ¡rquez Bautista
  */
 @Service
 @RequiredArgsConstructor
@@ -33,11 +33,11 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     /**
      * Carga un usuario por su email para que Spring Security pueda
-     * verificar la contraseña y los roles.
+     * verificar la contraseÃ±a y los roles.
      *
      * @param email email del usuario (usado como username)
      * @return UserDetails con email, passwordHash y roles
-     * @throws UsernameNotFoundException si el usuario no existe o está inactivo
+     * @throws UsernameNotFoundException si el usuario no existe o estÃ¡ inactivo
      */
     @Override
     @Transactional(readOnly = true)
@@ -54,7 +54,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         List<GrantedAuthority> authorities = mapRolesToAuthorities(user.getRole());
 
         // Spring Security requiere un objeto UserDetails.
-        // Usamos el builder estándar de Spring.
+        // Usamos el builder estÃ¡ndar de Spring.
         return org.springframework.security.core.userdetails.User.builder()
                 .username(user.getEmail())
                 .password(user.getPasswordHash())
@@ -68,7 +68,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
      * <p>Spring Security requiere que los roles tengan el prefijo {@code ROLE_}
      * para funcionar con {@code @PreAuthorize("hasRole('ADMIN')")} etc.
      *
-     * <p>Ejemplo: {@code "admin"} → {@code "ROLE_ADMIN"}
+     * <p>Ejemplo: {@code "admin"} â†’ {@code "ROLE_ADMIN"}
      *
      * @param roles conjunto de roles del usuario
      * @return autoridades Spring Security
@@ -77,3 +77,4 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         return List.of(new SimpleGrantedAuthority("ROLE_" + role.getNombreRol().toUpperCase()));
     }
 }
+

@@ -18,23 +18,23 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 
 /**
- * Filtro de Spring Security que intercepta cada petición HTTP y,
- * si incluye un JWT válido en el header {@code Authorization},
+ * Filtro de Spring Security que intercepta cada peticiÃ³n HTTP y,
+ * si incluye un JWT vÃ¡lido en el header {@code Authorization},
  * autentica al usuario en el contexto de seguridad.
  *
  * <p>Hereda de {@link OncePerRequestFilter} para garantizar que
- * se ejecuta exactamente una vez por petición.
+ * se ejecuta exactamente una vez por peticiÃ³n.
  *
- * <p>Flujo de cada petición:
+ * <p>Flujo de cada peticiÃ³n:
  * <ol>
  *   <li>Extraer el token del header {@code Authorization: Bearer <token>}</li>
- *   <li>Validar el token (firma, expiración, blacklist)</li>
+ *   <li>Validar el token (firma, expiraciÃ³n, blacklist)</li>
  *   <li>Cargar el usuario de la BD</li>
- *   <li>Establecer la autenticación en {@link SecurityContextHolder}</li>
+ *   <li>Establecer la autenticaciÃ³n en {@link SecurityContextHolder}</li>
  *   <li>Continuar con la cadena de filtros</li>
  * </ol>
  *
- * @author Darío Márquez Bautista
+ * @author DarÃ­o MÃ¡rquez Bautista
  * @see JwtTokenProvider
  * @see com.tow.backend.config.SecurityConfig
  */
@@ -56,10 +56,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String token = extractTokenFromRequest(request);
 
         if (StringUtils.hasText(token) && tokenProvider.validateToken(token)) {
-            // El token es válido → autenticar al usuario
+            // El token es vÃ¡lido â†’ autenticar al usuario
             String email = tokenProvider.getEmailFromToken(token);
 
-            // Tokens de 2FA pendiente NO autentican — solo sirven para /verify-2fa
+            // Tokens de 2FA pendiente NO autentican â€” solo sirven para /verify-2fa
             if (!tokenProvider.isTwoFactorPending(token)) {
                 UserDetails userDetails = userDetailsService.loadUserByUsername(email);
 
@@ -74,7 +74,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 );
 
                 SecurityContextHolder.getContext().setAuthentication(authentication);
-                log.debug("Usuario autenticado vía JWT: {}", email);
+                log.debug("Usuario autenticado vÃ­a JWT: {}", email);
             }
         }
 
@@ -86,8 +86,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
      *
      * <p>El formato esperado es: {@code Authorization: Bearer eyJhbGciOiJI...}
      *
-     * @param request petición HTTP
-     * @return el token sin el prefijo "Bearer ", o null si no está presente
+     * @param request peticiÃ³n HTTP
+     * @return el token sin el prefijo "Bearer ", o null si no estÃ¡ presente
      */
     private String extractTokenFromRequest(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
@@ -97,3 +97,4 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         return null;
     }
 }
+

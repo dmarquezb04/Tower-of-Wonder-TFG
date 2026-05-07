@@ -9,7 +9,7 @@ import java.util.List;
 
 /**
  * Entidad que representa un personaje del videojuego.
- * Las imágenes se gestionan en la tabla character_images (lista dinámica, sin límite).
+ * Las imÃ¡genes se gestionan en la tabla character_images (lista dinÃ¡mica, sin lÃ­mite).
  */
 @Entity
 @Table(name = "game_characters")
@@ -27,7 +27,7 @@ public class GameCharacter {
     @Column(nullable = false, length = 100)
     private String name;
 
-    /** Identificador amigable para URL, ej: "kyra" → /personajes#kyra */
+    /** Identificador amigable para URL, ej: "kyra" â†’ /personajes#kyra */
     @Column(nullable = false, unique = true, length = 100)
     private String slug;
 
@@ -38,12 +38,13 @@ public class GameCharacter {
     private Boolean active = true;
 
     /**
-     * Lista de imágenes del personaje, ordenadas por sortOrder.
+     * Lista de imÃ¡genes del personaje, ordenadas por sortOrder.
      * CascadeType.ALL + orphanRemoval = true permite gestionar la lista
-     * directamente desde el personaje (añadir, eliminar, reordenar).
+     * directamente desde el personaje (aÃ±adir, eliminar, reordenar).
      */
     @OneToMany(mappedBy = "character", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @OrderBy("sortOrder ASC")
     @Builder.Default
     private List<CharacterImage> images = new ArrayList<>();
 }
+

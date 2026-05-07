@@ -22,3 +22,4 @@ public class UserAdminDTO {
     private LocalDateTime ultimoLogin;
     private String role;
 }
+

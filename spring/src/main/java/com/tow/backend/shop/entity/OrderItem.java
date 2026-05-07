@@ -36,3 +36,4 @@ public class OrderItem {
     @Column(name = "price_at_purchase", nullable = false, precision = 10, scale = 2)
     private BigDecimal priceAtPurchase;
 }
+

@@ -11,12 +11,12 @@ import java.time.LocalDateTime;
  * Entidad JPA que mapea la tabla {@code jwt_blacklist}.
  *
  * <p>Almacena los JWT revocados (tokens de usuarios que han hecho logout).
- * Al validar un token, se comprueba que su {@code jti} no esté en esta tabla.
+ * Al validar un token, se comprueba que su {@code jti} no estÃ© en esta tabla.
  *
- * <p>La columna {@code fecha_expiracion} permite limpiar periódicamente la
- * tabla eliminando tokens que ya habrían expirado de todas formas.
+ * <p>La columna {@code fecha_expiracion} permite limpiar periÃ³dicamente la
+ * tabla eliminando tokens que ya habrÃ­an expirado de todas formas.
  *
- * @author Darío Márquez Bautista
+ * @author DarÃ­o MÃ¡rquez Bautista
  * @see com.tow.backend.security.JwtTokenProvider
  */
 @Entity
@@ -30,15 +30,15 @@ public class JwtBlacklist {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    /** ID único del token JWT (claim 'jti'). */
+    /** ID Ãºnico del token JWT (claim 'jti'). */
     @Column(name = "token_jti", nullable = false, unique = true, length = 64)
     private String tokenJti;
 
-    /** Fecha de expiración original del token (para limpieza de la tabla). */
+    /** Fecha de expiraciÃ³n original del token (para limpieza de la tabla). */
     @Column(name = "fecha_expiracion", nullable = false)
     private LocalDateTime fechaExpiracion;
 
-    /** Cuándo se añadió a la blacklist (momento del logout). */
+    /** CuÃ¡ndo se aÃ±adiÃ³ a la blacklist (momento del logout). */
     @Column(name = "fecha_revocacion")
     private LocalDateTime fechaRevocacion;
 
@@ -49,3 +49,4 @@ public class JwtBlacklist {
         }
     }
 }
+

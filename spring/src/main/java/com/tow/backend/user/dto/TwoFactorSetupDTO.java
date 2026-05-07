@@ -13,3 +13,4 @@ public class TwoFactorSetupDTO {
     private String secret;
     private String qrCodeUri;
 }
+

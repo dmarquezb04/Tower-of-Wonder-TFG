@@ -27,5 +27,6 @@ public class PageView {
 
     private String navegador;
 
-    private String zona; // Aquí guardaremos el país o región si lo detectamos
+    private String zona; // AquÃ­ guardaremos el paÃ­s o regiÃ³n si lo detectamos
 }
+

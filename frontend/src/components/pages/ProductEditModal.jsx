@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
+import { getCategories, createCategory } from '../../api/shopApi'
 import { useAuth } from '../../context/AuthContext'
 import styles from './AdminDashboard.module.css'
 
@@ -49,18 +49,16 @@ export default function ProductEditModal({ isOpen, product, onClose, onSave }) {
   // Cargar categorías al abrir el modal
   useEffect(() => {
     if (isOpen && token) {
-      axios.get('/api/categories', {
-        headers: { 'Authorization': `Bearer ${token}` }
-      })
-        .then(res => {
-          setCategories(res.data)
+      getCategories()
+        .then(data => {
+          setCategories(data)
         })
         .catch(err => {
           console.error('Error cargando categorías:', err)
-          setError('No se pudieron cargar las categorías')
+          setError(err.message)
         })
     }
-  }, [isOpen])
+  }, [isOpen, token])
 
   if (!isOpen) return null
 
@@ -91,19 +89,15 @@ export default function ProductEditModal({ isOpen, product, onClose, onSave }) {
   const handleAddCategory = async () => {
     if (!newCategoryName.trim()) return
     try {
-      const res = await axios.post('/api/categories', 
-        { name: newCategoryName },
-        { headers: { 'Authorization': `Bearer ${token}` } }
-      )
+      const newCat = await createCategory(token, { name: newCategoryName })
       
-      const newCat = res.data
       setCategories(prev => [...prev, newCat])
       setFormData(prev => ({ ...prev, category: newCat }))
       setNewCategoryName('')
       setShowNewCategoryInput(false)
     } catch (err) {
       console.error(err)
-      alert('Error al crear categoría: Verifique sus permisos de admin')
+      setError(err.message)
     }
   }
 

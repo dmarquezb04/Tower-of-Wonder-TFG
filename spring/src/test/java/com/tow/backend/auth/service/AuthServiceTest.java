@@ -18,6 +18,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import com.tow.backend.exception.ConflictException;
+import com.tow.backend.exception.UnauthorizedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -32,20 +34,20 @@ import static org.mockito.Mockito.*;
  *
  * <p>
  * Estrategia: cada dependencia se sustituye por un mock de Mockito.
- * Esto permite testear solo la lógica de AuthService de forma aislada,
- * sin base de datos ni Spring Boot corriendo (tests rápidos).
+ * Esto permite testear solo la lÃ³gica de AuthService de forma aislada,
+ * sin base de datos ni Spring Boot corriendo (tests rÃ¡pidos).
  *
  * <p>
- * Estructura: tests agrupados por método con {@code @Nested},
- * lo que genera un informe más legible en el IDE.
+ * Estructura: tests agrupados por mÃ©todo con {@code @Nested},
+ * lo que genera un informe mÃ¡s legible en el IDE.
  *
- * @author Darío Márquez Bautista
+ * @author DarÃ­o MÃ¡rquez Bautista
  */
 @ExtendWith(MockitoExtension.class)
-@DisplayName("AuthService — Tests")
+@DisplayName("AuthService â€” Tests")
 class AuthServiceTest {
 
-    // Mocks — simulan las dependencias
+    // Mocks â€” simulan las dependencias
     @Mock
     private UserRepository userRepository;
     @Mock
@@ -59,7 +61,7 @@ class AuthServiceTest {
 
     // El objeto real que estamos testeando
     @InjectMocks
-    private AuthService authService;
+    private AuthServiceImpl authService;
 
     // Datos de prueba reutilizables
     private User activeUser;
@@ -120,7 +122,7 @@ class AuthServiceTest {
             assertThat(response.isRequiresTwoFactor()).isFalse();
             assertThat(response.getToken()).isEqualTo("jwt-token-full");
             assertThat(response.getEmail()).isEqualTo("user@tow.com");
-            // No debe llamar al método de token temporal
+            // No debe llamar al mÃ©todo de token temporal
             verify(tokenProvider, never()).generateTwoFactorPendingToken(anyLong(), anyString());
         }
 
@@ -164,7 +166,7 @@ class AuthServiceTest {
         }
 
         @Test
-        @DisplayName("Login con contraseña incorrecta lanza BadCredentialsException")
+        @DisplayName("Login con contraseÃ±a incorrecta lanza BadCredentialsException")
         void login_wrongPassword_throwsBadCredentials() {
             // GIVEN
             LoginRequest request = new LoginRequest();
@@ -196,7 +198,7 @@ class AuthServiceTest {
             // WHEN + THEN
             assertThatThrownBy(() -> authService.login(request))
                     .isInstanceOf(BadCredentialsException.class)
-                    .hasMessage("La cuenta está desactivada");
+                    .hasMessage("La cuenta estÃ¡ desactivada");
         }
 
         @Test
@@ -214,7 +216,7 @@ class AuthServiceTest {
             // WHEN
             authService.login(request);
 
-            // THEN — se debe haber guardado el usuario (para actualizar ultimoLogin)
+            // THEN â€” se debe haber guardado el usuario (para actualizar ultimoLogin)
             verify(userRepository).save(any(User.class));
         }
     }
@@ -227,7 +229,7 @@ class AuthServiceTest {
     class Register {
 
         @Test
-        @DisplayName("Registro con datos válidos crea el usuario correctamente")
+        @DisplayName("Registro con datos vÃ¡lidos crea el usuario correctamente")
         void register_validData_savesUser() {
             // GIVEN
             RegisterRequest request = new RegisterRequest();
@@ -243,7 +245,7 @@ class AuthServiceTest {
             // WHEN
             authService.register(request);
 
-            // THEN — se debe haber guardado un usuario nuevo
+            // THEN â€” se debe haber guardado un usuario nuevo
             verify(userRepository).save(argThat(user -> user.getEmail().equals("nuevo@tow.com") &&
                     user.getUsername().equals("nuevousuario") &&
                     user.getPasswordHash().equals("$2a$10$hashedNewPass") &&
@@ -252,7 +254,7 @@ class AuthServiceTest {
         }
 
         @Test
-        @DisplayName("Registro con email duplicado lanza IllegalArgumentException")
+        @DisplayName("Registro con email duplicado lanza ConflictException")
         void register_duplicateEmail_throwsException() {
             // GIVEN
             RegisterRequest request = new RegisterRequest();
@@ -264,14 +266,14 @@ class AuthServiceTest {
 
             // WHEN + THEN
             assertThatThrownBy(() -> authService.register(request))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessage("El email ya está registrado");
+                .isInstanceOf(ConflictException.class)
+                .hasMessage("El email ya estÃ¡ registrado");
 
             verify(userRepository, never()).save(any());
         }
 
         @Test
-        @DisplayName("Registro con username duplicado lanza IllegalArgumentException")
+        @DisplayName("Registro con username duplicado lanza ConflictException")
         void register_duplicateUsername_throwsException() {
             // GIVEN
             RegisterRequest request = new RegisterRequest();
@@ -284,8 +286,8 @@ class AuthServiceTest {
 
             // WHEN + THEN
             assertThatThrownBy(() -> authService.register(request))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessage("El nombre de usuario ya está en uso");
+                .isInstanceOf(ConflictException.class)
+                .hasMessage("El nombre de usuario ya estÃ¡ en uso");
 
             verify(userRepository, never()).save(any());
         }
@@ -299,7 +301,7 @@ class AuthServiceTest {
     class VerifyTwoFactor {
 
         @Test
-        @DisplayName("Verificación 2FA correcta devuelve token completo")
+        @DisplayName("VerificaciÃ³n 2FA correcta devuelve token completo")
         void verifyTwoFactor_validCode_returnsFullToken() {
             // GIVEN
             String tempToken = "temp-jwt-token";
@@ -324,7 +326,7 @@ class AuthServiceTest {
         }
 
         @Test
-        @DisplayName("Verificación 2FA con código incorrecto lanza BadCredentialsException")
+        @DisplayName("VerificaciÃ³n 2FA con cÃ³digo incorrecto lanza UnauthorizedException")
         void verifyTwoFactor_wrongCode_throwsBadCredentials() {
             // GIVEN
             String tempToken = "temp-jwt-token";
@@ -339,12 +341,12 @@ class AuthServiceTest {
 
             // WHEN + THEN
             assertThatThrownBy(() -> authService.verifyTwoFactor(tempToken, request))
-                    .isInstanceOf(BadCredentialsException.class)
-                    .hasMessage("Código de verificación incorrecto");
+                .isInstanceOf(UnauthorizedException.class)
+                .hasMessage("CÃ³digo de verificaciÃ³n incorrecto");
         }
 
         @Test
-        @DisplayName("Verificación 2FA con token inválido lanza BadCredentialsException")
+        @DisplayName("VerificaciÃ³n 2FA con token invÃ¡lido lanza UnauthorizedException")
         void verifyTwoFactor_invalidToken_throwsBadCredentials() {
             // GIVEN
             TwoFactorRequest request = new TwoFactorRequest();
@@ -354,7 +356,8 @@ class AuthServiceTest {
 
             // WHEN + THEN
             assertThatThrownBy(() -> authService.verifyTwoFactor("bad-token", request))
-                    .isInstanceOf(BadCredentialsException.class);
+                .isInstanceOf(UnauthorizedException.class)
+                .hasMessage("Token de verificaciÃ³n invÃ¡lido o expirado");
         }
     }
 
@@ -376,3 +379,4 @@ class AuthServiceTest {
         }
     }
 }
+

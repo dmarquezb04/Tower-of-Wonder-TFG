@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { reactivateAccount } from '../../api/authApi';
 import styles from './MessagePage.module.css';
 
 export default function ReactivateAccount() {
@@ -19,13 +19,12 @@ export default function ReactivateAccount() {
 
     const reactivate = async () => {
       try {
-        const response = await axios.post('/api/auth/reactivate', { token });
+        const response = await reactivateAccount(token);
         setStatus('success');
-        setMessage(response.data.message || 'Cuenta reactivada correctamente.');
+        setMessage(response.message || 'Cuenta reactivada correctamente.');
       } catch (err) {
         setStatus('error');
-        const errorMsg = err.response?.data?.error || 'Error al reactivar la cuenta.';
-        setMessage(errorMsg);
+        setMessage(err.message);
       }
     };
 

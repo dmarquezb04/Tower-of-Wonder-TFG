@@ -1,30 +1,27 @@
-import axios from 'axios';
+import apiClient, { getAuthHeader } from './apiClient';
 
-const API_URL = '/api/admin/products';
+/**
+ * adminShopApi.js — Gestión administrativa de productos.
+ */
 
-// Configurar axios para usar el token (esto se podría centralizar en un axios instance)
-const getHeaders = (token) => ({
-  headers: {
-    'Authorization': `Bearer ${token}`
-  }
-});
+const API_URL = '/admin/products';
 
 export const getAdminProducts = async (token) => {
-  const response = await axios.get(API_URL, getHeaders(token));
+  const response = await apiClient.get(API_URL, getAuthHeader(token));
   return response.data;
 };
 
 export const createProduct = async (token, productData) => {
-  const response = await axios.post(API_URL, productData, getHeaders(token));
+  const response = await apiClient.post(API_URL, productData, getAuthHeader(token));
   return response.data;
 };
 
 export const updateProduct = async (token, id, productData) => {
-  const response = await axios.put(`${API_URL}/${id}`, productData, getHeaders(token));
+  const response = await apiClient.put(`${API_URL}/${id}`, productData, getAuthHeader(token));
   return response.data;
 };
 
 export const deleteProduct = async (token, id) => {
-  const response = await axios.delete(`${API_URL}/${id}`, getHeaders(token));
+  const response = await apiClient.delete(`${API_URL}/${id}`, getAuthHeader(token));
   return response.data;
 };

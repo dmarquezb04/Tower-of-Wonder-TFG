@@ -24,7 +24,7 @@ public class NewsPost {
     @Column(nullable = false, length = 255)
     private String title;
 
-    /** Slug único para URL amigable, ej: "actualizacion-1-2" */
+    /** Slug Ãºnico para URL amigable, ej: "actualizacion-1-2" */
     @Column(nullable = false, unique = true, length = 255)
     private String slug;
 
@@ -51,3 +51,4 @@ public class NewsPost {
         }
     }
 }
+

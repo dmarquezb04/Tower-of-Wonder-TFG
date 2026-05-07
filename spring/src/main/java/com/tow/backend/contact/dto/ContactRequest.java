@@ -13,7 +13,7 @@ public class ContactRequest {
     private String nombre;
 
     @NotBlank(message = "El email es obligatorio")
-    @Email(message = "Email no válido")
+    @Email(message = "Email no vÃ¡lido")
     private String email;
 
     @Size(max = 150)
@@ -23,3 +23,4 @@ public class ContactRequest {
     @Size(max = 2000)
     private String mensaje;
 }
+

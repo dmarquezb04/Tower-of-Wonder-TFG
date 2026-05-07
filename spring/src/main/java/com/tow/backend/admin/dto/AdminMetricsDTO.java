@@ -14,3 +14,4 @@ public class AdminMetricsDTO {
     private long activeUsers;
     private long usersWith2FA;
 }
+

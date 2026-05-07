@@ -9,7 +9,7 @@ import java.util.Optional;
 /**
  * Repositorio JPA para la entidad {@link Role}.
  *
- * @author Darío Márquez Bautista
+ * @author DarÃ­o MÃ¡rquez Bautista
  */
 @Repository
 public interface RoleRepository extends JpaRepository<Role, Long> {
@@ -23,3 +23,4 @@ public interface RoleRepository extends JpaRepository<Role, Long> {
      */
     Optional<Role> findByNombreRol(String nombreRol);
 }
+

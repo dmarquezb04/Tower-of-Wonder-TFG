@@ -5,27 +5,28 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * Beans de configuración del módulo de autenticación.
+ * Beans de configuraciÃ³n del mÃ³dulo de autenticaciÃ³n.
  *
- * <p>Centraliza la creación de beans que no pertenecen a ningún
- * módulo concreto o que son compartidos por varios módulos.
+ * <p>Centraliza la creaciÃ³n de beans que no pertenecen a ningÃºn
+ * mÃ³dulo concreto o que son compartidos por varios mÃ³dulos.
  *
- * @author Darío Márquez Bautista
+ * @author DarÃ­o MÃ¡rquez Bautista
  */
 @Configuration
 public class AuthConfig {
 
     /**
-     * Bean de Google Authenticator para verificar códigos TOTP.
+     * Bean de Google Authenticator para verificar cÃ³digos TOTP.
      *
-     * <p>La librería {@code com.warrenstrange:googleauth} implementa RFC 6238
-     * y es compatible con la librería PHP {@code PHPGangsta_GoogleAuthenticator}.
+     * <p>La librerÃ­a {@code com.warrenstrange:googleauth} implementa RFC 6238
+     * y es compatible con la librerÃ­a PHP {@code PHPGangsta_GoogleAuthenticator}.
      * Los secretos Base32 almacenados en la BD son 100% reutilizables.
      *
-     * @return instancia de GoogleAuthenticator con ventana de tolerancia ±30s
+     * @return instancia de GoogleAuthenticator con ventana de tolerancia Â±30s
      */
     @Bean
     public GoogleAuthenticator googleAuthenticator() {
         return new GoogleAuthenticator();
     }
 }
+

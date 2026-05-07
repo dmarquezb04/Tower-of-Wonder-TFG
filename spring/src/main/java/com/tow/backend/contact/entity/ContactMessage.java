@@ -37,3 +37,4 @@ public class ContactMessage {
         fechaCreacion = LocalDateTime.now();
     }
 }
+

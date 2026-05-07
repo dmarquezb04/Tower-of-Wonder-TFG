@@ -1,6 +1,10 @@
-import axios from 'axios';
+import apiClient, { getAuthHeader } from './apiClient';
 
-const API_URL = '/api/metrics';
+/**
+ * metricsApi.js — Registro de visitas y estadísticas.
+ */
+
+const API_URL = '/metrics';
 
 /**
  * Registra una visita en el backend.
@@ -8,10 +12,10 @@ const API_URL = '/api/metrics';
  */
 export const trackVisit = async (url) => {
     try {
-        await axios.post(`${API_URL}/track`, { url });
+        await apiClient.post(`${API_URL}/track`, { url });
     } catch (error) {
         // Fallo silencioso para no molestar al usuario si falla el tracking
-        console.error('Error tracking visit:', error);
+        console.warn('Silent tracking failure:', error.message);
     }
 };
 
@@ -20,8 +24,6 @@ export const trackVisit = async (url) => {
  * @param {string} token - Token JWT del admin
  */
 export const getAdminMetricsStats = async (token) => {
-    const response = await axios.get(`${API_URL}/admin/stats`, {
-        headers: { Authorization: `Bearer ${token}` }
-    });
+    const response = await apiClient.get(`${API_URL}/admin/stats`, getAuthHeader(token));
     return response.data;
 };
