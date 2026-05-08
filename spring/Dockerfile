@@ -14,11 +14,19 @@ RUN mvn clean package javadoc:javadoc -DskipTests
 FROM eclipse-temurin:21-jre
 WORKDIR /app
 
+# Instalamos el cliente de MariaDB para poder ejecutar el script SQL en el pre-deploy
+RUN apt-get update && \
+    apt-get install -y mariadb-client && \
+    rm -rf /var/lib/apt/lists/*
+
 # Copiamos el JAR generado desde la etapa de compilación
 COPY --from=build /app/target/*.jar app.jar
 
 # Copiamos también el Javadoc generado para que WebConfig pueda servirlo
 COPY --from=build /app/target/reports/apidocs ./target/reports/apidocs
+
+# Copiamos el script SQL para que esté disponible en el contenedor
+COPY init.sql .
 
 # Exponemos el puerto
 EXPOSE 8080
