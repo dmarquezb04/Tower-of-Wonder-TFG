@@ -1,18 +1,19 @@
 services:
 
   # ============================================================
-  # NGINX — Proxy inverso y servidor de archivos estáticos
+  # FRONTEND & NGINX — Proxy inverso y servidor de estáticos
   # Puerto 8080 del host → 80 del contenedor
-  # Rutas:
-  #   /api/**  → spring:8080 (Spring Boot)
-  #   /*       → React SPA (servido desde frontend/dist)
+  #
+  # Realiza 'npm install' y 'npm run build'
+  # dentro del contenedor. No necesitas Node local.
   # ============================================================
-  nginx:
-    image: nginx:alpine
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
     ports:
       - "8080:80"
     volumes:
-      - ./frontend/dist:/usr/share/nginx/html
       - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
     depends_on:
       - spring

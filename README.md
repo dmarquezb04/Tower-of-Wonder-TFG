@@ -2,7 +2,7 @@
 
 Proyecto web desarrollado como Trabajo de Fin de Grado (TFG) del ciclo formativo de Desarrollo de Aplicaciones Web (DAW).
 
-*Tower of Wonder* es la web oficial de un videojuego ficticio, diseñada como una Single Page Application (SPA) moderna, segura y escalable. El sistema ha sido migrado íntegramente de una arquitectura legacy PHP a un stack moderno basado en **Spring Boot** y **React**.
+_Tower of Wonder_ es la web oficial de un videojuego ficticio, aún en desarrollo, diseñada como una Single Page Application (SPA) moderna, segura y escalable. El sistema ha sido migrado íntegramente de una arquitectura legacy PHP a un stack moderno basado en **Spring Boot** y **React**.
 
 ---
 
@@ -10,12 +10,30 @@ Proyecto web desarrollado como Trabajo de Fin de Grado (TFG) del ciclo formativo
 
 La aplicación utiliza una arquitectura de microservicios orquestada con **Docker Compose**.
 
-### Stack Tecnológico
-- **Frontend**: React 18, Vite 5, React Router v6, Axios.
-- **Backend**: Java 21, Spring Boot 3.3.5, Spring Security 6 (JWT).
-- **Base de Datos**: MariaDB 10.6.
-- **Infraestructura**: Nginx (Proxy Inverso), Docker, Docker Compose.
-- **Seguridad**: JWT (JSON Web Tokens), BCrypt, Doble Factor de Autenticación (TOTP).
+### Backend (Java & Spring Boot)
+
+- **Framework**: Spring Boot 3.3.5 (Java 21).
+- **Seguridad**: Spring Security 6, JWT (JJWT), BCrypt.
+- **2FA**: Google Authenticator TOTP (com.warrenstrange).
+- **Persistencia**: Spring Data JPA, MariaDB 10.6, H2 (Database en memoria para tests).
+- **Mapeo y Boilerplate**: Lombok.
+- **Comunicaciones**: Spring Mail + Thymeleaf (Plantillas de email dinámicas).
+- **Herramientas**: Apache POI (Exportación Excel), Spring AOP (Logging), Spring Cache.
+- **Documentación**: SpringDoc OpenAPI (Swagger UI).
+
+### Frontend (React)
+
+- **Core**: React 18, Vite 5.
+- **Enrutado**: React Router v6.
+- **Cliente API**: Axios con interceptores globales para gestión de errores.
+- **Utilidades**: Context API (Estado global), QRCode.react (Generación de códigos 2FA).
+- **Estilos**: CSS Moderno con variables y diseño responsive.
+
+### Infraestructura y Despliegue
+
+- **Contenedores**: Docker & Docker Compose.
+- **Servidor Web**: Nginx (Proxy Inverso y servidor de estáticos).
+- **CI/CD**: Dockerfiles multi-etapa para optimización de imágenes.
 
 ---
 
@@ -25,14 +43,16 @@ La aplicación utiliza una arquitectura de microservicios orquestada con **Docke
 Tower-of-Wonder-TFG/
 ├── frontend/             # Código fuente de React (Vite)
 │   ├── src/              # Componentes, Hooks, Contextos, API
-│   └── dist/             # Build estático (servido por Nginx)
+│   └── Dockerfile        # Build automatizado de React + Nginx
 ├── spring/               # Backend Java Spring Boot
 │   ├── src/main/java/    # Controladores, Servicios, Entidades, Seguridad
-│   └── pom.xml           # Dependencias de Maven
+│   ├── pom.xml           # Dependencias de Maven
+│   └── Dockerfile        # Build multi-stage de Java
 ├── docker/               # Configuraciones de infraestructura
 │   ├── nginx/            # Configuración del proxy inverso
-│   └── db/               # Scripts de inicialización SQL
+│   └── db/               # Scripts de inicialización SQL (init.sql)
 ├── docker-compose.yml    # Orquestación de contenedores
+├── .env                  # Variables de entorno (Configuración)
 └── MIGRATION.md          # Registro detallado de la migración PHP → Spring
 ```
 
@@ -41,48 +61,60 @@ Tower-of-Wonder-TFG/
 ## 🛠️ Funcionalidades Principales
 
 ### 1. Sistema de Autenticación y Seguridad
-- **JWT**: Autenticación sin estado (stateless) mediante tokens persistidos en el cliente.
-- **2FA (Doble Factor)**: Integración con aplicaciones como Google Authenticator mediante códigos TOTP.
-- **Roles**: Control de acceso basado en roles (`USER`, `ADMIN`).
-- **Blacklist**: Sistema de revocación de tokens para logout seguro.
+
+- **JWT**: Autenticación stateless mediante tokens seguros.
+- **2FA (Doble Factor)**: Integración con Google Authenticator mediante códigos TOTP.
+- **Roles**: Control de acceso granular (`USER`, `ADMIN`).
+- **Audit Logs**: Registro automático de operaciones críticas mediante AOP.
 
 ### 2. Tienda y Gestión de Contenidos
-- Catálogo de productos dinámico filtrable por categorías.
-- Carrito de compra reactivo (Context API).
-- Panel de administración para gestión de productos y categorías.
 
-### 3. Métricas y Auditoría
-- **AOP (Aspect Oriented Programming)**: Logging automático de todas las operaciones de la API.
-- **Tracking**: Registro de visitas y estadísticas de uso en tiempo real.
+- Catálogo dinámico con filtrado por categorías.
+- Carrito de compra reactivo persistente.
+- Panel de administración: Gestión de productos, usuarios y exportación de métricas a Excel.
+
+### 3. Dashboard y Métricas
+
+- Estadísticas de uso en tiempo real.
+- Tracking de actividad y geolocalización de IPs.
 
 ---
 
-## 📦 Despliegue con Docker
+## 📦 Guía de Inicio (Docker)
 
-El proyecto está completamente dockerizado. Para arrancar el entorno completo:
+El proyecto está completamente automatizado. No necesitas Java, Node ni MariaDB instalados localmente.
 
-1. Copia el archivo de ejemplo de variables de entorno:
-   ```bash
-   cp .env.example .env
-   ```
-2. Configura las credenciales de base de datos y JWT en el `.env`.
-3. Levanta los contenedores:
-   ```bash
-   docker compose up -d
-   ```
+### 1. Configuración Inicial
+
+Copia el archivo de ejemplo y edita las variables (DB, Mail, JWT Secret):
+
+> [!TIP]
+> Para generar un `JWT_SECRET` seguro en producción, puedes usar el comando: `openssl rand -base64 32`
+
+```bash
+cp .env.example .env
+```
+
+### 2. Despliegue Completo
+
+Levanta todos los servicios (Base de Datos, Backend y Frontend):
+
+```bash
+docker compose up -d --build
+```
+
+_Nota: El primer build tardará unos minutos mientras se descargan las dependencias de Maven y NPM dentro de los contenedores._
+
+### 3. Comandos Útiles
+
+- **Ver logs**: `docker compose logs -f`
+- **Parar todo**: `docker compose down`
+- **Reconstruir solo el backend**: `docker compose up -d --build spring`
+- **Ejecutar comandos node (ej. instalar librería)**:
+  `docker compose run --rm node npm install <package-name>`
 
 ### Servicios Disponibles:
-- **Frontend/API**: `http://localhost:8080` (vía Nginx)
-- **Spring Boot Directo**: `http://localhost:8090` (incluye Swagger UI)
+
+- **Frontend/App**: [http://localhost:8080](http://localhost:8080)
+- **API Swagger UI**: [http://localhost:8090/swagger-ui/index.html](http://localhost:8090/swagger-ui/index.html)
 - **Base de Datos**: Puerto `3306`
-
----
-
-## 📝 Documentación de la Migración
-
-Para detalles técnicos sobre el proceso de migración desde el sistema antiguo en PHP al nuevo backend en Java, consulta el archivo [MIGRATION.md](MIGRATION.md).
-
----
-
-## Estado del Proyecto
-✅ **Migración Completada**. El sistema es 100% funcional sobre la nueva arquitectura Spring Boot + React.

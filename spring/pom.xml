@@ -32,8 +32,6 @@
     <properties>
         <!-- Java 21 LTS — versión activa con soporte hasta 2029 -->
         <java.version>21</java.version>
-        <!-- Versión de MapStruct — procesador de anotaciones para mapear DTOs -->
-        <mapstruct.version>1.6.2</mapstruct.version>
         <!-- Versión de JJWT — librería para generar y validar JWT -->
         <jjwt.version>0.12.6</jjwt.version>
     </properties>
@@ -133,22 +131,6 @@
             <optional>true</optional>
         </dependency>
 
-        <!-- ============================================================
-             MAPSTRUCT
-             Genera código de mapeo entre Entity ↔ DTO en tiempo de
-             compilación. Más eficiente que mapeo manual o reflection.
-             ============================================================ -->
-        <dependency>
-            <groupId>org.mapstruct</groupId>
-            <artifactId>mapstruct</artifactId>
-            <version>${mapstruct.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.mapstruct</groupId>
-            <artifactId>mapstruct-processor</artifactId>
-            <version>${mapstruct.version}</version>
-            <optional>true</optional>
-        </dependency>
 
         <!-- ============================================================
              JJWT — JSON Web Tokens
@@ -285,18 +267,6 @@
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok</artifactId>
                             <version>${lombok.version}</version>
-                        </path>
-                        <path>
-                            <groupId>org.mapstruct</groupId>
-                            <artifactId>mapstruct-processor</artifactId>
-                            <version>${mapstruct.version}</version>
-                        </path>
-                        <!-- Lombok debe ir antes que MapStruct para que
-                             MapStruct pueda ver los métodos generados por Lombok -->
-                        <path>
-                            <groupId>org.projectlombok</groupId>
-                            <artifactId>lombok-mapstruct-binding</artifactId>
-                            <version>0.2.0</version>
                         </path>
                     </annotationProcessorPaths>
                 </configuration>

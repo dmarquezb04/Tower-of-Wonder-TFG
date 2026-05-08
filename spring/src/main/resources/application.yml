@@ -11,7 +11,7 @@ spring:
   datasource:
     url: jdbc:mariadb://${DB_HOST:db}:3306/${DB_NAME:tower_of_wonder}?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Europe/Madrid
     username: ${DB_USER:admin_tow_bbdd}
-    password: ${DB_PASS:7kr3L1UBDWgcvgY}
+    password: ${DB_PASS:tu_password_aqui}
     driver-class-name: org.mariadb.jdbc.Driver
 
   jpa:
@@ -47,7 +47,7 @@ server:
 
 # JWT — cambiar jwt.secret en producción (mínimo 32 caracteres)
 jwt:
-  secret: ${JWT_SECRET:tower-of-wonder-secret-key-change-in-production-min-32-chars}
+  secret: ${JWT_SECRET:cambiar-por-un-secreto-de-al-menos-32-caracteres-en-produccion}
   expiration: 86400000  # 24 horas en ms
 
 mail:
