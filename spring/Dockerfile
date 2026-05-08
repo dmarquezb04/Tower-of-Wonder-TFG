@@ -25,8 +25,10 @@ COPY --from=build /app/target/*.jar app.jar
 # Copiamos también el Javadoc generado para que WebConfig pueda servirlo
 COPY --from=build /app/target/reports/apidocs ./target/reports/apidocs
 
-# Copiamos el script SQL para que esté disponible en el contenedor
+# Copiamos el script SQL y el script de ejecución para que estén disponibles
 COPY init.sql .
+COPY init-db.sh .
+RUN chmod +x init-db.sh
 
 # Exponemos el puerto
 EXPOSE 8080
