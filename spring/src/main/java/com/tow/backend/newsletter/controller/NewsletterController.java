@@ -15,9 +15,12 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
+import com.tow.backend.newsletter.dto.NewsletterBroadcastRequest;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -121,16 +124,84 @@ public class NewsletterController {
 
         subscriber.setConfirmed(true);
         subscriber.setConfirmationToken(null);
+        subscriber.setUnsubscribeToken(UUID.randomUUID().toString());
         subscriberRepository.save(subscriber);
 
+        String unsubscribeLink = frontendUrl + "/newsletter/unsubscribe?token=" + subscriber.getUnsubscribeToken();
         mailService.sendHtmlEmail(
                 subscriber.getEmail(),
                 "¡Bienvenido a la Newsletter!",
                 "newsletter_welcome",
-                Map.of("email", subscriber.getEmail())
+                Map.of(
+                        "email", subscriber.getEmail(),
+                        "unsubscribeLink", unsubscribeLink,
+                        "baseUrl", frontendUrl
+                )
         );
 
         return ResponseEntity.ok(new ApiResponse("Suscripción confirmada correctamente. ¡Bienvenido!"));
+    }
+
+    /**
+     * Envía un correo de newsletter a todos los suscriptores confirmados.
+     * Solo accesible por administradores.
+     *
+     * @param request body con el asunto y el contenido de la newsletter
+     * @return 200 OK con el número de correos enviados
+     */
+    @PostMapping("/admin/broadcast")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Enviar newsletter a todos los suscriptores (Admin)")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Newsletter enviada correctamente"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "No tienes permisos de administrador")
+    })
+    public ResponseEntity<ApiResponse> broadcast(@Valid @RequestBody NewsletterBroadcastRequest request) {
+        List<Subscriber> confirmedSubscribers = subscriberRepository.findAllByConfirmedTrue();
+        
+        if (confirmedSubscribers.isEmpty()) {
+            return ResponseEntity.ok(new ApiResponse("No hay suscriptores confirmados a los que enviar la newsletter."));
+        }
+
+        for (Subscriber subscriber : confirmedSubscribers) {
+            String unsubscribeLink = frontendUrl + "/newsletter/unsubscribe?token=" + subscriber.getUnsubscribeToken();
+            mailService.sendHtmlEmail(
+                    subscriber.getEmail(),
+                    request.getSubject(),
+                    "newsletter_broadcast",
+                    Map.of(
+                            "subject", request.getSubject(),
+                            "content", request.getContent(),
+                            "email", subscriber.getEmail(),
+                            "unsubscribeLink", unsubscribeLink,
+                            "baseUrl", frontendUrl
+                    )
+            );
+        }
+
+        return ResponseEntity.ok(new ApiResponse(
+                String.format("Newsletter enviada correctamente a %d suscriptores.", confirmedSubscribers.size())
+        ));
+    }
+
+    /**
+     * Cancela la suscripción a la newsletter mediante un token único.
+     *
+     * @param token token de cancelación de suscripción
+     * @return 200 OK con mensaje de éxito
+     */
+    @PostMapping("/unsubscribe")
+    @Operation(summary = "Darse de baja de la newsletter")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Baja procesada correctamente"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Token no encontrado")
+    })
+    public ResponseEntity<ApiResponse> unsubscribe(@RequestParam String token) {
+        Subscriber subscriber = subscriberRepository.findByUnsubscribeToken(token)
+                .orElseThrow(() -> new NotFoundException("El enlace de baja no es válido o ha expirado"));
+
+        subscriberRepository.delete(subscriber);
+        return ResponseEntity.ok(new ApiResponse("Has sido dado de baja correctamente de nuestra newsletter."));
     }
 }
 

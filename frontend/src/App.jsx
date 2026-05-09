@@ -14,6 +14,7 @@ import NewsListPage from './components/pages/NewsListPage'
 import NewsPostPage from './components/pages/NewsPostPage'
 import ReactivateAccount from './components/pages/ReactivateAccount'
 import NewsletterConfirmPage from './components/pages/NewsletterConfirmPage'
+import NewsletterUnsubscribePage from './components/pages/NewsletterUnsubscribePage'
 import ProtectedRoute from './components/ProtectedRoute'
 import { CartProvider } from './context/CartContext'
 import { useTrackVisit } from './hooks/useTrackVisit'
@@ -76,6 +77,7 @@ function App() {
             {/* Rutas de Acciones por Email */}
             <Route path="/reactivate" element={<ReactivateAccount />} />
             <Route path="/newsletter/confirm" element={<NewsletterConfirmPage />} />
+            <Route path="/newsletter/unsubscribe" element={<NewsletterUnsubscribePage />} />
             
             {/* Rutas Privadas */}
             <Route path="/dashboard" element={

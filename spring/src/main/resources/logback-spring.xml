@@ -10,14 +10,13 @@
       logs/tow-error.log      — solo errores (ERROR)
 
     Rotación: diaria + máximo 10 MB por archivo. Se conservan 30 días.
-
-    Ver docs/decisiones-tecnicas.md (ADR sobre logging).
 -->
 <configuration>
 
     <!-- ================================================================
          PROPIEDADES
          ================================================================ -->
+    <springProperty scope="context" name="APP_LOG_LEVEL" source="logging.level.com.tow.backend" defaultValue="DEBUG"/>
     <property name="LOG_DIR"     value="logs"/>
     <property name="APP_LOG"     value="${LOG_DIR}/tow-app.log"/>
     <property name="ERROR_LOG"   value="${LOG_DIR}/tow-error.log"/>
@@ -88,7 +87,7 @@
          ================================================================ -->
 
     <!-- Código propio: DEBUG en desarrollo, INFO en producción -->
-    <logger name="com.tow.backend" level="DEBUG" additivity="false">
+    <logger name="com.tow.backend" level="${APP_LOG_LEVEL}" additivity="false">
         <appender-ref ref="CONSOLE"/>
         <appender-ref ref="FILE_APP"/>
         <appender-ref ref="FILE_ERROR"/>

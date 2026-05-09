@@ -130,6 +130,7 @@ CREATE TABLE IF NOT EXISTS `subscribers` (
   `email` varchar(255) NOT NULL,
   `confirmed` tinyint(1) NOT NULL DEFAULT 0,
   `confirmation_token` varchar(100) DEFAULT NULL,
+  `unsubscribe_token` varchar(100) DEFAULT NULL,
   `subscribed_at` datetime DEFAULT current_timestamp(),
   PRIMARY KEY (`id`),
   UNIQUE KEY `email` (`email`)

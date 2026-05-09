@@ -10,6 +10,23 @@ export async function subscribe(email) {
 }
 
 export async function confirmSubscription(token) {
-  const response = await apiClient.post('/newsletter/confirm', { token });
+  // Se envía como query param según espera el backend
+  const response = await apiClient.post(`/newsletter/confirm?token=${token}`);
+  return response.data;
+}
+
+export async function broadcastNewsletter(token, broadcastData) {
+  const response = await apiClient.post(
+    '/newsletter/admin/broadcast', 
+    broadcastData, 
+    {
+      headers: { Authorization: `Bearer ${token}` }
+    }
+  );
+  return response.data;
+}
+
+export async function unsubscribeNewsletter(token) {
+  const response = await apiClient.post(`/newsletter/unsubscribe?token=${token}`);
   return response.data;
 }

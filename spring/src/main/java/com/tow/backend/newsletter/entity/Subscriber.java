@@ -32,6 +32,9 @@ public class Subscriber {
     @Column(name = "confirmation_token", length = 100)
     private String confirmationToken;
 
+    @Column(name = "unsubscribe_token", length = 100)
+    private String unsubscribeToken;
+
     @Column(name = "subscribed_at")
     private LocalDateTime subscribedAt;
 

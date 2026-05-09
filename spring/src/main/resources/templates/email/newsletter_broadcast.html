@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>¡Bienvenido a la Newsletter! - Tower of Wonder</title>
+    <title th:text="${subject}">Newsletter - Tower of Wonder</title>
     <style>
         body {
             font-family: 'Inter', Arial, sans-serif;
@@ -21,25 +21,20 @@
         }
         .header {
             background: linear-gradient(135deg, #2b1b3a 0%, #1f1628 100%);
-            padding: 40px 20px;
+            padding: 30px 20px;
             text-align: center;
             color: #f5eddc;
         }
         .header h1 {
             font-family: 'Cinzel', serif;
             margin: 0;
-            font-size: 28px;
+            font-size: 24px;
             letter-spacing: 2px;
             color: #c6a156;
         }
         .content {
             padding: 30px;
-        }
-        .welcome-text {
-            font-size: 18px;
-            margin-bottom: 20px;
-            font-weight: 600;
-            color: #2b1b3a;
+            line-height: 1.6;
         }
         .footer {
             background-color: #f8fafc;
@@ -58,12 +53,10 @@
             font-weight: bold;
             margin-top: 20px;
         }
-        .success-box {
-            background-color: #fcf8f0;
-            border-left: 4px solid #5cb85c;
-            padding: 15px;
-            margin-bottom: 25px;
-            border-radius: 4px;
+        .divider {
+            height: 1px;
+            background-color: #e2e8f0;
+            margin: 20px 0;
         }
     </style>
 </head>
@@ -71,26 +64,23 @@
     <div class="container">
         <div class="header">
             <h1>TOWER OF WONDER</h1>
-            <p>Tu aventura comienza aquí</p>
         </div>
         <div class="content">
-            <p class="welcome-text">¡Suscripción Confirmada! 🎉</p>
+            <!-- El contenido se inyecta como HTML sin escapar para permitir formato básico si se desea -->
+            <div th:utext="${content}"></div>
             
-            <div class="success-box">
-                <p>Tu correo <strong><span th:text="${email}"></span></strong> ha sido añadido exitosamente a nuestra lista de correo.</p>
-            </div>
-
-            <p>A partir de ahora, serás el primero en enterarte de nuestras novedades, ofertas exclusivas y próximos eventos en <strong>Tower of Wonder</strong>.</p>
+            <div class="divider"></div>
             
-            <p>¡Gracias por unirte a nuestra comunidad!</p>
+            <p>¡Gracias por ser parte de nuestra comunidad!</p>
             
             <center>
-                <a th:href="${baseUrl + '/'}" class="btn">Explorar la Torre</a>
+                <a th:href="${baseUrl + '/'}" class="btn">Visitar el Sitio Oficial</a>
             </center>
         </div>
         <div class="footer">
             <p>&copy; <span th:text="${#calendars.year(#calendars.createNow())}">2026</span> Tower of Wonder — Todos los derechos reservados.</p>
-            <p style="margin-top: 10px;">Si deseas darte de baja en el futuro, puedes hacerlo desde <a th:href="${unsubscribeLink}" style="color: #a0aec0; text-decoration: underline;">este enlace</a>.</p>
+            <p style="margin-top: 10px;">Estás recibiendo este correo porque estás suscrito a nuestra newsletter.</p>
+            <p><a th:href="${unsubscribeLink}" style="color: #a0aec0; text-decoration: underline;">Darse de baja de la lista</a></p>
         </div>
     </div>
 </body>

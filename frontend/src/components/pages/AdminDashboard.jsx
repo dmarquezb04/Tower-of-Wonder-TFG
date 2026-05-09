@@ -13,6 +13,7 @@ import ProductEditModal from './ProductEditModal'
 import CategoryManagementModal from './CategoryManagementModal'
 import CharacterEditModal from './CharacterEditModal'
 import NewsPostEditModal from './NewsPostEditModal'
+import NewsletterAdminSection from './NewsletterAdminSection'
 import DialogModal from '../DialogModal/DialogModal'
 
 export default function AdminDashboard() {
@@ -51,7 +52,7 @@ export default function AdminDashboard() {
   
   // Estados para UI
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768)
-  const [activeTab, setActiveTab] = useState('metrics') // 'metrics' | 'users' | 'products' | 'characters' | 'news'
+  const [activeTab, setActiveTab] = useState('metrics') // 'metrics' | 'users' | 'products' | 'characters' | 'news' | 'newsletter'
   const [searchTerm, setSearchTerm] = useState('')
 
   // Estados para Modales
@@ -280,6 +281,12 @@ export default function AdminDashboard() {
           onClick={() => { setActiveTab('news'); setError(null); setSearchTerm(''); }}
         >
           Noticias
+        </button>
+        <button 
+          className={activeTab === 'newsletter' ? styles.tabActive : styles.tab} 
+          onClick={() => { setActiveTab('newsletter'); setError(null); setSearchTerm(''); }}
+        >
+          Newsletter
         </button>
       </div>
 
@@ -524,6 +531,11 @@ export default function AdminDashboard() {
             </table>
           </div>
         </section>
+      )}
+
+      {/* CONTENIDO NEWSLETTER */}
+      {activeTab === 'newsletter' && (
+        <NewsletterAdminSection token={token} />
       )}
 
       {/* MODALES */}
