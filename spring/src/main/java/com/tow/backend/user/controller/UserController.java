@@ -15,6 +15,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.util.StringUtils;
+import com.tow.backend.exception.BadRequestException;
 
 /**
  * Controlador REST para la gestión del perfil y cuenta del usuario autenticado.
@@ -82,6 +84,9 @@ public class UserController {
     public ResponseEntity<ApiResponse> enableTwoFactor(
             @AuthenticationPrincipal UserDetails userDetails,
             @Valid @RequestBody TwoFactorCodeDTO request) {
+        if (!StringUtils.hasText(request.getSecret())) {
+            throw new BadRequestException("El secret de autenticación es obligatorio para activar el 2FA");
+        }
         userService.enableTwoFactor(userDetails.getUsername(), request.getSecret(), request.getCode());
         return ResponseEntity.ok(new ApiResponse("2FA activado correctamente"));
     }

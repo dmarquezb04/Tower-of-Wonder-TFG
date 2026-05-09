@@ -27,7 +27,6 @@ public class TwoFactorCodeDTO {
      * Secret Base32 provisional, enviado por el cliente al activar el 2FA.
      * Solo es obligatorio en el endpoint {@code /2fa/enable}.
      */
-    @NotBlank(message = "El secret de autenticación es obligatorio")
     private String secret;
 }
 
