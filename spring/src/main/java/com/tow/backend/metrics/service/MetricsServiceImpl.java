@@ -3,7 +3,6 @@ package com.tow.backend.metrics.service;
 import com.tow.backend.metrics.entity.PageView;
 import com.tow.backend.metrics.repository.PageViewRepository;
 import com.tow.backend.metrics.util.MetricsExcelExporter;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
@@ -39,10 +38,7 @@ public class MetricsServiceImpl implements MetricsService {
     @Override
     @Async
     @Transactional
-    public void trackVisit(String url, HttpServletRequest request) {
-        String ip = getClientIp(request);
-        String userAgent = request.getHeader("User-Agent");
-        
+    public void trackVisit(String url, String ip, String userAgent) {
         String zona = "Desconocida";
         if (ip.equals("127.0.0.1") || ip.equals("0:0:0:0:0:0:0:1")) {
             zona = "Localhost";
@@ -80,15 +76,5 @@ public class MetricsServiceImpl implements MetricsService {
         List<Map<String, Object>> statsByZona = pageViewRepository.countVisitsByZona();
 
         return MetricsExcelExporter.export(views, statsByUrl, statsByZona);
-    }
-
-    private String getClientIp(HttpServletRequest request) {
-        String remoteAddr = request.getHeader("X-Forwarded-For");
-        if (remoteAddr == null || remoteAddr.isEmpty()) {
-            remoteAddr = request.getRemoteAddr();
-        } else {
-            remoteAddr = remoteAddr.split(",")[0].trim();
-        }
-        return remoteAddr;
     }
 }

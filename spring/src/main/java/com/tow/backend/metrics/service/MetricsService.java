@@ -1,6 +1,5 @@
 package com.tow.backend.metrics.service;
 
-import jakarta.servlet.http.HttpServletRequest;
 import java.util.Map;
 
 /**
@@ -16,13 +15,11 @@ public interface MetricsService {
     /**
      * Registra una visita a una URL específica.
      *
-     * <p>Extrae la IP y el User-Agent de la petición para enriquecer
-     * los datos de la métrica.
-     *
-     * @param url     ruta de la página visitada
-     * @param request petición HTTP actual
+     * @param url       ruta de la página visitada
+     * @param ip        dirección IP del cliente
+     * @param userAgent cadena del navegador del cliente
      */
-    void trackVisit(String url, HttpServletRequest request);
+    void trackVisit(String url, String ip, String userAgent);
 
     /**
      * Obtiene estadísticas generales del sistema.

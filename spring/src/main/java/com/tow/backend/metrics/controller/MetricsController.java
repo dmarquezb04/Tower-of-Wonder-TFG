@@ -3,7 +3,6 @@ package com.tow.backend.metrics.controller;
 import com.tow.backend.metrics.dto.TrackVisitRequest;
 import com.tow.backend.metrics.service.MetricsService;
 import io.swagger.v3.oas.annotations.Operation;
-
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -44,7 +43,11 @@ public class MetricsController {
     @Operation(summary = "Registrar visita a una URL (Público)")
     public ResponseEntity<Void> track(@RequestBody TrackVisitRequest request, HttpServletRequest httpRequest) {
         if (request.getUrl() != null && !request.getUrl().startsWith("/admin")) {
-            metricsService.trackVisit(request.getUrl(), httpRequest);
+            // Extraemos los datos necesarios ANTES de la llamada asíncrona
+            String ip = getClientIp(httpRequest);
+            String userAgent = httpRequest.getHeader("User-Agent");
+            
+            metricsService.trackVisit(request.getUrl(), ip, userAgent);
         }
         return ResponseEntity.ok().build();
     }
@@ -78,5 +81,15 @@ public class MetricsController {
                 .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
                 .contentLength(data.length)
                 .body(resource);
+    }
+
+    private String getClientIp(HttpServletRequest request) {
+        String remoteAddr = request.getHeader("X-Forwarded-For");
+        if (remoteAddr == null || remoteAddr.isEmpty()) {
+            remoteAddr = request.getRemoteAddr();
+        } else {
+            remoteAddr = remoteAddr.split(",")[0].trim();
+        }
+        return remoteAddr;
     }
 }

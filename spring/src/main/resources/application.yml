@@ -1,13 +1,4 @@
-##############################################################
-# application.yml — Configuración Spring Boot
-# Tower of Wonder Backend — TFG
-#
-# Los valores con ${VAR} se leen del .env via Docker Compose.
-# Ver MIGRATION.md para el historial de cambios por fase.
-##############################################################
-
 spring:
-
   datasource:
     url: jdbc:mariadb://${DB_HOST:db}:3306/${DB_NAME:tower_of_wonder}?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Europe/Madrid
     username: ${DB_USER:admin_tow_bbdd}
@@ -16,9 +7,7 @@ spring:
 
   jpa:
     hibernate:
-      # update: Hibernate crea las tablas si no existen o las modifica si faltan columnas.
-      # Cambiado de 'validate' a 'update' para permitir la creación de tablas de la Fase 4.
-      ddl-auto: update
+      ddl-auto: none
     properties:
       hibernate:
         format_sql: true
@@ -27,15 +16,16 @@ spring:
 
   mail:
     host: ${MAIL_HOST:smtp.gmail.com}
-    port: ${MAIL_PORT:465}
+    port: ${MAIL_PORT:587}
     username: ${MAIL_USERNAME}
     password: ${MAIL_PASSWORD}
     properties:
       mail:
         smtp:
           auth: true
-          ssl:
+          starttls:
             enable: true
+            required: true
           connectiontimeout: 10000
           timeout: 10000
           writetimeout: 10000
@@ -51,7 +41,7 @@ server:
 # JWT — cambiar jwt.secret en producción (mínimo 32 caracteres)
 jwt:
   secret: ${JWT_SECRET:cambiar-por-un-secreto-de-al-menos-32-caracteres-en-produccion}
-  expiration: 86400000  # 24 horas en ms
+  expiration: 86400000 # 24 horas en ms
 
 mail:
   from: ${MAIL_FROM:noreply.towerofwonder@gmail.com}
