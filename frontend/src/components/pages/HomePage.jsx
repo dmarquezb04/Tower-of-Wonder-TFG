@@ -4,10 +4,10 @@ const assetsUrl = '/assets/'
 const baseUrl = '/'
 
 const PLATFORMS = [
-  { name: 'Steam', img: `${assetsUrl}img/plataformas_descarga/steam_logo.png`, href: '#' },
-  { name: 'Xbox Series S/X', img: `${assetsUrl}img/plataformas_descarga/xbox_logo.png`, href: '#' },
-  { name: 'PlayStation 5', img: `${assetsUrl}img/plataformas_descarga/ps5_logo.png`, href: '#' },
-  { name: 'Nintendo Switch', img: `${assetsUrl}img/plataformas_descarga/switch_logo.png`, href: '#' },
+  { name: 'Steam', img: `${assetsUrl}img/plataformas_descarga/steam_logo.png`, href: 'https://store.steampowered.com/' },
+  { name: 'Xbox Series S/X', img: `${assetsUrl}img/plataformas_descarga/xbox_logo.png`, href: 'https://www.xbox.com/es-ES/microsoft-store' },
+  { name: 'PlayStation 5', img: `${assetsUrl}img/plataformas_descarga/ps5_logo.png`, href: 'https://store.playstation.com/es-es/pages/latest' },
+  { name: 'Nintendo Switch', img: `${assetsUrl}img/plataformas_descarga/switch_logo.png`, href: 'https://www.nintendo.com/es-es/Nintendo-eShop/Nintendo-eShop-1806894.html' },
 ]
 
 export default function HomePage() {
