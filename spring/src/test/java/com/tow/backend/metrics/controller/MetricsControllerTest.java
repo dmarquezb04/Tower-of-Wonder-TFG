@@ -42,12 +42,15 @@ class MetricsControllerTest {
         TrackVisitRequest visitRequest = new TrackVisitRequest();
         visitRequest.setUrl("/home");
 
-        doNothing().when(metricsService).trackVisit("/home", request);
+        when(request.getHeader("X-Forwarded-For")).thenReturn("1.2.3.4");
+        when(request.getHeader("User-Agent")).thenReturn("Mozilla/5.0");
+        
+        doNothing().when(metricsService).trackVisit(eq("/home"), eq("1.2.3.4"), eq("Mozilla/5.0"));
 
         ResponseEntity<Void> response = metricsController.track(visitRequest, request);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        verify(metricsService).trackVisit("/home", request);
+        verify(metricsService).trackVisit(eq("/home"), eq("1.2.3.4"), eq("Mozilla/5.0"));
     }
 
     @Test
@@ -58,7 +61,7 @@ class MetricsControllerTest {
         ResponseEntity<Void> response = metricsController.track(visitRequest, request);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        verify(metricsService, never()).trackVisit(anyString(), any());
+        verify(metricsService, never()).trackVisit(anyString(), anyString(), anyString());
     }
 
     @Test

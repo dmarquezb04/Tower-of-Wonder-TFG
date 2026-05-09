@@ -2,7 +2,6 @@ package com.tow.backend.metrics.service;
 
 import com.tow.backend.metrics.entity.PageView;
 import com.tow.backend.metrics.repository.PageViewRepository;
-import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,8 +27,6 @@ class MetricsServiceImplTest {
     @Mock
     private GeoIpService geoIpService;
 
-    @Mock
-    private HttpServletRequest request;
 
     @InjectMocks
     private MetricsServiceImpl metricsService;
@@ -40,11 +37,7 @@ class MetricsServiceImplTest {
 
     @Test
     void trackVisit_Localhost_RecordsLocalhostZone() {
-        when(request.getHeader("X-Forwarded-For")).thenReturn(null);
-        when(request.getRemoteAddr()).thenReturn("127.0.0.1");
-        when(request.getHeader("User-Agent")).thenReturn("Mozilla/5.0");
-
-        metricsService.trackVisit("/home", request);
+        metricsService.trackVisit("/home", "127.0.0.1", "Mozilla/5.0");
 
         ArgumentCaptor<PageView> captor = ArgumentCaptor.forClass(PageView.class);
         verify(pageViewRepository).save(captor.capture());
@@ -59,11 +52,9 @@ class MetricsServiceImplTest {
 
     @Test
     void trackVisit_ExternalIp_CallsGeoIpService() {
-        when(request.getHeader("X-Forwarded-For")).thenReturn("8.8.8.8");
-        when(request.getHeader("User-Agent")).thenReturn("Chrome");
         when(geoIpService.getCountryFromIp("8.8.8.8")).thenReturn("United States");
 
-        metricsService.trackVisit("/shop", request);
+        metricsService.trackVisit("/shop", "8.8.8.8", "Chrome");
 
         ArgumentCaptor<PageView> captor = ArgumentCaptor.forClass(PageView.class);
         verify(pageViewRepository).save(captor.capture());
