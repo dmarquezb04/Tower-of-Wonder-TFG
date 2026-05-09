@@ -87,14 +87,14 @@ INSERT IGNORE INTO `products` (`name`, `description`, `price`, `stock`, `categor
 ('Peluche de Lycaon', 'Peluche de tu interés amoroso favorito, Lycaon', 20.99, 999, 1, 1, '/assets/img/products/peluche_lycaon.png'),
 ('Peluche de Albion', 'Peluche de tu compañero de aventuras favorito, Albion', 20.99, 999, 1, 0, ''),
 ('Peluche de Alfimbio', 'Peluche de tu extremista favorito, Alfimbio', 20.99, 999, 1, 0, ''),
-('Llavero de Kyra', 'Llavero de tu protagonista favorita, Kyra', 4.99, 999, 2, 1, ''),
-('Llavero de Lycaon', 'Llavero de tu interés amoroso favorito, Lycaon', 4.99, 999, 2, 1, ''),
-('Llavero de Albion', 'Llavero de tu compañero de aventuras favorito, Albion', 4.99, 999, 2, 1, ''),
-('Llavero de Alfimbio', 'Llavero de tu extremista favorito, Alfimbio', 4.99, 999, 2, 1  , ''),
-('Pegatina de Kyra', 'Pegatina de tu protagonista favorita, Kyra', 0.99, 999, 3, 1, ''),
-('Pegatina de Lycaon', 'Pegatina de tu interés amoroso favorito, Lycaon', 0.99, 999, 3, 1, ''),
-('Pegatina de Albion', 'Pegatina de tu compañero de aventuras favorito, Albion', 0.99, 999, 3, 1, ''),
-('Pegatina de Alfimbio', 'Pegatina de tu extremista favorito, Alfimbio', 0.99, 999, 3, 1, '');
+('Llavero de Kyra', 'Llavero de tu protagonista favorita, Kyra', 4.99, 999, 2, 1, '/assets/img/products/llavero.png'),
+('Llavero de Lycaon', 'Llavero de tu interés amoroso favorito, Lycaon', 4.99, 999, 2, 1, '/assets/img/products/llavero.png'),
+('Llavero de Albion', 'Llavero de tu compañero de aventuras favorito, Albion', 4.99, 999, 2, 1, '/assets/img/products/llavero.png'),
+('Llavero de Alfimbio', 'Llavero de tu extremista favorito, Alfimbio', 4.99, 999, 2, 1  , '/assets/img/products/llavero.png'),
+('Pegatina de Kyra', 'Pegatina de tu protagonista favorita, Kyra', 0.99, 999, 3, 1, '/assets/img/products/pegatina_kyra.png'),
+('Pegatina de Lycaon', 'Pegatina de tu interés amoroso favorito, Lycaon', 0.99, 999, 3, 1, '/assets/img/products/pegatina_lycaon.png'),
+('Pegatina de Albion', 'Pegatina de tu compañero de aventuras favorito, Albion', 0.99, 999, 3, 1, '/assets/img/products/pegatina_albion.png'),
+('Pegatina de Alfimbio', 'Pegatina de tu extremista favorito, Alfimbio', 0.99, 999, 3, 1, '/assets/img/products/pegatina_alfimbio.png');
 
 -- --------------------------------------------------------
 -- 5. Pedidos y Detalles
@@ -188,6 +188,12 @@ CREATE TABLE IF NOT EXISTS `game_characters` (
   UNIQUE KEY `slug` (`slug`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+INSERT IGNORE INTO `game_characters` (`id`, `name`, `slug`, `description`, `active`) VALUES
+(1, 'Kyra', 'kyra', 'La valiente protagonista de nuestra historia, decidida a escalar la Torre de las Maravillas para cumplir sus deseos más profundos.', 1),
+(2, 'Lycaon', 'lycaon', 'Interes amoroso de la protagonista, y quizás algo más.', 1),
+(3, 'Albion', 'albion', 'Kobold graciosete al que se la pela todo, con tal de divertirse..', 1),
+(4, 'Alfimbio', 'alfimbio', 'Individuo con ideas... peculiares. Odia a cierto tipo de personas...', 1);
+
 -- --------------------------------------------------------
 -- 10b. Imágenes de Personajes (lista dinámica, sin límite)
 -- --------------------------------------------------------
@@ -200,6 +206,24 @@ CREATE TABLE IF NOT EXISTS `character_images` (
   KEY `character_id` (`character_id`),
   CONSTRAINT `fk_char_image` FOREIGN KEY (`character_id`) REFERENCES `game_characters` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT IGNORE INTO `character_images` (`character_id`, `image_url`, `sort_order`) VALUES
+(1, '/assets/img/characters/kyra/kyra-1.png', 0),
+(1, '/assets/img/characters/kyra/kyra-2.png', 1),
+(1, '/assets/img/characters/kyra/kyra-3.png', 2),
+(1, '/assets/img/characters/kyra/kyra-4.png', 3),
+(2, '/assets/img/characters/lycaon/lycaon-1.png', 0),
+(2, '/assets/img/characters/lycaon/lycaon-2.png', 1),
+(2, '/assets/img/characters/lycaon/lycaon-3.png', 2),
+(2, '/assets/img/characters/lycaon/lycaon-4.png', 3),
+(3, '/assets/img/characters/albion/albion-1.png', 0),
+(3, '/assets/img/characters/albion/albion-2.png', 1),
+(3, '/assets/img/characters/albion/albion-3.png', 2),
+(3, '/assets/img/characters/albion/albion-4.png', 3),
+(4, '/assets/img/characters/alfimbio/alfimbio-1.png', 0),
+(4, '/assets/img/characters/alfimbio/alfimbio-2.png', 1),
+(4, '/assets/img/characters/alfimbio/alfimbio-3.png', 2),
+(4, '/assets/img/characters/alfimbio/alfimbio-4.png', 3);
 
 -- --------------------------------------------------------
 -- 11. Noticias / Posts del Blog
@@ -217,6 +241,8 @@ CREATE TABLE IF NOT EXISTS `news_posts` (
   UNIQUE KEY `slug` (`slug`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+INSERT IGNORE INTO `news_posts` (`title`, `slug`, `content`, `summary`, `image_url`, `active`) VALUES
+('¡Bienvenidos a Tower of Wonder!', 'bienvenidos-a-tower-of-wonder', 'Estamos muy emocionados de lanzar finalmente la web oficial de Tower of Wonder. Aquí podrás encontrar toda la información sobre el juego, sus personajes y comprar merchandising exclusivo en nuestra tienda.', 'La aventura comienza hoy. Explora la torre y descubre sus secretos.', '/assets/img/news/welcome.png', 1);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
