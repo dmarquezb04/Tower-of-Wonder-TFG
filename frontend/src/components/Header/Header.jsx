@@ -40,7 +40,7 @@ export default function Header({ onLoginClick }) {
               className={styles.dropdownToggle} 
               onClick={() => setDropdownOpen(!dropdownOpen)}
             >
-              Bienvenido, <span>{user?.username}</span> ▾
+              <span>{user?.username}</span> ▾
             </button>
             
             {dropdownOpen && (
