@@ -15,12 +15,9 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(@NonNull ResourceHandlerRegistry registry) {
-        // Obtenemos la ruta absoluta de la carpeta donde Maven genera el Javadoc
-        String javadocPath = Paths.get("target/reports/apidocs").toAbsolutePath().toUri().toString();
-        
         // Servimos el contenido de esa carpeta en la URL /docs/javadoc/**
         registry.addResourceHandler("/docs/javadoc/**")
-                .addResourceLocations(javadocPath);
+                .addResourceLocations("file:target/reports/apidocs/");
                 
         // También permitimos servir el frontend si estuviera en static (opcional)
         registry.addResourceHandler("/**")

@@ -181,6 +181,8 @@
                 <configuration>
                     <additionalOptions>-Xdoclint:none</additionalOptions>
                     <show>public</show>
+                    <reportOutputDirectory>${project.build.directory}/reports</reportOutputDirectory>
+                    <destDir>apidocs</destDir>
                 </configuration>
             </plugin>
         </plugins>
