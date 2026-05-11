@@ -34,7 +34,7 @@ export default function ProductCard({ product }) {
       <div className={styles.info}>
         <h3 className={styles.name}>
           {product.name} 
-          <span className={styles.infoIcon}>ⓘ</span>
+          <span className={styles.infoIcon} data-tooltip={product.description || 'Sin descripción disponible'}>ⓘ</span>
         </h3>
       </div>
 

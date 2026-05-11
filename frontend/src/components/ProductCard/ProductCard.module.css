@@ -8,7 +8,7 @@
   position: relative;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   box-shadow: 0 4px 12px rgba(0,0,0,0.03);
-  overflow: hidden;
+  overflow: visible;
   margin: 0 auto;
   width: 100%;
 }
@@ -92,6 +92,53 @@
   font-size: 12px;
   color: #a0aec0;
   cursor: help;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Tooltip bubble */
+.infoIcon:hover::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 150%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(45, 55, 72, 0.95);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 400;
+  width: 180px;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 100;
+  pointer-events: none;
+  line-height: 1.4;
+  backdrop-filter: blur(4px);
+  animation: fadeInTooltip 0.2s ease-out;
+}
+
+/* Tooltip arrow */
+.infoIcon:hover::before {
+  content: '';
+  position: absolute;
+  bottom: 120%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 6px;
+  border-style: solid;
+  border-color: rgba(45, 55, 72, 0.95) transparent transparent transparent;
+  z-index: 100;
+  pointer-events: none;
+  animation: fadeInTooltip 0.2s ease-out;
+}
+
+@keyframes fadeInTooltip {
+  from { opacity: 0; transform: translate(-50%, 5px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
 }
 
 .btnPrice {
