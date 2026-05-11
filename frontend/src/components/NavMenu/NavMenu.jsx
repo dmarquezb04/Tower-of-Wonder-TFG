@@ -10,7 +10,7 @@ import styles from './NavMenu.module.css'
  */
 const NAV_ITEMS = [
   { label: 'INICIO',      to: '/' },
-  { label: '🏪 TIENDA',   to: '/shop' },
+  { label: 'TIENDA',   to: '/shop' },
   { label: 'PERSONAJES',  to: '/personajes' },
   { label: 'NOTICIAS',    to: '/noticias' },
   { label: 'CONTACTO',    to: '/contacto' },
