@@ -149,6 +149,11 @@ export default function LoginModal({ isOpen, onClose, initialMode }) {
     try {
       await register(email, username, password)
       setSuccess('¡Cuenta creada! Ahora puedes iniciar sesión')
+      // Limpiar campos para que no aparezcan en el login
+      setEmail('')
+      setUsername('')
+      setPassword('')
+      setConfirmPassword('')
       setMode('login')
     } catch (err) {
       setError(err.message)
