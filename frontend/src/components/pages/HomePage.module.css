@@ -1,6 +1,8 @@
 .contenido {
   flex: 1;
-  background: url('https://i.pinimg.com/originals/64/db/fb/64dbfb279110e5730b698a752532605b.gif') no-repeat center center fixed;
+  background: 
+    linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)),
+    url('https://i.pinimg.com/originals/64/db/fb/64dbfb279110e5730b698a752532605b.gif') no-repeat center center fixed;
   background-size: cover;
   display: flex;
   flex-direction: column;

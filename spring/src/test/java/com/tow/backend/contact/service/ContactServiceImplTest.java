@@ -17,7 +17,6 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 
@@ -51,7 +50,7 @@ class ContactServiceImplTest {
 
         ArgumentCaptor<ContactMessage> messageCaptor = ArgumentCaptor.forClass(ContactMessage.class);
         verify(contactMessageRepository).save(messageCaptor.capture());
-        
+
         ContactMessage savedMessage = messageCaptor.getValue();
         assertEquals("Test User", savedMessage.getNombre());
         assertEquals("test@test.com", savedMessage.getEmail());
@@ -62,8 +61,7 @@ class ContactServiceImplTest {
                 eq("admin@tow.com"),
                 eq("Nuevo mensaje de contacto: Consulta general"),
                 eq("contact_notification"),
-                mapCaptor.capture()
-        );
+                mapCaptor.capture());
 
         Map<String, Object> templateParams = mapCaptor.getValue();
         assertEquals("Test User", templateParams.get("nombre"));

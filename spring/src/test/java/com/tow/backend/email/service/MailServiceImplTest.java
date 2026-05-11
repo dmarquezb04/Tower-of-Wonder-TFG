@@ -1,6 +1,5 @@
 package com.tow.backend.email.service;
 
-import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -52,10 +51,10 @@ class MailServiceImplTest {
         mailService.sendHtmlEmail("user@test.com", "Test Subject", "test_template", variables);
 
         verify(templateEngine).process(eq("email/test_template"), any(Context.class));
-        
+
         ArgumentCaptor<MimeMessage> messageCaptor = ArgumentCaptor.forClass(MimeMessage.class);
         verify(mailSender).send(messageCaptor.capture());
-        
+
         assertEquals(mimeMessage, messageCaptor.getValue());
     }
 
@@ -63,14 +62,12 @@ class MailServiceImplTest {
     void sendHtmlEmail_MessagingException_DoesNotThrow() {
         when(templateEngine.process(anyString(), any(Context.class))).thenReturn("<html>Test</html>");
         when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
-        
+
         // Simular un error al configurar o enviar el MimeMessage
         doThrow(new org.springframework.mail.MailSendException("Simulated error"))
                 .when(mailSender).send(any(MimeMessage.class));
 
         // El servicio usa un try-catch que atrapa excepciones de mensajería
-        assertDoesNotThrow(() -> 
-            mailService.sendHtmlEmail("user@test.com", "Subject", "template", null)
-        );
+        assertDoesNotThrow(() -> mailService.sendHtmlEmail("user@test.com", "Subject", "template", null));
     }
 }

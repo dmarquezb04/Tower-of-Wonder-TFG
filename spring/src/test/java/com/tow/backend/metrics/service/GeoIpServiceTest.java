@@ -1,6 +1,5 @@
 package com.tow.backend.metrics.service;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -30,8 +29,7 @@ class GeoIpServiceTest {
         String ip = "8.8.8.8";
         Map<String, Object> mockResponse = Map.of(
                 "status", "success",
-                "country", "United States"
-        );
+                "country", "United States");
 
         when(restTemplate.getForObject(anyString(), eq(Map.class))).thenReturn(mockResponse);
 
@@ -45,8 +43,7 @@ class GeoIpServiceTest {
         String ip = "127.0.0.1";
         Map<String, Object> mockResponse = Map.of(
                 "status", "fail",
-                "message", "reserved range"
-        );
+                "message", "reserved range");
 
         when(restTemplate.getForObject(anyString(), eq(Map.class))).thenReturn(mockResponse);
 

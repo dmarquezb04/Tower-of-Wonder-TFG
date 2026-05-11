@@ -23,6 +23,7 @@
   color: var(--color-text-light);
   white-space: nowrap;
   font-weight: 600;
+  font-family: var(--font-heading);
   border-radius: var(--radius-md);
   background: linear-gradient(90deg, var(--color-gold-light) 0%, var(--color-gold-dark) 100%);
   transition: transform var(--t-fast), filter var(--t-fast);
@@ -75,6 +76,7 @@
   text-decoration: none;
   font-size: 14px;
   font-weight: 500;
+  font-family: var(--font-heading);
   transition: background var(--t-fast);
 }
 

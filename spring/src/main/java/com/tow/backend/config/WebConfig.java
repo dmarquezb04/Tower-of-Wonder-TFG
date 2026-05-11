@@ -5,7 +5,6 @@ import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import org.springframework.lang.NonNull;
-import java.nio.file.Paths;
 
 /**
  * Configuración Web para servir recursos adicionales como el Javadoc.
@@ -18,10 +17,9 @@ public class WebConfig implements WebMvcConfigurer {
         // Servimos el contenido de esa carpeta en la URL /docs/javadoc/**
         registry.addResourceHandler("/docs/javadoc/**")
                 .addResourceLocations("file:target/reports/apidocs/");
-                
+
         // También permitimos servir el frontend si estuviera en static (opcional)
         registry.addResourceHandler("/**")
                 .addResourceLocations("classpath:/static/");
     }
 }
-

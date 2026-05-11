@@ -2,7 +2,6 @@ package com.tow.backend.shop.controller;
 
 import com.tow.backend.email.service.MailService;
 import com.tow.backend.exception.BadRequestException;
-import com.tow.backend.exception.NotFoundException;
 import com.tow.backend.exception.UnauthorizedException;
 import com.tow.backend.shop.entity.Order;
 import com.tow.backend.shop.entity.Product;
@@ -107,7 +106,7 @@ class ShopControllerTest {
 
         when(userRepository.findByEmail("test@test.com")).thenReturn(Optional.of(user));
         when(productRepository.findById(1L)).thenReturn(Optional.of(product));
-        
+
         Order savedOrder = new Order();
         savedOrder.setId(100L);
         savedOrder.setOrderDate(LocalDateTime.now());
@@ -128,7 +127,7 @@ class ShopControllerTest {
         // Verify stock reduced
         assertEquals(8, product.getStock());
         verify(productRepository).save(product);
-        
+
         // Verify email sent
         verify(mailService).sendHtmlEmail(eq("test@test.com"), anyString(), eq("order_receipt"), anyMap());
     }
