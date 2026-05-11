@@ -3,8 +3,6 @@
 spring:
   datasource:
     # H2 en memoria — no necesita MariaDB real para los tests
-    # ⚠️ TECNOLOGÍA NUEVA: H2 es una BD embebida en Java, solo para tests.
-    # No persiste datos. Se crea y destruye con cada ejecución de tests.
     url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;MODE=MySQL
     driver-class-name: org.h2.Driver
     username: sa

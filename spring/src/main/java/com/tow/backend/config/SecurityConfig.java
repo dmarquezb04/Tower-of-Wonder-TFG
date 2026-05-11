@@ -28,7 +28,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Configuración de seguridad Spring Security — Fase 1 (JWT Auth).
+ * Configuración de seguridad Spring Security.
  *
  * @author Darío Márquez Bautista
  */

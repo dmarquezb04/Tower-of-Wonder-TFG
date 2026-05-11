@@ -1,5 +1,4 @@
 -- Tower of Wonder - Database Initialization Script
--- Sincronizado con entidades Spring Boot (Fase 4)
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;

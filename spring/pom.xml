@@ -6,11 +6,6 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <!-- ================================================================
-         SPRING BOOT PARENT
-         Gestiona versiones de todas las dependencias de forma coherente.
-         Es el estándar en proyectos Spring Boot.
-         ================================================================ -->
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
@@ -18,11 +13,6 @@
         <relativePath/>
     </parent>
 
-    <!-- ================================================================
-         IDENTIFICADOR DEL PROYECTO
-         groupId: dominio invertido (convención Java)
-         artifactId: nombre del jar generado
-         ================================================================ -->
     <groupId>com.tow</groupId>
     <artifactId>backend</artifactId>
     <version>0.0.1-SNAPSHOT</version>
@@ -30,101 +20,53 @@
     <description>Tower of Wonder - Backend API REST (TFG)</description>
 
     <properties>
-        <!-- Java 21 LTS — versión activa con soporte hasta 2029 -->
         <java.version>21</java.version>
-        <!-- Versión de JJWT — librería para generar y validar JWT -->
         <jjwt.version>0.12.6</jjwt.version>
     </properties>
 
     <dependencies>
 
-        <!-- ============================================================
-             SPRING BOOT WEB
-             Incluye: Spring MVC, Jackson (JSON), Tomcat embebido.
-             Nos da los @RestController, @GetMapping, etc.
-             ============================================================ -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
-        <!-- ============================================================
-             SPRING SECURITY
-             Framework de seguridad. Gestiona autenticación y autorización.
-             Se configurará con JWT en lugar de sesiones HTTP.
-             ============================================================ -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
 
-        <!-- ============================================================
-             SPRING DATA JPA + HIBERNATE
-             ORM que permite mapear clases Java a tablas de BD.
-             Evita escribir SQL manualmente (aunque se puede si se necesita).
-             ============================================================ -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
 
-        <!-- ============================================================
-             SPRING MAIL
-             Envío de emails desde Spring Boot.
-             Se usará con Gmail SMTP ya configurado en .env
-             ============================================================ -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-mail</artifactId>
         </dependency>
 
-        <!-- ============================================================
-             THYMELEAF (templates email)
-             Motor de plantillas para generar HTML de emails.
-             La alternativa sería HTML inline en Java (ilegible).
-             ============================================================ -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-thymeleaf</artifactId>
         </dependency>
 
-        <!-- ============================================================
-             VALIDACIÓN (Bean Validation / Hibernate Validator)
-             Permite usar @NotBlank, @Email, @Size en los DTOs.
-             Evita validar manualmente en cada método.
-             ============================================================ -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
 
-        <!-- ============================================================
-             SPRING CACHE
-             Permite usar @Cacheable para evitar peticiones repetitivas.
-             En este proyecto se usa para cachear la geolocalización de IPs.
-             ============================================================ -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-cache</artifactId>
         </dependency>
 
-        <!-- ============================================================
-             MARIADB CONNECTOR
-             Driver JDBC para conectarse a MariaDB desde Spring Boot.
-             Compatible con la BD existente en Docker.
-             ============================================================ -->
         <dependency>
             <groupId>org.mariadb.jdbc</groupId>
             <artifactId>mariadb-java-client</artifactId>
             <scope>runtime</scope>
         </dependency>
 
-        <!-- ============================================================
-             LOMBOK
-             Genera getters, setters, constructores, equals, toString
-             automáticamente en tiempo de compilación.
-             Elimina el boilerplate de los modelos Java.
-             ============================================================ -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
@@ -132,11 +74,6 @@
         </dependency>
 
 
-        <!-- ============================================================
-             JJWT — JSON Web Tokens
-             Librería estándar para generar y validar tokens JWT.
-             Se usará en JwtTokenProvider para crear tokens de login.
-             ============================================================ -->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-api</artifactId>
@@ -155,62 +92,29 @@
             <scope>runtime</scope>
         </dependency>
 
-        <!-- ============================================================
-             GOOGLE AUTHENTICATOR (TOTP)
-             ⚠️ TECNOLOGÍA NUEVA — JUSTIFICACIÓN:
-             Equivalente Java de PHPGangsta_GoogleAuthenticator.php que
-             ya tienes en el proyecto PHP. Implementa el algoritmo TOTP
-             (RFC 6238) para verificar códigos de Google Authenticator.
-             Los secrets Base32 que ya están en la BD son 100%
-             compatibles — los usuarios no necesitan reconfigurar el 2FA.
-             ============================================================ -->
         <dependency>
             <groupId>com.warrenstrange</groupId>
             <artifactId>googleauth</artifactId>
             <version>1.5.0</version>
         </dependency>
 
-        <!-- ============================================================
-             APACHE POI — Exportación Excel
-             Librería para generar archivos .xlsx desde Java.
-             Se usará en el Dashboard para exportar métricas.
-             ============================================================ -->
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi-ooxml</artifactId>
             <version>5.3.0</version>
         </dependency>
 
-        <!-- ============================================================
-             SPRINGDOC OPENAPI (Swagger UI)
-             ⚠️ TECNOLOGÍA NUEVA — JUSTIFICACIÓN:
-             Genera automáticamente la documentación de la API REST
-             leyendo las anotaciones de los @RestController.
-             Accesible en http://localhost:8080/swagger-ui.html
-             Alternativa al Swagger tradicional, más moderno y compatible
-             con Spring Boot 3.
-             ============================================================ -->
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
             <version>2.6.0</version>
         </dependency>
 
-        <!-- ============================================================
-             SPRING AOP — Programación Orientada a Aspectos
-             Necesario para el sistema de logs centralizado (LoggingAspect).
-             Incluye AspectJ Weaver para procesar las anotaciones @Aspect.
-             ============================================================ -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-aop</artifactId>
         </dependency>
 
-        <!-- ============================================================
-             TESTING
-             JUnit 5 + Mockito incluidos automáticamente por Spring Boot.
-             No hace falta añadirlos manualmente.
-             ============================================================ -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
@@ -222,13 +126,6 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- ============================================================
-             H2 — Base de datos en memoria para tests
-             ⚠️ TECNOLOGÍA NUEVA — JUSTIFICACIÓN:
-             Permite ejecutar los tests sin necesidad de una BD MariaDB
-             real. H2 emula MySQL/MariaDB en memoria RAM. Solo existe
-             durante la ejecución de los tests.
-             ============================================================ -->
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
@@ -239,12 +136,12 @@
 
     <build>
         <plugins>
-            <!-- Plugin principal de Spring Boot — empaqueta el jar ejecutable -->
+            <!-- Plugin principal de Spring Boot -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <!-- Excluir Lombok del jar final (solo es para compilación) -->
+                    <!-- Excluir Lombok -->
                     <excludes>
                         <exclude>
                             <groupId>org.projectlombok</groupId>
@@ -254,8 +151,6 @@
                 </configuration>
             </plugin>
 
-            <!-- Configuración del compilador Java para que Lombok y MapStruct
-                 funcionen juntos como procesadores de anotaciones -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -271,7 +166,6 @@
                     </annotationProcessorPaths>
                 </configuration>
             </plugin>
-            <!-- Plugin para procesar Javadoc y que Swagger lo pueda leer -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>

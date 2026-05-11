@@ -12,29 +12,8 @@ import java.util.Arrays;
 import java.util.Set;
 
 /**
- * Aspecto AOP que intercepta todos los métodos de la capa de servicio
- * y genera trazas de log automáticamente sin modificar el código de negocio.
- *
- * <p>¿Qué es AOP (Programación Orientada a Aspectos)?
- * Es una técnica que permite añadir comportamiento transversal (cross-cutting concerns)
- * como logging, métricas o transacciones, sin mezclar ese código con la lógica de negocio.
- * En lugar de añadir {@code log.info()} en cada método, el aspecto lo hace automáticamente.
- *
- * <p>Este aspecto intercepta todos los métodos de los paquetes {@code service} y {@code controller},
- * registrando:
- * <ul>
- *   <li>Entrada al método con sus parámetros (excepto campos sensibles como contraseñas)</li>
- *   <li>Salida del método con el tiempo de ejecución en milisegundos</li>
- *   <li>Excepciones con el mensaje de error</li>
- * </ul>
- *
- * <p>Los logs se escriben en:
- * <ul>
- *   <li>Consola (en desarrollo)</li>
- *   <li>{@code logs/tow-app.log} — todos los eventos</li>
- *   <li>{@code logs/tow-error.log} — solo errores</li>
- * </ul>
- * Ver {@code logback-spring.xml} para la configuración completa.
+ * Aspecto AOP que intercepta los métodos de la capa de servicio y controlador
+ * para generar trazas de log automáticamente.
  *
  * @author Darío Márquez Bautista
  */
@@ -52,15 +31,7 @@ public class LoggingAspect {
     );
 
     /**
-     * Pointcut: intercepta todos los métodos de los services y controllers
-     * del paquete {@code com.tow.backend}.
-     *
-     * <p>Sintaxis del pointcut:
-     * <ul>
-     *   <li>{@code execution(*)} — cualquier tipo de retorno</li>
-     *   <li>{@code com.tow.backend..service.*.*} — cualquier clase en un subpaquete {@code service}</li>
-     *   <li>{@code (..)} — cualquier número y tipo de parámetros</li>
-     * </ul>
+     * Pointcut: intercepta todos los métodos de los services y controllers.
      */
     @Around(
         "execution(* com.tow.backend..service.*.*(..)) || " +
