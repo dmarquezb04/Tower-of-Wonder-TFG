@@ -1,5 +1,4 @@
-# Etapa 1: Construcción (Build)
-# Usamos una imagen ligera de Node.js para instalar dependencias y compilar
+# Stage 1: Build
 FROM node:20-alpine AS build
 
 WORKDIR /app
@@ -13,11 +12,10 @@ RUN npm install
 # Copiamos el resto del código fuente
 COPY . .
 
-# Construimos la aplicación para producción (genera la carpeta /dist)
+# Build production files
 RUN npm run build
 
-# Etapa 2: Servidor (Runtime)
-# Usamos Nginx para servir los archivos estáticos generados
+# Stage 2: Runtime
 FROM nginx:alpine
 
 # Limpiamos el directorio por defecto de Nginx

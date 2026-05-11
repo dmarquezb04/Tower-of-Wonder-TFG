@@ -1,12 +1,6 @@
 services:
 
-  # ============================================================
-  # FRONTEND & NGINX — Proxy inverso y servidor de estáticos
-  # Puerto 8080 del host → 80 del contenedor
-  #
-  # Realiza 'npm install' y 'npm run build'
-  # dentro del contenedor. No necesitas Node local.
-  # ============================================================
+  # Frontend & Nginx Proxy
   frontend:
     build:
       context: ./frontend
@@ -20,14 +14,7 @@ services:
     networks:
       - app_network
 
-  # ============================================================
-  # SPRING BOOT — Nuevo backend API REST
-  # Puerto 8090 del host → 8080 del contenedor
-  # Puerto 8090 expuesto para acceso directo (debug, Swagger UI)
-  #
-  # Build multi-stage: Maven compila dentro del contenedor.
-  # NO necesitas Maven instalado localmente.
-  # ============================================================
+  # Spring Boot Backend
   spring:
     build:
       context: ./spring
@@ -46,9 +33,7 @@ services:
     volumes:
       - ./spring/logs:/app/logs
 
-  # ============================================================
-  # MARIADB — Base de datos del sistema
-  # ============================================================
+  # MariaDB Database
   db:
     image: mariadb:10.6
     ports:
@@ -64,16 +49,7 @@ services:
     networks:
       - app_network
 
-  # ============================================================
-  # NODE — Herramienta de build del frontend React (one-shot)
-  #
-  # No arranca como servicio permanente (no tiene 'ports' ni 'restart').
-  # Se usa con: docker compose run --rm node <comando>
-  #
-  # Ejemplos:
-  #   docker compose run --rm node npm install
-  #   docker compose run --rm node npm run build
-  # ============================================================
+  # Node build tool (manual)
   node:
     image: node:20-alpine
     working_dir: /app
